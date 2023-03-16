@@ -16,7 +16,6 @@ An application solely for education purposes!
 ## VSCode Extensions
 
 - Install `Prettier` extension.
-- Install `vscode-styled-components` extension
 
 #
 
