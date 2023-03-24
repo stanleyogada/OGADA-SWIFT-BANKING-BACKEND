@@ -18,6 +18,7 @@ const DEFAULT_USER_ROLE_OPTS: TConnectOpts = {
   database: "opay-demo-test",
   user: "stanleyogada",
 };
+
 class TestContext implements IContext {
   static async build() {
     const roleName: string = `a${randomBytes(4).toString("hex")}`;
