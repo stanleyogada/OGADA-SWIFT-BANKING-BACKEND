@@ -1,7 +1,7 @@
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
-import usersRouter from "./routes/usersRouter";
+import usersRouter from "../routes/usersRouter";
 
 export default () => {
   const app = express();

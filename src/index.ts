@@ -1,5 +1,5 @@
 import app from "./app";
-import pool from "./pool";
+import pool from "./utils/pool";
 
 const PORT = process.env.NODE_ENV || 8080;
 

@@ -1,12 +1,6 @@
 import pg from "pg";
 import type { Pool as PGPool, QueryResult } from "pg";
-
-type TConnectOpts = {
-  database: string;
-  user: string;
-  host: string;
-  port: number;
-};
+import { TConnectOpts } from "../types/db";
 
 interface IPool {
   getPool: () => PGPool;

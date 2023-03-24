@@ -15,7 +15,6 @@ exports.up = (pgm) => {
       nickname VARCHAR(30),
       phone VARCHAR(10) NOT NULL UNIQUE,
       email VARCHAR(30) NOT NULL UNIQUE,
-      email_is_verified BOOLEAN,
       login_passcode VARCHAR(30) NOT NULL
     );
   `);

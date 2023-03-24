@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "ts-node-dev src/index.ts",
     "start": "tsc && node dist/index.js",
+    "test": "jest --no-cache",
+    "test:watch": "jest --watch --no-cache",
     "lint": "npx eslint . --ext .ts",
     "migrate:create": "node-pg-migrate create",
     "migrate": "DATABASE_URL=postgres://stanleyogada@localhost:5432/opay-demo node-pg-migrate"
@@ -26,14 +28,18 @@
   "devDependencies": {
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.1",
+    "@types/jest": "^29.5.0",
     "@types/node": "^18.14.1",
     "@types/pg": "^8.6.6",
+    "@types/pg-format": "^1.0.2",
+    "@types/supertest": "^2.0.12",
     "@typescript-eslint/eslint-plugin": "^5.53.0",
     "@typescript-eslint/parser": "^5.53.0",
     "eslint": "^8.35.0",
     "jest": "^29.5.0",
     "nodemon": "^2.0.21",
     "supertest": "^6.3.3",
+    "ts-jest": "^29.0.5",
     "ts-node-dev": "^2.0.0",
     "typescript": "^4.9.5"
   }

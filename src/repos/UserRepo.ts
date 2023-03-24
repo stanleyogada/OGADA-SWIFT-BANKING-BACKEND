@@ -1,4 +1,4 @@
-import pool from "../pool";
+import pool from "../utils/pool";
 
 type TUser = {
   id: number;
@@ -128,6 +128,12 @@ class UserRepo {
     );
 
     return rows[0];
+  }
+
+  static async count() {
+    const { rows } = await pool.query(`SELECT COUNT(*) FROM users;`);
+
+    return +rows[0].count;
   }
 }
 
