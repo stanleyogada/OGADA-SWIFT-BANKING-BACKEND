@@ -1,20 +1,6 @@
 import request from "supertest";
 import app from "../../app";
 import UserRepo from "../../repos/UserRepo";
-import TestContext from "../../utils/TestContext";
-
-let testContext: TestContext;
-beforeAll(async () => {
-  testContext = await TestContext.build();
-});
-
-beforeEach(async () => {
-  await testContext.reset();
-});
-
-afterAll(async () => {
-  await testContext.destroy();
-});
 
 describe("Users", () => {
   it("creation should be working", async () => {
