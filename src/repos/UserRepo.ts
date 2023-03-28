@@ -1,3 +1,4 @@
+import handlePatchSetQuery from "../utils/handlePatchSetQuery";
 import pool from "../utils/pool";
 
 type TUser = {
@@ -65,53 +66,27 @@ class UserRepo {
     return rows[0];
   }
 
-  static async updateOneById(
-    id: string,
-    payload: Partial<Pick<TUser, "nickname" | "email">>
-  ) {
-    const payloadCols = ["email", "nickname"];
-
-    const handleSet = () => {
-      return payloadCols
-        .map((col, i) => {
-          if (!payload[col]) return "";
-
-          const isLastCol = i + 1 === payloadCols.length;
-          let q = `${col} = ${`$${i + 1}`}`;
-
-          if (col === "email") {
-            q += `, email_is_verified = false`;
-          }
-
-          q += `${!isLastCol ? ", " : ""}`;
-          // q += `, `;
-          return q;
-        })
-        .join("");
-    };
-
-    const getQueryDeps = () => {
-      return [...payloadCols.map((col) => payload[col]), +id];
-    };
+  static async updateOneById(id: string, payload: Partial<Pick<TUser, "nickname" | "email">>) {
+    const { q, queryDeps } = handlePatchSetQuery(id, payload, ["email", "nickname"]);
 
     console.log(
       `
       UPDATE users
-      SET ${handleSet()}
-      WHERE users.id = $${payloadCols.length + 1}
+      SET ${q}
+      WHERE users.id = $1
       RETURNING *;
     `,
-      getQueryDeps()
+      queryDeps
     );
 
     const { rows } = await pool.query(
       `
       UPDATE users
-      SET ${handleSet()}
-      WHERE users.id = $${payloadCols.length + 1}
+      SET ${q}
+      WHERE users.id = $1
       RETURNING *;
     `,
-      getQueryDeps()
+      queryDeps
     );
 
     return rows[0];

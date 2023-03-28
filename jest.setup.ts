@@ -1,14 +1,10 @@
 import TestContext from "./src/utils/testContext";
 
 let testContext: TestContext;
-beforeAll(async () => {
+beforeEach(async () => {
   testContext = await TestContext.build();
 });
 
-beforeEach(async () => {
-  await testContext.reset();
-});
-
-afterAll(async () => {
+afterEach(async () => {
   await testContext.destroy();
 });
