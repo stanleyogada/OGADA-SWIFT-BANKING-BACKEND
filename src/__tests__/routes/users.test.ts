@@ -3,24 +3,26 @@ import app from "../../app";
 import UserRepo from "../../repos/UserRepo";
 
 describe("Users", () => {
-  it("creation should be working", async () => {
-    const startCount = await UserRepo.count();
-    const phone = `${Math.random()}`.slice(2, 12);
+  test("Have /Create working", async () => {
+    const getBody = (n: number = 1) => ({
+      first_name: "Test" + n,
+      last_name: "Last" + n,
+      phone: "123456789" + n,
+      middle_name: "Hire",
+      nickname: "Tire",
+      email: `test${n}@gmail.com`,
+      login_passcode: "123456",
+    });
 
-    await request(app())
-      .post("/api/v1/users")
-      .send({
-        first_name: "Test 2",
-        last_name: "Last 2",
-        phone,
-        middle_name: "Hire",
-        nickname: "Tire",
-        email: `${phone}@gmail.com`,
-        login_passcode: "123456",
-      })
-      .expect(201);
+    expect(await UserRepo.count()).toEqual(0);
 
-    const finishCount = await UserRepo.count();
-    expect(finishCount - startCount).toEqual(1);
+    await request(app()).post("/api/v1/users").send(getBody()).expect(201);
+    expect(await UserRepo.count()).toEqual(1);
+
+    await request(app()).post("/api/v1/users").send(getBody()).expect(500);
+    expect(await UserRepo.count()).toEqual(1);
+
+    await request(app()).post("/api/v1/users").send(getBody(2)).expect(201);
+    expect(await UserRepo.count()).toEqual(2);
   });
 });
