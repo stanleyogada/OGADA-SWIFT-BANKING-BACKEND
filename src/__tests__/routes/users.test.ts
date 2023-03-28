@@ -58,15 +58,20 @@ describe("Users", () => {
     expect(res.body.data.nickname).toEqual("Tire");
     expect(res.body.data.email).toEqual("test1@gmail.com");
 
-    res = await request(app())
+    await request(app())
       .patch(getEndpoint("1"))
       .send({
         nickname: "Test Nickname",
         email: "test2@gmail.com",
       })
       .expect(200);
+
+    res = await request(app()).get(getEndpoint("1")).expect(200);
     expect(res.body.data.nickname).toEqual("Test Nickname");
     expect(res.body.data.email).toEqual("test2@gmail.com");
+
+    expect(res.body.data.nickname).not.toEqual("Tire");
+    expect(res.body.data.email).not.toEqual("test1@gmail.com");
 
     await request(app())
       .patch(getEndpoint("3"))
