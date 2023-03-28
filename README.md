@@ -8,7 +8,7 @@ An application solely for education purposes!
 
 1. Run `git clone https://github.com/stanleyogada/Opay-Demo-Backend.git`
 2. Run `cd Opay-Demo-Backend`
-3. Run `npm i --legacy-peer-deps`
+3. Run `npm i`
 4. Run `npm run dev`
 
 #
