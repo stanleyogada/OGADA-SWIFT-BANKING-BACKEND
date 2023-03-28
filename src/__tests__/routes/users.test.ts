@@ -52,12 +52,24 @@ describe("Users", () => {
   });
 
   test("Have /Update working", async () => {
-    await handleCreateOneUser(201);
+    await handleCreateOneUser(201, 1);
 
-    // const { body: allBody } = await request(app()).get(getEndpoint()).expect(200);
+    let res = await request(app()).get(getEndpoint("1")).expect(200);
+    expect(res.body.data.nickname).toEqual("Tire");
+    expect(res.body.data.email).toEqual("test1@gmail.com");
 
-    const { body } = await request(app())
-      .patch(getEndpoint("2"))
+    res = await request(app())
+      .patch(getEndpoint("1"))
+      .send({
+        nickname: "Test Nickname",
+        email: "test2@gmail.com",
+      })
+      .expect(200);
+    expect(res.body.data.nickname).toEqual("Test Nickname");
+    expect(res.body.data.email).toEqual("test2@gmail.com");
+
+    await request(app())
+      .patch(getEndpoint("3"))
       .send({
         nickname: "Test Nickname",
       })

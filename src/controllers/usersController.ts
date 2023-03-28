@@ -78,7 +78,7 @@ export const createOneUser = async (req: Request, res: Response) => {
 export const updateOneUser = async (req: Request, res: Response) => {
   try {
     const schema = Joi.object({
-      nickname: Joi.string().min(3).max(30),
+      nickname: Joi.string().min(3).max(100),
       email: Joi.string().email({
         minDomainSegments: 2,
         tlds: { allow: ["com", "net"] },

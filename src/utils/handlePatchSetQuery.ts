@@ -2,6 +2,10 @@ const handlePatchSetQuery = (id: string, payload: unknown, payloadCols: string[]
   payloadCols = ["id", ...payloadCols];
   payloadCols = payloadCols.filter((col) => payload[col] || col === "id");
 
+  if (payloadCols.length === 1) throw new Error("`req.body` cannot by empty!");
+
+  console.log(payloadCols);
+
   const mappedPayloadCols = [];
 
   for (let i = 0; i < payloadCols.length; i++) {
