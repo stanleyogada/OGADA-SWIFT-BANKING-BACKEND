@@ -1,10 +1,7 @@
 const handlePatchSetQuery = (id: string, payload: Record<string, unknown>, payloadCols: string[]) => {
   payloadCols = ["id", ...payloadCols];
   payloadCols = payloadCols.filter((col) => payload[col] || col === "id");
-
   if (payloadCols.length === 1) throw new Error("`req.body` cannot by empty!");
-
-  console.log(payloadCols);
 
   const mappedPayloadCols = [];
 
@@ -27,10 +24,7 @@ const handlePatchSetQuery = (id: string, payload: Record<string, unknown>, paylo
   }
 
   const queryDeps = mappedPayloadCols.map(({ val }) => val);
-
   const q = mappedPayloadCols.map(({ q }) => q).join("");
-
-  console.log(payloadCols, mappedPayloadCols, queryDeps, q);
 
   return {
     q,
