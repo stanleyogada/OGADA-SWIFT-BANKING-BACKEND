@@ -56,16 +56,6 @@ class UserRepo {
   static async updateOneById(id: string, payload: Partial<Pick<TUser, "nickname" | "email">>) {
     const { q, queryDeps } = handlePatchSetQuery(id, payload, ["email", "nickname"]);
 
-    console.log(
-      `
-      UPDATE users
-      SET ${q}
-      WHERE users.id = $1
-      RETURNING *;
-    `,
-      queryDeps
-    );
-
     const { rows } = await pool.query(
       `
       UPDATE users

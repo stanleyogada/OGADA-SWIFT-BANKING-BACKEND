@@ -42,14 +42,16 @@ describe("Users", () => {
   test("Have /Create working", async () => {
     expect(await UserRepo.count()).toEqual(0);
 
-    await handleCreateOneUser(201);
-    expect(await UserRepo.count()).toEqual(1);
+    for (const i of [1, 2, 3]) {
+      await handleCreateOneUser(201, i);
+    }
+    expect(await UserRepo.count()).toEqual(3);
 
-    await handleCreateOneUser(500);
-    expect(await UserRepo.count()).toEqual(1);
+    await handleCreateOneUser(500, 3);
+    expect(await UserRepo.count()).toEqual(3);
 
-    await handleCreateOneUser(201, 2);
-    expect(await UserRepo.count()).toEqual(2);
+    await handleCreateOneUser(201, 4);
+    expect(await UserRepo.count()).toEqual(4);
   });
 
   test("Have /Update working", async () => {
