@@ -1,4 +1,4 @@
-const handlePatchSetQuery = (id: string, payload: unknown, payloadCols: string[]) => {
+const handlePatchSetQuery = (id: string, payload: Record<string, unknown>, payloadCols: string[]) => {
   payloadCols = ["id", ...payloadCols];
   payloadCols = payloadCols.filter((col) => payload[col] || col === "id");
 
