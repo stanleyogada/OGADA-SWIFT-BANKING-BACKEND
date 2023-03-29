@@ -3,6 +3,7 @@ import type { Response } from "supertest";
 
 import app from "../../app";
 import UserRepo from "../../repos/UserRepo";
+import { TUser } from "../../types/users";
 
 const getEndpoint = (params?: string) => {
   return `/api/v1/users${params ? "/" + params : ""}`;
@@ -54,7 +55,7 @@ describe("Users", () => {
   test("Have /Update working", async () => {
     await handleCreateOneUser(201, 1);
 
-    let res = await request(app()).get(getEndpoint("1")).expect(200);
+    let res: { body: { data: TUser } } = await request(app()).get(getEndpoint("1")).expect(200);
     expect(res.body.data.nickname).toEqual("Tire");
     expect(res.body.data.email).toEqual("test1@gmail.com");
 
@@ -81,4 +82,6 @@ describe("Users", () => {
       .expect(404);
     // console.log(body);
   });
+
+  test("Have /Delete working", () => {});
 });
