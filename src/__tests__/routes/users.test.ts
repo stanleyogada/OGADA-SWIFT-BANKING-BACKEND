@@ -80,8 +80,26 @@ describe("Users", () => {
         nickname: "Test Nickname",
       })
       .expect(404);
-    // console.log(body);
   });
 
-  test("Have /Delete working", () => {});
+  test("Have /Delete working", async () => {
+    expect(await UserRepo.count()).toEqual(0);
+
+    for (const i of [1, 2, 3]) {
+      await handleCreateOneUser(201, i);
+    }
+    expect(await UserRepo.count()).toEqual(3);
+
+    await request(app()).delete(getEndpoint("4")).expect(404);
+    expect(await UserRepo.count()).toEqual(3);
+
+    for (const i of [1, 2, 3]) {
+      await request(app())
+        .delete(getEndpoint(`${i}`))
+        .expect(204);
+    }
+    expect(await UserRepo.count()).toEqual(0);
+
+    await request(app()).delete(getEndpoint("1")).expect(404);
+  });
 });
