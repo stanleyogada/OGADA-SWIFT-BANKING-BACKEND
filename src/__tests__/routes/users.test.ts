@@ -118,4 +118,6 @@ describe("Users", () => {
     expect(body.data.login_passcode).not.toBe(login_passcode);
     expect(await HashPassword.handleCheck(login_passcode, body.data.login_passcode)).toBe(true);
   });
+
+  test("Have forget/reset `login_passcode` flow completed without errors", async () => {});
 });
