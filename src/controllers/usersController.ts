@@ -1,5 +1,7 @@
-import type { Request, Response } from "express";
+import bcrypt from "bcrypt";
 import Joi from "joi";
+import type { Request, Response } from "express";
+
 import UserRepo from "../repos/UserRepo";
 
 export const getAllUsers = async (req: Request, res: Response) => {
@@ -42,6 +44,17 @@ export const getOneUser = async (req: Request, res: Response) => {
   }
 };
 
+class HashPassword {
+  static handleHash = async (plainPassword: string) => {
+    const saltRounds = 10;
+    return await bcrypt.hash(plainPassword, saltRounds);
+  };
+
+  static handleCheck = async (plainPassword: string, hashedPassword: string) => {
+    return await bcrypt.compare(plainPassword, hashedPassword);
+  };
+}
+
 export const createOneUser = async (req: Request, res: Response) => {
   try {
     const schema = Joi.object({
@@ -56,12 +69,13 @@ export const createOneUser = async (req: Request, res: Response) => {
           tlds: { allow: ["com", "net"] },
         })
         .required(),
-      login_passcode: Joi.string()
-        .pattern(new RegExp("^[0-9]{6,6}$"))
-        .message('"login_passcode" must be six digits'),
+      login_passcode: Joi.string().pattern(new RegExp("^[0-9]{6,6}$")).message('"login_passcode" must be six digits'),
     });
 
     await schema.validateAsync(req.body);
+
+    const hash = await HashPassword.handleHash(req.body.login_passcode);
+    req.body.login_passcode = hash;
 
     const user = await UserRepo.createOne(req.body);
 

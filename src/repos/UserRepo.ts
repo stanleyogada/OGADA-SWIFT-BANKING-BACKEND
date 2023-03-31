@@ -10,14 +10,19 @@ type TUser = {
   nickname?: string;
   phone: string;
   email: string;
-  email_is_verified?: boolean;
   login_passcode: string;
 };
-
 class UserRepo {
   static async find() {
     const { rows } = await pool.query(`
-      SELECT *
+      SELECT 
+        id,
+        created_at,
+        updated_at,
+        first_name,
+        last_name,
+        middle_name,
+        nickname
       FROM users;
     `);
 
@@ -27,7 +32,13 @@ class UserRepo {
   static async findOneById(id: string) {
     const { rows } = await pool.query(
       `
-      SELECT *
+      SELECT id,
+        created_at,
+        updated_at,
+        first_name,
+        last_name,
+        middle_name,
+        nickname
       FROM users
       WHERE users.id = $1;
     `,
@@ -49,7 +60,14 @@ class UserRepo {
         email,
         login_passcode
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;
+      VALUES ($1, $2, $3, $4, $5, $6, $7) 
+      RETURNING id,
+        created_at,
+        updated_at,
+        first_name,
+        last_name,
+        middle_name,
+        nickname;
     `,
       [
         payload.first_name,
@@ -65,10 +83,7 @@ class UserRepo {
     return rows[0];
   }
 
-  static async updateOneById(
-    id: string,
-    payload: Partial<Pick<TUser, "nickname" | "email">>
-  ) {
+  static async updateOneById(id: string, payload: Partial<Pick<TUser, "nickname" | "email">>) {
     const payloadCols = ["email", "nickname"];
 
     const handleSet = () => {
@@ -99,7 +114,13 @@ class UserRepo {
       UPDATE users
       SET ${handleSet()}
       WHERE users.id = $${payloadCols.length + 1}
-      RETURNING *;
+      RETURNING id,
+        created_at,
+        updated_at,
+        first_name,
+        last_name,
+        middle_name,
+        nickname;
     `,
       getQueryDeps()
     );
@@ -109,7 +130,13 @@ class UserRepo {
       UPDATE users
       SET ${handleSet()}
       WHERE users.id = $${payloadCols.length + 1}
-      RETURNING *;
+      RETURNING id,
+        created_at,
+        updated_at,
+        first_name,
+        last_name,
+        middle_name,
+        nickname;
     `,
       getQueryDeps()
     );
@@ -122,7 +149,13 @@ class UserRepo {
       `
       DELETE FROM users
       WHERE users.id = $1
-      RETURNING *;
+      RETURNING id,
+        created_at,
+        updated_at,
+        first_name,
+        last_name,
+        middle_name,
+        nickname;
     `,
       [id]
     );
