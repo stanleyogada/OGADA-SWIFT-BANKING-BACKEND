@@ -2,6 +2,14 @@ import type { TUser } from "../types/users";
 import handlePatchSetQuery from "../utils/handlePatchSetQuery";
 import pool from "../utils/pool";
 
+const handleSelectLoginPasscode = () => {
+  if (process.env.NODE_ENV === "test") {
+    return ", login_passcode";
+  }
+
+  return "";
+};
+
 class UserRepo {
   static async find() {
     const { rows } = await pool.query(`
@@ -14,6 +22,7 @@ class UserRepo {
         middle_name,
         nickname,
         email
+        ${handleSelectLoginPasscode()}
       FROM users;
     `);
 
@@ -31,6 +40,7 @@ class UserRepo {
         middle_name,
         nickname,
         email
+        ${handleSelectLoginPasscode()}
       FROM users
       WHERE users.id = $1;
     `,
@@ -60,7 +70,8 @@ class UserRepo {
         last_name,
         middle_name,
         nickname,
-        email;
+        email
+        ${handleSelectLoginPasscode()};
     `,
       [
         payload.first_name,
@@ -91,7 +102,8 @@ class UserRepo {
         last_name,
         middle_name,
         nickname,
-        email;
+        email
+        ${handleSelectLoginPasscode()};
     `,
       queryDeps
     );
@@ -111,7 +123,8 @@ class UserRepo {
         last_name,
         middle_name,
         nickname,
-        email;
+        email
+        ${handleSelectLoginPasscode()};
     `,
       [id]
     );

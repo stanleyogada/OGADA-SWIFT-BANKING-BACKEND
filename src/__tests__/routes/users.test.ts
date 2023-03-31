@@ -4,12 +4,13 @@ import type { Response } from "supertest";
 import app from "../../app";
 import UserRepo from "../../repos/UserRepo";
 import { TUser } from "../../types/users";
+import HashPassword from "../../utils/HashPassword";
 
 const getEndpoint = (params?: string) => {
   return `/api/v1/users${params ? "/" + params : ""}`;
 };
 
-const handleCreateOneUser = async (statusCode: number, n: number = 1): Promise<Response> => {
+const handleCreateOneUser = async (statusCode: number, n: number = 1, payload?: Partial<TUser>): Promise<Response> => {
   const body = {
     first_name: "Test" + n,
     last_name: "Last" + n,
@@ -18,6 +19,7 @@ const handleCreateOneUser = async (statusCode: number, n: number = 1): Promise<R
     nickname: "Tire",
     email: `test${n}@gmail.com`,
     login_passcode: "123456",
+    ...payload,
   };
 
   return await request(app()).post(getEndpoint()).send(body).expect(statusCode);
@@ -103,5 +105,17 @@ describe("Users", () => {
     expect(await UserRepo.count()).toEqual(0);
 
     await request(app()).delete(getEndpoint("1")).expect(404);
+  });
+
+  test("Hashing `login_passcode` should be working as expected!", async () => {
+    const id = 1;
+    const login_passcode = "123456";
+    await handleCreateOneUser(201, id, { login_passcode });
+
+    const { body } = await request(app()).get(getEndpoint(`${id}`));
+
+    expect(body.data.login_passcode).not.toBeUndefined();
+    expect(body.data.login_passcode).not.toBe(login_passcode);
+    expect(await HashPassword.handleCheck(login_passcode, body.data.login_passcode)).toBe(true);
   });
 });
