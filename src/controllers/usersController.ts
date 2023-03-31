@@ -56,9 +56,7 @@ export const createOneUser = async (req: Request, res: Response) => {
           tlds: { allow: ["com", "net"] },
         })
         .required(),
-      login_passcode: Joi.string()
-        .pattern(new RegExp("^[0-9]{6,6}$"))
-        .message('"login_passcode" must be six digits'),
+      login_passcode: Joi.string().pattern(new RegExp("^[0-9]{6,6}$")).message('"login_passcode" must be six digits'),
     });
 
     await schema.validateAsync(req.body);
