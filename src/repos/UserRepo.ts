@@ -12,7 +12,8 @@ class UserRepo {
         first_name,
         last_name,
         middle_name,
-        nickname
+        nickname,
+        email
       FROM users;
     `);
 
@@ -28,7 +29,8 @@ class UserRepo {
         first_name,
         last_name,
         middle_name,
-        nickname
+        nickname,
+        email
       FROM users
       WHERE users.id = $1;
     `,
@@ -57,7 +59,8 @@ class UserRepo {
         first_name,
         last_name,
         middle_name,
-        nickname;
+        nickname,
+        email;
     `,
       [
         payload.first_name,
@@ -81,7 +84,14 @@ class UserRepo {
       UPDATE users
       SET ${q}
       WHERE users.id = $1
-      RETURNING *;
+      RETURNING id,
+        created_at,
+        updated_at,
+        first_name,
+        last_name,
+        middle_name,
+        nickname,
+        email;
     `,
       queryDeps
     );
@@ -100,7 +110,8 @@ class UserRepo {
         first_name,
         last_name,
         middle_name,
-        nickname;
+        nickname,
+        email;
     `,
       [id]
     );
