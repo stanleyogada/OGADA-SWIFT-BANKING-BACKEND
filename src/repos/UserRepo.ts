@@ -1,17 +1,7 @@
+import type { TUser } from "../types/users";
+import handlePatchSetQuery from "../utils/handlePatchSetQuery";
 import pool from "../utils/pool";
 
-type TUser = {
-  id: number;
-  created_at: Date;
-  updated_at: Date;
-  first_name: string;
-  last_name: string;
-  middle_name?: string;
-  nickname?: string;
-  phone: string;
-  email: string;
-  login_passcode: string;
-};
 class UserRepo {
   static async find() {
     const { rows } = await pool.query(`
@@ -84,61 +74,16 @@ class UserRepo {
   }
 
   static async updateOneById(id: string, payload: Partial<Pick<TUser, "nickname" | "email">>) {
-    const payloadCols = ["email", "nickname"];
-
-    const handleSet = () => {
-      return payloadCols
-        .map((col, i) => {
-          if (!payload[col]) return "";
-
-          const isLastCol = i + 1 === payloadCols.length;
-          let q = `${col} = ${`$${i + 1}`}`;
-
-          if (col === "email") {
-            q += `, email_is_verified = false`;
-          }
-
-          q += `${!isLastCol ? ", " : ""}`;
-          // q += `, `;
-          return q;
-        })
-        .join("");
-    };
-
-    const getQueryDeps = () => {
-      return [...payloadCols.map((col) => payload[col]), +id];
-    };
-
-    console.log(
-      `
-      UPDATE users
-      SET ${handleSet()}
-      WHERE users.id = $${payloadCols.length + 1}
-      RETURNING id,
-        created_at,
-        updated_at,
-        first_name,
-        last_name,
-        middle_name,
-        nickname;
-    `,
-      getQueryDeps()
-    );
+    const { q, queryDeps } = handlePatchSetQuery(id, payload, ["email", "nickname"]);
 
     const { rows } = await pool.query(
       `
       UPDATE users
-      SET ${handleSet()}
-      WHERE users.id = $${payloadCols.length + 1}
-      RETURNING id,
-        created_at,
-        updated_at,
-        first_name,
-        last_name,
-        middle_name,
-        nickname;
+      SET ${q}
+      WHERE users.id = $1
+      RETURNING *;
     `,
-      getQueryDeps()
+      queryDeps
     );
 
     return rows[0];

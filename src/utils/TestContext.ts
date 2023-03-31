@@ -24,12 +24,8 @@ class TestContext implements IContext {
     const roleName: string = `a${randomBytes(4).toString("hex")}`;
     // 1. Connect with default user-role && Create a new user-role && Create a new schema
     await pool.connect(DEFAULT_USER_ROLE_OPTS);
-    await pool.query(
-      format("CREATE ROLE %I WITH LOGIN PASSWORD %L", roleName, roleName)
-    );
-    await pool.query(
-      format("CREATE SCHEMA %I AUTHORIZATION %I", roleName, roleName)
-    );
+    await pool.query(format("CREATE ROLE %I WITH LOGIN PASSWORD %L", roleName, roleName));
+    await pool.query(format("CREATE SCHEMA %I AUTHORIZATION %I", roleName, roleName));
 
     // 2. Disconnect the default user-role
     await pool.disconnect();
@@ -65,7 +61,6 @@ class TestContext implements IContext {
     await pool.connect(DEFAULT_USER_ROLE_OPTS);
 
     // 2. Delete the new user-role and schema
-    format("CREATE SCHEMA %I AUTHORIZATION %I", this.roleName, this.roleName);
     await pool.query(format("DROP SCHEMA %I CASCADE", this.roleName));
     await pool.query(format("DROP OWNED BY %I CASCADE", this.roleName));
     await pool.query(format("DROP ROLE %I", this.roleName));
