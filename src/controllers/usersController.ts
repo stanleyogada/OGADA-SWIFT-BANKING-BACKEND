@@ -3,6 +3,7 @@ import Joi from "joi";
 import type { Request, Response } from "express";
 
 import UserRepo from "../repos/UserRepo";
+import HashPassword from "../utils/HashPassword";
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
@@ -43,17 +44,6 @@ export const getOneUser = async (req: Request, res: Response) => {
     });
   }
 };
-
-class HashPassword {
-  static handleHash = async (plainPassword: string) => {
-    const saltRounds = 10;
-    return await bcrypt.hash(plainPassword, saltRounds);
-  };
-
-  static handleCheck = async (plainPassword: string, hashedPassword: string) => {
-    return await bcrypt.compare(plainPassword, hashedPassword);
-  };
-}
 
 export const createOneUser = async (req: Request, res: Response) => {
   try {
