@@ -9,4 +9,5 @@ export type TUser = {
   phone: string;
   email: string;
   login_passcode: string;
+  one_time_password?: string | null;
 };

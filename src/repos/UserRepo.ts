@@ -2,9 +2,9 @@ import type { TUser } from "../types/users";
 import handlePatchSetQuery from "../utils/handlePatchSetQuery";
 import pool from "../utils/pool";
 
-const handleSelectLoginPasscode = () => {
+const handleSelectTestEnv = () => {
   if (process.env.NODE_ENV === "test") {
-    return ", login_passcode";
+    return ", login_passcode, one_time_password";
   }
 
   return "";
@@ -22,7 +22,7 @@ class UserRepo {
         middle_name,
         nickname,
         email
-        ${handleSelectLoginPasscode()}
+        ${handleSelectTestEnv()}
       FROM users;
     `);
 
@@ -40,11 +40,53 @@ class UserRepo {
         middle_name,
         nickname,
         email
-        ${handleSelectLoginPasscode()}
+        ${handleSelectTestEnv()}
       FROM users
       WHERE users.id = $1;
     `,
       [id]
+    );
+
+    return rows[0];
+  }
+
+  static async findOneByEmailAndPhone({ email, phone }: Pick<TUser, "email" | "phone">) {
+    const { rows } = await pool.query(
+      `
+      SELECT id,
+        created_at,
+        updated_at,
+        first_name,
+        last_name,
+        middle_name,
+        nickname,
+        email
+        ${handleSelectTestEnv()}
+      FROM users
+      WHERE email = $1 AND phone = $2;
+    `,
+      [email, phone]
+    );
+
+    return rows[0];
+  }
+
+  static async findOneByOTP(OTP: string) {
+    const { rows } = await pool.query(
+      `
+      SELECT id,
+        created_at,
+        updated_at,
+        first_name,
+        last_name,
+        middle_name,
+        nickname,
+        email
+        ${handleSelectTestEnv()}
+      FROM users
+      WHERE one_time_password = $1;
+    `,
+      [OTP]
     );
 
     return rows[0];
@@ -71,7 +113,7 @@ class UserRepo {
         middle_name,
         nickname,
         email
-        ${handleSelectLoginPasscode()};
+        ${handleSelectTestEnv()};
     `,
       [
         payload.first_name,
@@ -87,8 +129,16 @@ class UserRepo {
     return rows[0];
   }
 
-  static async updateOneById(id: string, payload: Partial<Pick<TUser, "nickname" | "email">>) {
-    const { q, queryDeps } = handlePatchSetQuery(id, payload, ["email", "nickname"]);
+  static async updateOneById(
+    id: string,
+    payload: Partial<Pick<TUser, "nickname" | "email" | "one_time_password" | "login_passcode">>
+  ) {
+    const { q, queryDeps } = handlePatchSetQuery(id, payload, [
+      "email",
+      "nickname",
+      "one_time_password",
+      "login_passcode",
+    ]);
 
     const { rows } = await pool.query(
       `
@@ -103,7 +153,7 @@ class UserRepo {
         middle_name,
         nickname,
         email
-        ${handleSelectLoginPasscode()};
+        ${handleSelectTestEnv()};
     `,
       queryDeps
     );
@@ -124,7 +174,7 @@ class UserRepo {
         middle_name,
         nickname,
         email
-        ${handleSelectLoginPasscode()};
+        ${handleSelectTestEnv()};
     `,
       [id]
     );
