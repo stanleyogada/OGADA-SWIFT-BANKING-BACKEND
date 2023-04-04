@@ -4,6 +4,7 @@ import type { Request, Response } from "express";
 
 import UserRepo from "../repos/UserRepo";
 import HashPassword from "../utils/HashPassword";
+import { JOI_SCHEMA_EMAIL_ALLOW_TLDS } from "../constants";
 
 export const forgetLoginPasscode = async (req: Request, res: Response) => {
   try {
@@ -12,7 +13,7 @@ export const forgetLoginPasscode = async (req: Request, res: Response) => {
       email: Joi.string()
         .email({
           minDomainSegments: 2,
-          tlds: { allow: ["com", "net"] },
+          tlds: { allow: JOI_SCHEMA_EMAIL_ALLOW_TLDS },
         })
         .required(),
     });
@@ -34,7 +35,6 @@ export const forgetLoginPasscode = async (req: Request, res: Response) => {
     });
 
     // TODO: Send one_time_password to user's email address
-
     const json = (() => {
       if (process.env.NODE_ENV === "test")
         return {
