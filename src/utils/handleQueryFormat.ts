@@ -28,37 +28,38 @@ export const handleWhereQuery = (payload: Record<string, unknown>, payloadCols: 
   };
 };
 
-export const handlePatchSetQuery = (id: string, payload: Record<string, unknown>, payloadCols: string[]) => {
-  payloadCols = ["id", ...payloadCols];
-  payloadCols = payloadCols.filter((col) => payload[col] || payload[col] === null || col === "id");
+export const handlePatchSetQuery = (findPayload: Record<string, unknown>, updatePayload: Record<string, unknown>) => {
+  const whereColumns = Object.keys(findPayload);
+  const updateColumns = Object.keys(updatePayload);
 
-  if (payloadCols.length === 1) throw new Error("`req.body` cannot by empty!");
+  if (!whereColumns.length) throw new Error("Cannot update an empty record! Must provide where columns");
+  if (!updateColumns.length) throw new Error("Must provide update columns!");
 
-  const mappedPayloadCols = [];
+  const mappedColumns: Array<{ column: string; query: string; value: string }[]> = [];
 
-  for (let i = 0; i < payloadCols.length; i++) {
-    const col = payloadCols[i];
-    const val = col === "id" ? id : payload[col];
+  const handleMap =
+    (payload: Record<string, unknown>, initCount: number = 0) =>
+    (column: string, i: number) => {
+      const query = `${column} = $${i + 1 + initCount}`;
+      const value = payload[column] as string;
 
-    let q: string;
-    if (col !== "id") {
-      const isLastCol = i + 1 === payloadCols.length;
-      q = `${col} = ${`$${i + 1}`}`;
-      q += `${!isLastCol ? ", " : ""}`;
-    }
+      return {
+        column,
+        query,
+        value,
+      };
+    };
 
-    mappedPayloadCols.push({
-      col,
-      q,
-      val,
-    });
-  }
+  mappedColumns[0] = whereColumns.map(handleMap(findPayload));
+  mappedColumns[1] = updateColumns.map(handleMap(updatePayload, mappedColumns[0].length));
 
-  const queryDeps = mappedPayloadCols.map(({ val }) => val);
-  const q = mappedPayloadCols.map(({ q }) => q).join("");
+  const queryDependencies = [...mappedColumns[0], ...mappedColumns[1]].map(({ value }) => value);
+  const whereQuery = mappedColumns[0].map(({ query }) => query).join(" AND ");
+  const setQuery = mappedColumns[1].map(({ query }) => query).join(", ");
 
   return {
-    q,
-    queryDeps,
+    queryDependencies,
+    whereQuery,
+    setQuery,
   };
 };

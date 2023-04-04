@@ -67,36 +67,12 @@ class UserRepo {
     return rows[0];
   }
 
-  static async updateOneById(
-    id: string,
-    payload: Partial<Pick<TUser, "nickname" | "email" | "one_time_password" | "login_passcode">>
+  static async findByAndUpdate(
+    findByPayload: Partial<TUser>,
+    updatePayload: Partial<Pick<TUser, "nickname" | "email" | "one_time_password" | "login_passcode">>
   ) {
-    const { q, queryDeps } = handlePatchSetQuery(id, payload, [
-      "email",
-      "nickname",
-      "one_time_password",
-      "login_passcode",
-    ]);
-
-    const { rows } = await pool.query(
-      `
-      UPDATE users
-      SET ${q}
-      WHERE users.id = $1
-      RETURNING id,
-        created_at,
-        updated_at,
-        first_name,
-        last_name,
-        middle_name,
-        nickname,
-        email
-        ${handleSelectTestEnv()};
-    `,
-      queryDeps
-    );
-
-    return rows[0];
+    const rows = await repo.findByAndUpdate(findByPayload, updatePayload);
+    return rows;
   }
 
   static async deleteOneById(id: string) {

@@ -90,7 +90,7 @@ export const updateOneUser = async (req: Request, res: Response) => {
       }),
     });
 
-    const user = await UserRepo.updateOneById(req.params.id, req.body);
+    const user = (await UserRepo.findByAndUpdate({ id: +req.params.id }, req.body))[0];
 
     if (!user) {
       return res.status(404).json({

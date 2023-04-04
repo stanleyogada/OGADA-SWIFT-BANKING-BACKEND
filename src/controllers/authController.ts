@@ -19,7 +19,8 @@ export const forgetLoginPasscode = async (req: Request, res: Response) => {
         .required(),
     });
 
-    const user = (await UserRepo.find(req.body))[0];
+    const one_time_password = randomBytes(10).toString("hex");
+    const user = (await UserRepo.findByAndUpdate(req.body, { one_time_password }))[0];
 
     if (!user) {
       return res.status(404).json({
@@ -27,11 +28,6 @@ export const forgetLoginPasscode = async (req: Request, res: Response) => {
         message: "User not found!",
       });
     }
-
-    const one_time_password = randomBytes(10).toString("hex");
-    await UserRepo.updateOneById("" + user.id, {
-      one_time_password,
-    });
 
     // TODO: Send one_time_password to user's email address
     const json = (() => {
@@ -48,10 +44,6 @@ export const forgetLoginPasscode = async (req: Request, res: Response) => {
 
     res.status(200).json(json);
   } catch (err) {
-    if (process.env.NODE_ENV !== "prod") {
-      console.log(err, err.message);
-    }
-
     res.status(500).json({
       status: "error",
       message: err.message,
@@ -70,13 +62,14 @@ export const resetLoginPasscode = async (req: Request, res: Response) => {
         .message('"one_time_password" must be valid'),
     });
 
-    const user = (await UserRepo.find({ one_time_password: req.body.one_time_password }))[0];
     const hash = await HashPassword.handleHash(req.body.new_login_passcode);
-
-    await UserRepo.updateOneById("" + user.id, {
-      one_time_password: null,
-      login_passcode: hash,
-    });
+    await UserRepo.findByAndUpdate(
+      { one_time_password: req.body.one_time_password },
+      {
+        one_time_password: null,
+        login_passcode: hash,
+      }
+    );
 
     res.status(200).json({
       status: "success",
