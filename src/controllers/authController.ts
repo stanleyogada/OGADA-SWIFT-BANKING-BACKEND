@@ -4,21 +4,20 @@ import type { Request, Response } from "express";
 
 import UserRepo from "../repos/UserRepo";
 import HashPassword from "../utils/HashPassword";
-import { JOI_SCHEMA_EMAIL_ALLOW_TLDS } from "../constants";
+import { INPUT_SCHEMA_EMAIL_ALLOW_TLDS } from "../constants";
+import handleInputValidate from "../utils/handleInputValidate";
 
 export const forgetLoginPasscode = async (req: Request, res: Response) => {
   try {
-    const schema = Joi.object({
+    await handleInputValidate(req.body, {
       phone: Joi.string().min(10).max(10).required(),
       email: Joi.string()
         .email({
           minDomainSegments: 2,
-          tlds: { allow: JOI_SCHEMA_EMAIL_ALLOW_TLDS },
+          tlds: { allow: INPUT_SCHEMA_EMAIL_ALLOW_TLDS },
         })
         .required(),
     });
-
-    await schema.validateAsync(req.body);
 
     const user = (await UserRepo.findBy(req.body))[0];
 
@@ -62,7 +61,7 @@ export const forgetLoginPasscode = async (req: Request, res: Response) => {
 
 export const resetLoginPasscode = async (req: Request, res: Response) => {
   try {
-    const schema = Joi.object({
+    await handleInputValidate(req.body, {
       new_login_passcode: Joi.string()
         .pattern(new RegExp("^[0-9]{6,6}$"))
         .message('"new_login_passcode" must be six digits'),
@@ -70,8 +69,6 @@ export const resetLoginPasscode = async (req: Request, res: Response) => {
         .pattern(new RegExp("^[0-9a-z]{20,20}$", "i"))
         .message('"one_time_password" must be valid'),
     });
-
-    await schema.validateAsync(req.body);
 
     const user = (await UserRepo.findBy({ one_time_password: req.body.one_time_password }))[0];
     const hash = await HashPassword.handleHash(req.body.new_login_passcode);

@@ -3,7 +3,8 @@ import type { Request, Response } from "express";
 
 import UserRepo from "../repos/UserRepo";
 import HashPassword from "../utils/HashPassword";
-import { JOI_SCHEMA_EMAIL_ALLOW_TLDS } from "../constants";
+import { INPUT_SCHEMA_EMAIL_ALLOW_TLDS } from "../constants";
+import handleInputValidate from "../utils/handleInputValidate";
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
@@ -47,7 +48,7 @@ export const getOneUser = async (req: Request, res: Response) => {
 
 export const createOneUser = async (req: Request, res: Response) => {
   try {
-    const schema = Joi.object({
+    await handleInputValidate(req.body, {
       first_name: Joi.string().min(3).max(30).required(),
       last_name: Joi.string().min(3).max(30).required(),
       middle_name: Joi.string().min(3).max(30),
@@ -56,13 +57,11 @@ export const createOneUser = async (req: Request, res: Response) => {
       email: Joi.string()
         .email({
           minDomainSegments: 2,
-          tlds: { allow: JOI_SCHEMA_EMAIL_ALLOW_TLDS },
+          tlds: { allow: INPUT_SCHEMA_EMAIL_ALLOW_TLDS },
         })
         .required(),
       login_passcode: Joi.string().pattern(new RegExp("^[0-9]{6,6}$")).message('"login_passcode" must be six digits'),
     });
-
-    await schema.validateAsync(req.body);
 
     const hash = await HashPassword.handleHash(req.body.login_passcode);
     req.body.login_passcode = hash;
@@ -83,15 +82,13 @@ export const createOneUser = async (req: Request, res: Response) => {
 
 export const updateOneUser = async (req: Request, res: Response) => {
   try {
-    const schema = Joi.object({
+    await handleInputValidate(req.body, {
       nickname: Joi.string().min(3).max(30),
       email: Joi.string().email({
         minDomainSegments: 2,
-        tlds: { allow: JOI_SCHEMA_EMAIL_ALLOW_TLDS },
+        tlds: { allow: INPUT_SCHEMA_EMAIL_ALLOW_TLDS },
       }),
     });
-
-    await schema.validateAsync(req.body);
 
     const user = await UserRepo.updateOneById(req.params.id, req.body);
 
