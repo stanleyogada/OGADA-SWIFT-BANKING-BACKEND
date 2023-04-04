@@ -16,5 +16,11 @@ export default () => {
   app.use("/api/v1/users", usersRouter);
   app.use("/api/v1/auth", authRouter);
 
+  // app.use("*", (req, res, next, err) => {
+  //   console.log(err);
+
+  //   next();
+  // });
+
   return app;
 };

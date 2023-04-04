@@ -19,7 +19,8 @@ export const forgetLoginPasscode = async (req: Request, res: Response) => {
 
     await schema.validateAsync(req.body);
 
-    const user = await UserRepo.findOneByEmailAndPhone(req.body);
+    const data = await UserRepo.findBy(req.body);
+    const user = data[0];
 
     if (!user) {
       return res.status(404).json({
@@ -29,7 +30,7 @@ export const forgetLoginPasscode = async (req: Request, res: Response) => {
     }
 
     const one_time_password = randomBytes(10).toString("hex");
-    const users = await UserRepo.updateOneById(user.id, {
+    await UserRepo.updateOneById(user.id, {
       one_time_password,
     });
 
