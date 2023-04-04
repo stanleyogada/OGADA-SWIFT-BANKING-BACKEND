@@ -30,6 +30,11 @@ class UserRepo {
     return rows;
   }
 
+  static async findOne(payload?: Partial<TUser>) {
+    const rows = await repo.find(payload);
+    return rows[0];
+  }
+
   static async createOne(payload: TUser) {
     const { rows } = await pool.query(
       `
@@ -67,38 +72,21 @@ class UserRepo {
     return rows[0];
   }
 
-  static async findByAndUpdate(
+  static async findOneByAndUpdate(
     findByPayload: Partial<TUser>,
     updatePayload: Partial<Pick<TUser, "nickname" | "email" | "one_time_password" | "login_passcode">>
   ) {
     const rows = await repo.findByAndUpdate(findByPayload, updatePayload);
-    return rows;
+    return rows[0];
   }
 
-  static async deleteOneById(id: string) {
-    const { rows } = await pool.query(
-      `
-      DELETE FROM users
-      WHERE users.id = $1
-      RETURNING id,
-        created_at,
-        updated_at,
-        first_name,
-        last_name,
-        middle_name,
-        nickname,
-        email
-        ${handleSelectTestEnv()};
-    `,
-      [id]
-    );
-
+  static async deleteOneById(payload: Partial<TUser>) {
+    const rows = await repo.deleteBy(payload);
     return rows[0];
   }
 
   static async count() {
     const { rows } = await pool.query(`SELECT COUNT(*) FROM users;`);
-
     return +rows[0].count;
   }
 }

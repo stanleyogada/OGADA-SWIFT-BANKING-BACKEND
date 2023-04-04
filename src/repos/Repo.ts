@@ -94,6 +94,23 @@ class Repo<T> implements IRepo<T> {
 
     return rows as T[];
   }
+
+  async deleteBy(payload: Partial<T>) {
+    this.setSelectListQuery();
+    const where = this.handleWhereListQuery(payload);
+
+    const { rows } = await pool.query(
+      `
+      DELETE FROM ${this.resource}
+      WHERE ${where.query}
+      RETURNING ${this.selectListQuery}
+      ;
+    `,
+      where.queryDependencies
+    );
+
+    return rows as T[];
+  }
 }
 
 export default Repo;

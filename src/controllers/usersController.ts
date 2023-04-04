@@ -90,7 +90,7 @@ export const updateOneUser = async (req: Request, res: Response) => {
       }),
     });
 
-    const user = (await UserRepo.findByAndUpdate({ id: +req.params.id }, req.body))[0];
+    const user = await UserRepo.findOneByAndUpdate({ id: +req.params.id }, req.body);
 
     if (!user) {
       return res.status(404).json({
@@ -114,7 +114,7 @@ export const updateOneUser = async (req: Request, res: Response) => {
 
 export const deleteOneUser = async (req: Request, res: Response) => {
   try {
-    const user = await UserRepo.deleteOneById(req.params.id);
+    const user = await UserRepo.deleteOneById({ id: +req.params.id });
 
     if (!user) {
       return res.status(404).json({

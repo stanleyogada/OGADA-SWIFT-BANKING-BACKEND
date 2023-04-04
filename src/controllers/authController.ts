@@ -20,7 +20,7 @@ export const forgetLoginPasscode = async (req: Request, res: Response) => {
     });
 
     const one_time_password = randomBytes(10).toString("hex");
-    const user = (await UserRepo.findByAndUpdate(req.body, { one_time_password }))[0];
+    const user = await UserRepo.findOneByAndUpdate(req.body, { one_time_password });
 
     if (!user) {
       return res.status(404).json({
@@ -63,7 +63,7 @@ export const resetLoginPasscode = async (req: Request, res: Response) => {
     });
 
     const hash = await HashPassword.handleHash(req.body.new_login_passcode);
-    await UserRepo.findByAndUpdate(
+    await UserRepo.findOneByAndUpdate(
       { one_time_password: req.body.one_time_password },
       {
         one_time_password: null,
