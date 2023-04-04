@@ -99,27 +99,6 @@ class UserRepo {
     return rows;
   }
 
-  static async findOneById(id: string) {
-    const { rows } = await pool.query(
-      `
-      SELECT id,
-        created_at,
-        updated_at,
-        first_name,
-        last_name,
-        middle_name,
-        nickname,
-        email
-        ${handleSelectTestEnv()}
-      FROM users
-      WHERE users.id = $1;
-    `,
-      [id]
-    );
-
-    return rows[0];
-  }
-
   static async findOneByEmailAndPhone({ email, phone }: Pick<TUser, "email" | "phone">) {
     const { rows } = await pool.query(
       `

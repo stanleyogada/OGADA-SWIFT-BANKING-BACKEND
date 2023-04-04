@@ -24,7 +24,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
 
 export const getOneUser = async (req: Request, res: Response) => {
   try {
-    const user = await UserRepo.findOneById(req.params.id);
+    const user = (await UserRepo.findBy({ id: +req.params.id }))[0];
 
     if (!user) {
       return res.status(404).json({

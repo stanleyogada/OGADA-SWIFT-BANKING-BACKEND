@@ -19,8 +19,7 @@ export const forgetLoginPasscode = async (req: Request, res: Response) => {
 
     await schema.validateAsync(req.body);
 
-    const data = await UserRepo.findBy(req.body);
-    const user = data[0];
+    const user = (await UserRepo.findBy(req.body))[0];
 
     if (!user) {
       return res.status(404).json({
@@ -30,7 +29,7 @@ export const forgetLoginPasscode = async (req: Request, res: Response) => {
     }
 
     const one_time_password = randomBytes(10).toString("hex");
-    await UserRepo.updateOneById(user.id, {
+    await UserRepo.updateOneById("" + user.id, {
       one_time_password,
     });
 
@@ -74,11 +73,10 @@ export const resetLoginPasscode = async (req: Request, res: Response) => {
 
     await schema.validateAsync(req.body);
 
-    const user = await UserRepo.findOneByOTP(req.body.one_time_password);
-
+    const user = (await UserRepo.findBy({ one_time_password: req.body.one_time_password }))[0];
     const hash = await HashPassword.handleHash(req.body.new_login_passcode);
 
-    await UserRepo.updateOneById(user.id, {
+    await UserRepo.updateOneById("" + user.id, {
       one_time_password: null,
       login_passcode: hash,
     });
