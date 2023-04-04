@@ -19,7 +19,7 @@ export const forgetLoginPasscode = async (req: Request, res: Response) => {
         .required(),
     });
 
-    const user = (await UserRepo.findBy(req.body))[0];
+    const user = (await UserRepo.find(req.body))[0];
 
     if (!user) {
       return res.status(404).json({
@@ -70,7 +70,7 @@ export const resetLoginPasscode = async (req: Request, res: Response) => {
         .message('"one_time_password" must be valid'),
     });
 
-    const user = (await UserRepo.findBy({ one_time_password: req.body.one_time_password }))[0];
+    const user = (await UserRepo.find({ one_time_password: req.body.one_time_password }))[0];
     const hash = await HashPassword.handleHash(req.body.new_login_passcode);
 
     await UserRepo.updateOneById("" + user.id, {
