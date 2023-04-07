@@ -1,4 +1,4 @@
-export const handleWhereQuery = (payload: Record<string, unknown>, payloadCols: string[]) => {
+const handleWhereQuery = (payload: Record<string, unknown>, payloadCols: string[]) => {
   payloadCols = payloadCols.filter((col) => payload[col] || payload[col] === null);
   if (!payloadCols.length) throw new Error("`req.body` cannot by empty!");
 
@@ -28,7 +28,7 @@ export const handleWhereQuery = (payload: Record<string, unknown>, payloadCols: 
   };
 };
 
-export const handlePatchSetQuery = (findPayload: Record<string, unknown>, updatePayload: Record<string, unknown>) => {
+const handlePatchSetQuery = (findPayload: Record<string, unknown>, updatePayload: Record<string, unknown>) => {
   const whereColumns = Object.keys(findPayload);
   const updateColumns = Object.keys(updatePayload);
 
@@ -63,3 +63,18 @@ export const handlePatchSetQuery = (findPayload: Record<string, unknown>, update
     setQuery,
   };
 };
+
+const handleInsertQuery = (payload: Record<string, unknown>) => {
+  const columns = Object.keys(payload);
+  const query = `(${columns.join(", ")}) 
+  VALUES (${columns.map((_: string, i: number) => `$${i + 1}`).join(", ")})`;
+
+  const queryDependencies = columns.map((column) => payload[column]) as string[];
+
+  return {
+    query,
+    queryDependencies,
+  };
+};
+
+export { handleWhereQuery, handlePatchSetQuery, handleInsertQuery };

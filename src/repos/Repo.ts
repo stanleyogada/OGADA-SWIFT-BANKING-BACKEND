@@ -1,5 +1,5 @@
 import app from "../app";
-import { handleWhereQuery, handlePatchSetQuery } from "../utils/handleQueryFormat";
+import { handleWhereQuery, handlePatchSetQuery, handleInsertQuery } from "../utils/handleQueryFormat";
 import pool from "../utils/pool";
 
 type TEnv = "test" | "development" | "production";
@@ -39,18 +39,6 @@ class Repo<T> implements IRepo<T> {
     return {
       query: q,
       queryDependencies: queryDeps,
-    };
-  };
-
-  private handleSetListQuery = (excludePayloadCols: Array<string>, payload: Partial<T>) => {
-    if (!payload) return;
-
-    const cols = this.cols.reduce((acc, col) => [...acc, typeof col === "string" ? col : col.value], [] as string[]);
-    // const { q, queryDeps } = handlePatchSetQuery(excludePayloadCols, payload, cols);
-
-    return {
-      // query: q,
-      // queryDependencies: queryDeps,
     };
   };
 
@@ -110,6 +98,23 @@ class Repo<T> implements IRepo<T> {
     );
 
     return rows as T[];
+  }
+
+  async createOne(payload: Partial<T>) {
+    this.setSelectListQuery();
+    const insert = handleInsertQuery(payload);
+
+    const { rows } = await pool.query(
+      `
+      INSERT INTO ${this.resource} 
+      ${insert.query}
+      RETURNING ${this.selectListQuery}
+      ;
+    `,
+      insert.queryDependencies
+    );
+
+    return rows[0] as T;
   }
 }
 

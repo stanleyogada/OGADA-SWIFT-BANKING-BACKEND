@@ -36,40 +36,9 @@ class UserRepo {
   }
 
   static async createOne(payload: TUser) {
-    const { rows } = await pool.query(
-      `
-      INSERT INTO users (
-        first_name,
-        last_name,
-        middle_name,
-        nickname,
-        phone,
-        email,
-        login_passcode
-      )
-      VALUES ($1, $2, $3, $4, $5, $6, $7) 
-      RETURNING id,
-        created_at,
-        updated_at,
-        first_name,
-        last_name,
-        middle_name,
-        nickname,
-        email
-        ${handleSelectTestEnv()};
-    `,
-      [
-        payload.first_name,
-        payload.last_name,
-        payload.middle_name,
-        payload.nickname,
-        payload.phone,
-        payload.email,
-        payload.login_passcode,
-      ]
-    );
+    const row = await repo.createOne(payload);
 
-    return rows[0];
+    return row;
   }
 
   static async findOneByAndUpdate(
