@@ -6,7 +6,7 @@ import HashPassword from "../utils/HashPassword";
 import { INPUT_SCHEMA_EMAIL_ALLOW_TLDS } from "../constants";
 import handleInputValidate from "../utils/handleInputValidate";
 
-export const getAllUsers = async (req: Request, res: Response) => {
+export const getAllUsers = async (_, res: Response) => {
   try {
     const users = await UserRepo.findManyBy();
 
