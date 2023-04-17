@@ -1,15 +1,5 @@
 import type { TUser } from "../types/users";
-import { handlePatchSetQuery } from "../utils/handleQueryFormat";
-import pool from "../utils/pool";
 import Repo from "./Repo";
-
-const handleSelectTestEnv = () => {
-  if (process.env.NODE_ENV === "test") {
-    return ", login_passcode, one_time_password";
-  }
-
-  return "";
-};
 
 const repo = new Repo<TUser>("users", [
   "id",
