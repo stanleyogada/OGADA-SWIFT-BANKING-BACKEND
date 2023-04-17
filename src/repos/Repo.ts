@@ -6,8 +6,9 @@ type TEnv = "test" | "development" | "production";
 type TCol = string | { env: TEnv[]; value: string };
 type TResource = "users" | "accounts"; // ...
 interface IRepo<T> {
-  find: (payload?: Partial<T>) => Promise<T[]>;
-  findByAndUpdate: (findByPayload: Partial<T>, updatePayload: Partial<T>) => Promise<T[]>;
+  findMany: (payload?: Partial<T>) => Promise<T[]>;
+  findManyByAndUpdate: (findByPayload: Partial<T>, updatePayload: Partial<T>) => Promise<T[]>;
+  count: () => Promise<number>;
 }
 
 class Repo<T> implements IRepo<T> {
@@ -48,7 +49,7 @@ class Repo<T> implements IRepo<T> {
     this.resource = resource;
   }
 
-  async find(payload?: Partial<T>) {
+  async findMany(payload?: Partial<T>) {
     this.setSelectListQuery();
     const where = this.handleWhereListQuery(payload);
 
@@ -65,7 +66,7 @@ class Repo<T> implements IRepo<T> {
     return rows as T[];
   }
 
-  async findByAndUpdate(findPayload: Partial<T>, updatePayload: Partial<T>) {
+  async findManyByAndUpdate(findPayload: Partial<T>, updatePayload: Partial<T>) {
     this.setSelectListQuery();
     const { queryDependencies, whereQuery, setQuery } = handlePatchSetQuery(findPayload, updatePayload);
 
@@ -83,7 +84,7 @@ class Repo<T> implements IRepo<T> {
     return rows as T[];
   }
 
-  async deleteBy(payload: Partial<T>) {
+  async deleteManyBy(payload: Partial<T>) {
     this.setSelectListQuery();
     const where = this.handleWhereListQuery(payload);
 
@@ -115,6 +116,11 @@ class Repo<T> implements IRepo<T> {
     );
 
     return rows[0] as T;
+  }
+
+  async count() {
+    const { rows } = await pool.query(`SELECT COUNT(*) FROM ${this.resource}`);
+    return +rows[0].count;
   }
 }
 

@@ -26,12 +26,12 @@ const repo = new Repo<TUser>("users", [
 ]);
 class UserRepo {
   static async find(payload?: Partial<TUser>) {
-    const rows = await repo.find(payload);
+    const rows = await repo.findMany(payload);
     return rows;
   }
 
   static async findOne(payload?: Partial<TUser>) {
-    const rows = await repo.find(payload);
+    const rows = await repo.findMany(payload);
     return rows[0];
   }
 
@@ -45,18 +45,17 @@ class UserRepo {
     findByPayload: Partial<TUser>,
     updatePayload: Partial<Pick<TUser, "nickname" | "email" | "one_time_password" | "login_passcode">>
   ) {
-    const rows = await repo.findByAndUpdate(findByPayload, updatePayload);
+    const rows = await repo.findManyByAndUpdate(findByPayload, updatePayload);
     return rows[0];
   }
 
   static async deleteOneById(payload: Partial<TUser>) {
-    const rows = await repo.deleteBy(payload);
+    const rows = await repo.deleteManyBy(payload);
     return rows[0];
   }
 
   static async count() {
-    const { rows } = await pool.query(`SELECT COUNT(*) FROM users;`);
-    return +rows[0].count;
+    return await repo.count();
   }
 }
 
