@@ -1,8 +1,9 @@
 /* eslint-disable camelcase */
+import type { MigrationBuilder } from "node-pg-migrate";
 
 exports.shorthands = undefined;
 
-exports.up = (pgm) => {
+exports.up = (pgm: MigrationBuilder) => {
   pgm.sql(`
     CREATE TABLE users (
       id SERIAL PRIMARY KEY,
@@ -21,7 +22,7 @@ exports.up = (pgm) => {
   `);
 };
 
-exports.down = (pgm) => {
+exports.down = (pgm: MigrationBuilder) => {
   pgm.sql(`
     DROP TABLE users;
   `);
