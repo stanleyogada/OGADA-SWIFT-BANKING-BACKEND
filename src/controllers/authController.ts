@@ -7,7 +7,6 @@ import HashPassword from "../utils/HashPassword";
 import { INPUT_SCHEMA_EMAIL_ALLOW_TLDS } from "../constants";
 import handleInputValidate from "../utils/handleInputValidate";
 import handleTryCatch from "../utils/handleTryCatch";
-import app from "../app";
 import APIError from "../utils/APIError";
 
 export const forgetLoginPasscode = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
@@ -44,37 +43,26 @@ export const forgetLoginPasscode = handleTryCatch(async (req: Request, res: Resp
   res.status(200).json(json);
 });
 
-export const resetLoginPasscode = async (req: Request, res: Response) => {
-  try {
-    await handleInputValidate(req.body, {
-      new_login_passcode: Joi.string()
-        .pattern(new RegExp("^[0-9]{6,6}$"))
-        .message('"new_login_passcode" must be six digits'),
-      one_time_password: Joi.string()
-        .pattern(new RegExp("^[0-9a-z]{20,20}$", "i"))
-        .message('"one_time_password" must be valid'),
-    });
+export const resetLoginPasscode = handleTryCatch(async (req: Request, res: Response) => {
+  await handleInputValidate(req.body, {
+    new_login_passcode: Joi.string()
+      .pattern(new RegExp("^[0-9]{6,6}$"))
+      .message('"new_login_passcode" must be six digits'),
+    one_time_password: Joi.string()
+      .pattern(new RegExp("^[0-9a-z]{20,20}$", "i"))
+      .message('"one_time_password" must be valid'),
+  });
 
-    const hash = await HashPassword.handleHash(req.body.new_login_passcode);
-    await UserRepo.findOneByAndUpdate(
-      { one_time_password: req.body.one_time_password },
-      {
-        one_time_password: null,
-        login_passcode: hash,
-      }
-    );
-
-    res.status(200).json({
-      status: "success",
-    });
-  } catch (err) {
-    if (process.env.NODE_ENV !== "prod") {
-      console.log(err, err.message);
+  const hash = await HashPassword.handleHash(req.body.new_login_passcode);
+  await UserRepo.findOneByAndUpdate(
+    { one_time_password: req.body.one_time_password },
+    {
+      one_time_password: null,
+      login_passcode: hash,
     }
+  );
 
-    res.status(500).json({
-      status: "error",
-      message: err.message,
-    });
-  }
-};
+  res.status(200).json({
+    status: "success",
+  });
+});
