@@ -15,7 +15,8 @@ exports.up = (pgm) => {
       nickname VARCHAR(30),
       phone VARCHAR(10) NOT NULL UNIQUE,
       email VARCHAR(30) NOT NULL UNIQUE,
-      login_passcode VARCHAR(30) NOT NULL
+      login_passcode VARCHAR(100) NOT NULL,
+      one_time_password VARCHAR(20) UNIQUE
     );
   `);
 };

@@ -1,10 +1,14 @@
-import type { Request, Response } from "express";
 import Joi from "joi";
-import UserRepo from "../repos/UserRepo";
+import type { Request, Response } from "express";
 
-export const getAllUsers = async (req: Request, res: Response) => {
+import UserRepo from "../repos/UserRepo";
+import HashPassword from "../utils/HashPassword";
+import { INPUT_SCHEMA_EMAIL_ALLOW_TLDS } from "../constants";
+import handleInputValidate from "../utils/handleInputValidate";
+
+export const getAllUsers = async (_, res: Response) => {
   try {
-    const users = await UserRepo.find();
+    const users = await UserRepo.findManyBy();
 
     res.status(200).json({
       status: "success",
@@ -21,7 +25,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
 
 export const getOneUser = async (req: Request, res: Response) => {
   try {
-    const user = await UserRepo.findOneById(req.params.id);
+    const user = await UserRepo.findOneBy({ id: +req.params.id });
 
     if (!user) {
       return res.status(404).json({
@@ -44,7 +48,7 @@ export const getOneUser = async (req: Request, res: Response) => {
 
 export const createOneUser = async (req: Request, res: Response) => {
   try {
-    const schema = Joi.object({
+    await handleInputValidate(req.body, {
       first_name: Joi.string().min(3).max(30).required(),
       last_name: Joi.string().min(3).max(30).required(),
       middle_name: Joi.string().min(3).max(30),
@@ -53,13 +57,14 @@ export const createOneUser = async (req: Request, res: Response) => {
       email: Joi.string()
         .email({
           minDomainSegments: 2,
-          tlds: { allow: ["com", "net"] },
+          tlds: { allow: INPUT_SCHEMA_EMAIL_ALLOW_TLDS },
         })
         .required(),
       login_passcode: Joi.string().pattern(new RegExp("^[0-9]{6,6}$")).message('"login_passcode" must be six digits'),
     });
 
-    await schema.validateAsync(req.body);
+    const hash = await HashPassword.handleHash(req.body.login_passcode);
+    req.body.login_passcode = hash;
 
     const user = await UserRepo.createOne(req.body);
 
@@ -77,17 +82,15 @@ export const createOneUser = async (req: Request, res: Response) => {
 
 export const updateOneUser = async (req: Request, res: Response) => {
   try {
-    const schema = Joi.object({
+    await handleInputValidate(req.body, {
       nickname: Joi.string().min(3).max(30),
       email: Joi.string().email({
         minDomainSegments: 2,
-        tlds: { allow: ["com", "net"] },
+        tlds: { allow: INPUT_SCHEMA_EMAIL_ALLOW_TLDS },
       }),
     });
 
-    await schema.validateAsync(req.body);
-
-    const user = await UserRepo.updateOneById(req.params.id, req.body);
+    const user = await UserRepo.findOneByAndUpdate({ id: +req.params.id }, req.body);
 
     if (!user) {
       return res.status(404).json({

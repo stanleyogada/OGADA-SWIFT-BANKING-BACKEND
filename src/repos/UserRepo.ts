@@ -1,91 +1,54 @@
 import type { TUser } from "../types/users";
-import handlePatchSetQuery from "../utils/handlePatchSetQuery";
-import pool from "../utils/pool";
+import Repo from "./Repo";
+
+const repo = new Repo<TUser>("users", [
+  "id",
+  "created_at",
+  "updated_at",
+  "first_name",
+  "last_name",
+  "middle_name",
+  "nickname",
+  "email",
+  "phone",
+  { env: ["test"], value: "one_time_password" },
+  { env: ["test"], value: "login_passcode" },
+]);
 
 class UserRepo {
-  static async find() {
-    const { rows } = await pool.query(`
-      SELECT *
-      FROM users;
-    `);
-
+  static async findManyBy(payload?: Partial<TUser>) {
+    const rows = await repo.findManyBy(payload);
     return rows;
   }
 
-  static async findOneById(id: string) {
-    const { rows } = await pool.query(
-      `
-      SELECT *
-      FROM users
-      WHERE users.id = $1;
-    `,
-      [id]
-    );
-
+  static async findOneBy(payload?: Partial<TUser>) {
+    const rows = await repo.findManyBy(payload);
     return rows[0];
   }
 
   static async createOne(payload: TUser) {
-    const { rows } = await pool.query(
-      `
-      INSERT INTO users (
-        first_name,
-        last_name,
-        middle_name,
-        nickname,
-        phone,
-        email,
-        login_passcode
-      )
-      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;
-    `,
-      [
-        payload.first_name,
-        payload.last_name,
-        payload.middle_name,
-        payload.nickname,
-        payload.phone,
-        payload.email,
-        payload.login_passcode,
-      ]
-    );
+    const row = await repo.createOne(payload);
 
-    return rows[0];
+    return row;
   }
 
-  static async updateOneById(id: string, payload: Partial<Pick<TUser, "nickname" | "email">>) {
-    const { q, queryDeps } = handlePatchSetQuery(id, payload, ["email", "nickname"]);
-
-    const { rows } = await pool.query(
-      `
-      UPDATE users
-      SET ${q}
-      WHERE users.id = $1
-      RETURNING *;
-    `,
-      queryDeps
-    );
-
+  static async findOneByAndUpdate(
+    findByPayload: Partial<TUser>,
+    updatePayload: Partial<Pick<TUser, "nickname" | "email" | "one_time_password" | "login_passcode">>
+  ) {
+    const rows = await repo.findManyByAndUpdate(findByPayload, updatePayload);
     return rows[0];
   }
 
   static async deleteOneById(id: string) {
-    const { rows } = await pool.query(
-      `
-      DELETE FROM users
-      WHERE users.id = $1
-      RETURNING *;
-    `,
-      [id]
-    );
+    const payload: Partial<TUser> = { id: +id };
 
+    const rows = await repo.deleteManyBy(payload);
     return rows[0];
   }
 
   static async count() {
-    const { rows } = await pool.query(`SELECT COUNT(*) FROM users;`);
-
-    return +rows[0].count;
+    return await repo.count();
   }
 }
 

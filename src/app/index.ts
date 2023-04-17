@@ -2,6 +2,7 @@ import express from "express";
 import helmet from "helmet";
 import cors from "cors";
 import usersRouter from "../routes/usersRouter";
+import authRouter from "../routes/authRouter";
 
 export default () => {
   const app = express();
@@ -13,6 +14,13 @@ export default () => {
 
   // Routes
   app.use("/api/v1/users", usersRouter);
+  app.use("/api/v1/auth", authRouter);
+
+  // app.use("*", (req, res, next, err) => {
+  //   console.log(err);
+
+  //   next();
+  // });
 
   return app;
 };
