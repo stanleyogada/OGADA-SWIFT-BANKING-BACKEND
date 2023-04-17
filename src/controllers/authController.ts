@@ -1,55 +1,48 @@
 import { randomBytes } from "crypto";
 import Joi from "joi";
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 
 import UserRepo from "../repos/UserRepo";
 import HashPassword from "../utils/HashPassword";
 import { INPUT_SCHEMA_EMAIL_ALLOW_TLDS } from "../constants";
 import handleInputValidate from "../utils/handleInputValidate";
+import handleTryCatch from "../utils/handleTryCatch";
+import app from "../app";
+import APIError from "../utils/APIError";
 
-export const forgetLoginPasscode = async (req: Request, res: Response) => {
-  try {
-    await handleInputValidate(req.body, {
-      phone: Joi.string().min(10).max(10).required(),
-      email: Joi.string()
-        .email({
-          minDomainSegments: 2,
-          tlds: { allow: INPUT_SCHEMA_EMAIL_ALLOW_TLDS },
-        })
-        .required(),
-    });
+export const forgetLoginPasscode = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
+  await handleInputValidate(req.body, {
+    phone: Joi.string().min(10).max(10).required(),
+    email: Joi.string()
+      .email({
+        minDomainSegments: 2,
+        tlds: { allow: INPUT_SCHEMA_EMAIL_ALLOW_TLDS },
+      })
+      .required(),
+  });
 
-    const one_time_password = randomBytes(10).toString("hex");
-    const user = await UserRepo.findOneByAndUpdate(req.body, { one_time_password });
+  const one_time_password = randomBytes(10).toString("hex");
+  const user = await UserRepo.findOneByAndUpdate(req.body, { one_time_password });
 
-    if (!user) {
-      return res.status(404).json({
-        status: "error",
-        message: "User not found!",
-      });
-    }
+  if (!user) {
+    return next(new APIError("User not found!", 404));
+  }
 
-    // TODO: Send one_time_password to user's email address
-    const json = (() => {
-      if (process.env.NODE_ENV === "test")
-        return {
-          status: "success",
-          data: one_time_password,
-        };
-
+  // TODO: Send one_time_password to user's email address
+  const json = (() => {
+    if (process.env.NODE_ENV === "test")
       return {
         status: "success",
+        data: one_time_password,
       };
-    })();
 
-    res.status(200).json(json);
-  } catch (err) {
-    res.status(500).json({
-      status: "error",
-      message: err.message,
-    });
-  }
-};
+    return {
+      status: "success",
+    };
+  })();
+
+  res.status(200).json(json);
+});
 
 export const resetLoginPasscode = async (req: Request, res: Response) => {
   try {

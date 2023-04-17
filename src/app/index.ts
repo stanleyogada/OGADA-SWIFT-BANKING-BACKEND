@@ -3,6 +3,8 @@ import helmet from "helmet";
 import cors from "cors";
 import usersRouter from "../routes/usersRouter";
 import authRouter from "../routes/authRouter";
+import ErrorHandler from "../middleware/ErrorHandler";
+import APIError from "../utils/APIError";
 
 export default () => {
   const app = express();
@@ -16,11 +18,12 @@ export default () => {
   app.use("/api/v1/users", usersRouter);
   app.use("/api/v1/auth", authRouter);
 
-  // app.use("*", (req, res, next, err) => {
-  //   console.log(err);
+  app.use("*", (req, _res, next) => {
+    next(new APIError(`can't find ${req.originalUrl}, with the method:${req.method}, on this server!`));
+  });
 
-  //   next();
-  // });
+  // ERROR HANDLER MIDDLEWARE (Last middleware to use)
+  app.use(ErrorHandler);
 
   return app;
 };
