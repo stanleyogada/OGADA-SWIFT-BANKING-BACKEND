@@ -8,7 +8,7 @@ import handleInputValidate from "../utils/handleInputValidate";
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
-    const users = await UserRepo.find();
+    const users = await UserRepo.findManyBy();
 
     res.status(200).json({
       status: "success",
@@ -25,7 +25,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
 
 export const getOneUser = async (req: Request, res: Response) => {
   try {
-    const user = (await UserRepo.find({ id: +req.params.id }))[0];
+    const user = await UserRepo.findOneBy({ id: +req.params.id });
 
     if (!user) {
       return res.status(404).json({
@@ -114,7 +114,7 @@ export const updateOneUser = async (req: Request, res: Response) => {
 
 export const deleteOneUser = async (req: Request, res: Response) => {
   try {
-    const user = await UserRepo.deleteOneById({ id: +req.params.id });
+    const user = await UserRepo.deleteOneById(req.params.id);
 
     if (!user) {
       return res.status(404).json({

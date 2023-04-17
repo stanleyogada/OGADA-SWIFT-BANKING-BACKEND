@@ -6,7 +6,7 @@ type TEnv = "test" | "development" | "production";
 type TCol = string | { env: TEnv[]; value: string };
 type TResource = "users" | "accounts"; // TODO: add more as migration tables are added ...
 interface IRepo<T> {
-  findMany: (payload?: Partial<T>) => Promise<T[]>;
+  findManyBy: (payload?: Partial<T>) => Promise<T[]>;
   findManyByAndUpdate: (findByPayload: Partial<T>, updatePayload: Partial<T>) => Promise<T[]>;
   count: () => Promise<number>;
 }
@@ -49,7 +49,7 @@ class Repo<T> implements IRepo<T> {
     this.resource = resource;
   }
 
-  async findMany(payload?: Partial<T>) {
+  async findManyBy(payload?: Partial<T>) {
     this.setSelectListQuery();
     const where = this.handleWhereListQuery(payload);
 

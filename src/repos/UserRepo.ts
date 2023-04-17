@@ -15,13 +15,13 @@ const repo = new Repo<TUser>("users", [
   { env: ["test"], value: "login_passcode" },
 ]);
 class UserRepo {
-  static async find(payload?: Partial<TUser>) {
-    const rows = await repo.findMany(payload);
+  static async findManyBy(payload?: Partial<TUser>) {
+    const rows = await repo.findManyBy(payload);
     return rows;
   }
 
-  static async findOne(payload?: Partial<TUser>) {
-    const rows = await repo.findMany(payload);
+  static async findOneBy(payload?: Partial<TUser>) {
+    const rows = await repo.findManyBy(payload);
     return rows[0];
   }
 
@@ -39,7 +39,9 @@ class UserRepo {
     return rows[0];
   }
 
-  static async deleteOneById(payload: Partial<TUser>) {
+  static async deleteOneById(id: string) {
+    const payload: Partial<TUser> = { id: +id };
+
     const rows = await repo.deleteManyBy(payload);
     return rows[0];
   }
