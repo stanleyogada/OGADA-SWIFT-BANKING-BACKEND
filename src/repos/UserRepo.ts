@@ -14,6 +14,7 @@ const repo = new Repo<TUser>("users", [
   { env: ["test"], value: "one_time_password" },
   { env: ["test"], value: "login_passcode" },
 ]);
+
 class UserRepo {
   static async findManyBy(payload?: Partial<TUser>) {
     const rows = await repo.findManyBy(payload);
