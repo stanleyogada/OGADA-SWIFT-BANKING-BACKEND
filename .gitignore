@@ -1,3 +1,10 @@
-test-requests.http
 node_modules
+dist
 
+package-lock.json
+yarn.lock
+
+test-requests.http
+utils-scripts
+
+.env

@@ -1,4 +1,5 @@
-import TestContext from "./src/utils/testContext";
+require("dotenv").config();
+import TestContext from "./src/utils/TestContext";
 
 let testContext: TestContext;
 beforeEach(async () => {

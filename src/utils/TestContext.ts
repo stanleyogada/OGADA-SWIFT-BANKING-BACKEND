@@ -4,6 +4,7 @@ import { randomBytes } from "crypto";
 
 import { TConnectOpts } from "../types/db";
 import pool from "./pool";
+import getDBConnection from "./getDBConnection";
 
 //
 
@@ -12,12 +13,7 @@ interface IContext {
   reset: () => Promise<void>;
 }
 
-const DEFAULT_USER_ROLE_OPTS: TConnectOpts = {
-  host: "localhost",
-  port: 5432,
-  database: "opay-demo-test",
-  user: "stanleyogada",
-};
+const DEFAULT_USER_ROLE_OPTS: TConnectOpts = getDBConnection(true);
 
 class TestContext implements IContext {
   static async build() {
