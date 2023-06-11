@@ -21,7 +21,11 @@ export const forgetLoginPasscode = handleTryCatch(async (req: Request, res: Resp
   });
 
   const one_time_password = randomBytes(10).toString("hex");
-  const user = await UserRepo.findOneByAndUpdate(req.body, { one_time_password });
+  // TODO: const expire_at = new Date(new Date().getTime() + 1000 * 60 * 10); // 10 minutes
+  const user = await UserRepo.findOneByAndUpdate(req.body, {
+    one_time_password,
+    // TODO: expire_at,
+  });
 
   if (!user) {
     return next(new APIError("User not found!", 404));
@@ -54,6 +58,10 @@ export const resetLoginPasscode = handleTryCatch(async (req: Request, res: Respo
   });
 
   const hash = await HashPassword.handleHash(req.body.new_login_passcode);
+
+  // TODO: const user = await UserRepo.findOneBy({ one_time_password: req.body.one_time_password });
+  // TODO: if(new Date(user.expire_at).getTime() < new Date().getTime()) return next(new APIError("Expe"))
+
   await UserRepo.findOneByAndUpdate(
     { one_time_password: req.body.one_time_password },
     {
@@ -66,3 +74,18 @@ export const resetLoginPasscode = handleTryCatch(async (req: Request, res: Respo
     status: "success",
   });
 });
+
+// FORGET PASSWORD
+// validate input
+// generate otp (with randomBytes(10).toString('hex') or UUID.v4())
+// find user by email - OR send 404
+// save otp to user
+// send otp to user's email
+// send success response without otp
+
+// RESET PASSWORD
+// validate input
+// find user by otp - OR send 404
+// hash new password
+// save otp to NULL and password to new password
+// send success response without otp and password
