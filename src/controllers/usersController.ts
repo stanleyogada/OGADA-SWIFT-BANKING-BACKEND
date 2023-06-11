@@ -1,133 +1,90 @@
 import Joi from "joi";
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 
 import UserRepo from "../repos/UserRepo";
 import HashPassword from "../utils/HashPassword";
 import { INPUT_SCHEMA_EMAIL_ALLOW_TLDS } from "../constants";
 import handleInputValidate from "../utils/handleInputValidate";
+import handleTryCatch from "../utils/handleTryCatch";
+import APIError from "../utils/APIError";
 
-export const getAllUsers = async (_, res: Response) => {
-  try {
-    const users = await UserRepo.findManyBy();
+export const getAllUsers = handleTryCatch(async (_, res: Response) => {
+  const users = await UserRepo.findManyBy();
 
-    res.status(200).json({
-      status: "success",
-      data: users,
-      count: users.length,
-    });
-  } catch (err) {
-    res.status(500).json({
-      status: "error",
-      message: err.message,
-    });
+  res.status(200).json({
+    status: "success",
+    data: users,
+    count: users.length,
+  });
+});
+
+export const getOneUser = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
+  const user = await UserRepo.findOneBy({ id: +req.params.id });
+
+  if (!user) {
+    return next(new APIError("User not found!", 404));
   }
-};
 
-export const getOneUser = async (req: Request, res: Response) => {
-  try {
-    const user = await UserRepo.findOneBy({ id: +req.params.id });
+  res.status(200).json({
+    status: "success",
+    data: user,
+  });
+});
 
-    if (!user) {
-      return res.status(404).json({
-        status: "error",
-        message: "User not found!",
-      });
-    }
-
-    res.status(200).json({
-      status: "success",
-      data: user,
-    });
-  } catch (err) {
-    res.status(500).json({
-      status: "error",
-      message: err.message,
-    });
-  }
-};
-
-export const createOneUser = async (req: Request, res: Response) => {
-  try {
-    await handleInputValidate(req.body, {
-      first_name: Joi.string().min(3).max(30).required(),
-      last_name: Joi.string().min(3).max(30).required(),
-      middle_name: Joi.string().min(3).max(30),
-      nickname: Joi.string().min(3).max(30),
-      phone: Joi.string().min(10).max(10).required(),
-      email: Joi.string()
-        .email({
-          minDomainSegments: 2,
-          tlds: { allow: INPUT_SCHEMA_EMAIL_ALLOW_TLDS },
-        })
-        .required(),
-      login_passcode: Joi.string().pattern(new RegExp("^[0-9]{6,6}$")).message('"login_passcode" must be six digits'),
-    });
-
-    const hash = await HashPassword.handleHash(req.body.login_passcode);
-    req.body.login_passcode = hash;
-
-    const user = await UserRepo.createOne(req.body);
-
-    res.status(201).json({
-      status: "success",
-      data: user,
-    });
-  } catch (err) {
-    res.status(500).json({
-      status: "error",
-      message: err.message,
-    });
-  }
-};
-
-export const updateOneUser = async (req: Request, res: Response) => {
-  try {
-    await handleInputValidate(req.body, {
-      nickname: Joi.string().min(3).max(30),
-      email: Joi.string().email({
+export const createOneUser = handleTryCatch(async (req: Request, res: Response) => {
+  await handleInputValidate(req.body, {
+    first_name: Joi.string().min(3).max(30).required(),
+    last_name: Joi.string().min(3).max(30).required(),
+    middle_name: Joi.string().min(3).max(30),
+    nickname: Joi.string().min(3).max(30),
+    phone: Joi.string().min(10).max(10).required(),
+    email: Joi.string()
+      .email({
         minDomainSegments: 2,
         tlds: { allow: INPUT_SCHEMA_EMAIL_ALLOW_TLDS },
-      }),
-    });
+      })
+      .required(),
+    login_passcode: Joi.string().pattern(new RegExp("^[0-9]{6,6}$")).message('"login_passcode" must be six digits'),
+  });
 
-    const user = await UserRepo.findOneByAndUpdate({ id: +req.params.id }, req.body);
+  const hash = await HashPassword.handleHash(req.body.login_passcode);
+  req.body.login_passcode = hash;
 
-    if (!user) {
-      return res.status(404).json({
-        status: "error",
-        message: "User not found!",
-      });
-    }
+  const user = await UserRepo.createOne(req.body);
 
-    res.status(200).json({
-      status: "success",
-      data: user,
-    });
-  } catch (err) {
-    res.status(500).json({
-      status: "error",
-      message: err.message,
-      stack: err.stack,
-    });
+  res.status(201).json({
+    status: "success",
+    data: user,
+  });
+});
+
+export const updateOneUser = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
+  await handleInputValidate(req.body, {
+    nickname: Joi.string().min(3).max(30),
+    email: Joi.string().email({
+      minDomainSegments: 2,
+      tlds: { allow: INPUT_SCHEMA_EMAIL_ALLOW_TLDS },
+    }),
+  });
+
+  const user = await UserRepo.findOneByAndUpdate({ id: +req.params.id }, req.body);
+
+  if (!user) {
+    return next(new APIError("User not found!", 404));
   }
-};
 
-export const deleteOneUser = async (req: Request, res: Response) => {
-  try {
-    const user = await UserRepo.deleteOneById(req.params.id);
+  res.status(200).json({
+    status: "success",
+    data: user,
+  });
+});
 
-    if (!user) {
-      return res.status(404).json({
-        status: "error",
-        message: "User not found!",
-      });
-    }
+export const deleteOneUser = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
+  const user = await UserRepo.deleteOneById(req.params.id);
 
-    res.status(204).json({});
-  } catch (err) {
-    res.status(500).json({
-      status: "error",
-      message: err.message,
-    });
+  if (!user) {
+    return next(new APIError("User not found!", 404));
   }
-};
+
+  res.status(204).json({});
+});

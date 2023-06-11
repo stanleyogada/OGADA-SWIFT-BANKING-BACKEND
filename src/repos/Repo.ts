@@ -8,6 +8,8 @@ type TResource = "users" | "accounts"; // TODO: add more as migration tables are
 interface IRepo<T> {
   findManyBy: (payload?: Partial<T>) => Promise<T[]>;
   findManyByAndUpdate: (findByPayload: Partial<T>, updatePayload: Partial<T>) => Promise<T[]>;
+  deleteManyBy: (payload: Partial<T>) => Promise<T[]>;
+  createOne: (Payload: Partial<T>) => Promise<T>;
   count: () => Promise<number>;
 }
 
