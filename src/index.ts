@@ -1,16 +1,18 @@
+require("dotenv").config();
+
 import app from "./app";
 import pool from "./utils/pool";
+import throwErrorDBConnection from "./utils/getDBConnection";
+import getDBConnection from "./utils/getDBConnection";
+import { TConnectOpts } from "./types/db";
 
-const PORT = process.env.NODE_ENV || 8080;
+const PORT = process.env.NODE_ENV;
+const DEFAULT_USER_ROLE_OPTS: TConnectOpts = getDBConnection();
 
+throwErrorDBConnection();
 (async () => {
   try {
-    await pool.connect({
-      database: "opay-demo",
-      host: "localhost",
-      user: "stanleyogada",
-      port: 5432,
-    });
+    await pool.connect(DEFAULT_USER_ROLE_OPTS);
 
     console.log("Connected to the DB successfully!");
     app().listen(PORT, () => console.log("Server running @ port " + PORT));

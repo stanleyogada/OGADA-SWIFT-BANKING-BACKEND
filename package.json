@@ -10,7 +10,7 @@
     "test:watch": "jest --watch --no-cache",
     "lint": "npx eslint . --ext .ts",
     "migrate:create": "node-pg-migrate create",
-    "migrate": "DATABASE_URL=postgres://stanleyogada@localhost:5432/opay-demo node-pg-migrate"
+    "migrate": "tsc && node dist/scripts/migrate.js"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +19,7 @@
     "bcrypt": "^5.1.0",
     "cors": "^2.8.5",
     "dedent": "^0.7.0",
+    "dotenv": "^16.1.4",
     "express": "^4.18.2",
     "helmet": "^6.0.1",
     "joi": "^17.8.4",
