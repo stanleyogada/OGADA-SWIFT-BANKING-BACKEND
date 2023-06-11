@@ -10,7 +10,7 @@
     "test:watch": "jest --watch --no-cache",
     "lint": "npx eslint . --ext .ts",
     "migrate:create": "node-pg-migrate create",
-    "migrate": "tsc && node dist/scripts/migrate.js"
+    "migrate": "ts-node-dev scripts/migrate.ts"
   },
   "keywords": [],
   "author": "",
