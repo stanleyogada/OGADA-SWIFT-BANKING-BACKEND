@@ -1,4 +1,4 @@
-export type TUser = {
+type TUser = {
   id: number;
   created_at: Date;
   updated_at: Date;
@@ -11,3 +11,5 @@ export type TUser = {
   login_passcode: string;
   one_time_password?: string | null;
 };
+
+export type { TUser };
