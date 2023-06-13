@@ -132,4 +132,48 @@ describe("Auth", () => {
     expect(cookieHeader).toBeDefined();
     expect(cookieHeader[0]).toContain("token=;"); // Check if token cookie is empty
   });
+
+  test("Have signup flow completed without errors", async () => {
+    const userId = "1";
+    const user = {
+      first_name: "first_name",
+      last_name: "last_name",
+      middle_name: "middle_name",
+      phone: "1234567891",
+      email: "signup-email@gmail.com",
+      login_passcode: "654321",
+    };
+
+    await request(app()).get(getEndpoint(userId)).expect(404);
+
+    await request(app())
+      .post(ROUTE_PREFIX + "auth/signin")
+      .send({
+        phone: user.phone,
+        login_passcode: user.login_passcode,
+      })
+      .expect(401);
+
+    await request(app())
+      .post(ROUTE_PREFIX + "auth/signup")
+      .send(user)
+      .expect(201);
+
+    await request(app())
+      .post(ROUTE_PREFIX + "auth/signin")
+      .send({
+        phone: user.phone,
+        login_passcode: user.login_passcode,
+      })
+      .expect(200);
+
+    const {
+      body: {
+        data: { phone, email },
+      },
+    } = await request(app()).get(getEndpoint(userId)).expect(200);
+
+    expect(phone).toEqual(user.phone);
+    expect(email).toEqual(user.email);
+  });
 });

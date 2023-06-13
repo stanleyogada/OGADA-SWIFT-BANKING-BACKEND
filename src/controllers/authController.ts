@@ -11,6 +11,7 @@ import { INPUT_SCHEMA_EMAIL_ALLOW_TLDS } from "../constants";
 import handleInputValidate from "../utils/handleInputValidate";
 import handleTryCatch from "../utils/handleTryCatch";
 import APIError from "../utils/APIError";
+import generateOneTimePasscode from "../utils/generateOneTimePasscode";
 
 const signJwt = promisify(jwt.sign);
 
@@ -118,5 +119,49 @@ export const signout = handleTryCatch(async (_req: Request, res: Response) => {
   res.status(200).json({
     status: "success",
     message: "Signed out successfully!",
+  });
+});
+
+export const sendEmailVerification = handleTryCatch(async (req: Request, res: Response) => {
+  await handleInputValidate(req.body, {
+    email: Joi.string()
+      .email({
+        minDomainSegments: 2,
+        tlds: { allow: INPUT_SCHEMA_EMAIL_ALLOW_TLDS },
+      })
+      .required(),
+  });
+
+  const oneTimePasscode = generateOneTimePasscode();
+
+  res.status(200).json({
+    status: "success",
+    oneTimePasscode,
+  });
+});
+
+export const signup = handleTryCatch(async (req: Request, res: Response) => {
+  await handleInputValidate(req.body, {
+    first_name: Joi.string().min(2).max(30).required(),
+    last_name: Joi.string().min(2).max(30).required(),
+    middle_name: Joi.string().min(2).max(30),
+    phone: Joi.string().min(10).max(10).required(),
+    email: Joi.string()
+      .email({
+        minDomainSegments: 2,
+        tlds: { allow: INPUT_SCHEMA_EMAIL_ALLOW_TLDS },
+      })
+      .required(),
+    login_passcode: Joi.string().pattern(new RegExp("^[0-9]{6,6}$")).message('"login_passcode" must be six digits'),
+  });
+
+  const hash = await HashPassword.handleHash(req.body.login_passcode);
+  req.body.login_passcode = hash;
+
+  const user = await UserRepo.createOne(req.body);
+
+  res.status(201).json({
+    status: "success",
+    data: user,
   });
 });
