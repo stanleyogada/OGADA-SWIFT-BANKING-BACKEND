@@ -5,8 +5,8 @@ const handleTryCatch =
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       await cb(req, res, next);
-    } catch (error) {
-      next(error);
+    } catch (err) {
+      next(err);
     }
   };
 
