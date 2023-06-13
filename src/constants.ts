@@ -1,3 +1,0 @@
-const INPUT_SCHEMA_EMAIL_ALLOW_TLDS = ["com", "net"];
-
-export { INPUT_SCHEMA_EMAIL_ALLOW_TLDS };
