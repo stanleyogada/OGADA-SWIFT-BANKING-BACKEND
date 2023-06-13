@@ -111,3 +111,12 @@ export const signin = handleTryCatch(async (req: Request, res: Response, next: N
     token,
   });
 });
+
+export const signout = handleTryCatch(async (_req: Request, res: Response) => {
+  res.clearCookie("token");
+
+  res.status(200).json({
+    status: "success",
+    message: "Signed out successfully!",
+  });
+});

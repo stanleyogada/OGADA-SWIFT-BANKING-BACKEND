@@ -75,7 +75,7 @@ describe("Auth", () => {
     await handleExpectPasscodeHashing(newLoginPasscode, getOneRes.body.data.login_passcode);
   });
 
-  test("Have login flow completed without errors", async () => {
+  test("Have signin flow completed without errors", async () => {
     const userNameSuffix = 100;
     const user = {
       phone: "1234567891",
@@ -120,5 +120,16 @@ describe("Auth", () => {
 
     // Assert that the jwt token expires in 10 minutes
     expect(decodedUser.exp - decodedUser.iat).toBe(10 * 60);
+  });
+
+  test("Have signout flow completed without errors", async () => {
+    const { headers } = await request(app())
+      .get(ROUTE_PREFIX + "auth/signout")
+      .expect(200);
+
+    // Assert the 'Set-Cookie' header to ensure the token cookie is cleared
+    const cookieHeader = headers["set-cookie"];
+    expect(cookieHeader).toBeDefined();
+    expect(cookieHeader[0]).toContain("token=;"); // Check if token cookie is empty
   });
 });
