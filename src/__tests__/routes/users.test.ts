@@ -9,13 +9,13 @@ describe("Users", () => {
   test("Have /Get one and all users working", async () => {
     await handleSignupUser(201);
     await handleSignupUser(201, 2);
-    const { body: allBody } = await request(app()).get(getEndpoint()).expect(200);
+    const { body: allBody } = await request(app()).get(getEndpoint("/users")).expect(200);
     expect(allBody.count).toEqual(2);
-    await request(app()).get(getEndpoint("1")).expect(200);
-    const { body: oneBody } = await request(app()).get(getEndpoint("2")).expect(200);
+    await request(app()).get(getEndpoint("/users", "/1")).expect(200);
+    const { body: oneBody } = await request(app()).get(getEndpoint("/users", "/2")).expect(200);
     expect(oneBody.count).toBeUndefined();
     expect(oneBody.data.id).toEqual(2);
-    await request(app()).get(getEndpoint("3")).expect(404);
+    await request(app()).get(getEndpoint("/users", "/3")).expect(404);
   });
 
   test("Have /Create working", async () => {
@@ -32,23 +32,23 @@ describe("Users", () => {
 
   test("Have /Update working", async () => {
     await handleSignupUser(201, 1);
-    let res: { body: { data: TUser } } = await request(app()).get(getEndpoint("1")).expect(200);
+    let res: { body: { data: TUser } } = await request(app()).get(getEndpoint("/users", "/1")).expect(200);
     expect(res.body.data.nickname).toBeNull();
     expect(res.body.data.email).toEqual("test1@gmail.com");
     await request(app())
-      .patch(getEndpoint("1"))
+      .patch(getEndpoint("/users", "/1"))
       .send({
         nickname: "Test Nickname",
         email: "test2@gmail.com",
       })
       .expect(200);
-    res = await request(app()).get(getEndpoint("1")).expect(200);
+    res = await request(app()).get(getEndpoint("/users", "/1")).expect(200);
     expect(res.body.data.nickname).toEqual("Test Nickname");
     expect(res.body.data.email).toEqual("test2@gmail.com");
     expect(res.body.data.nickname).not.toBeNull();
     expect(res.body.data.email).not.toEqual("test1@gmail.com");
     await request(app())
-      .patch(getEndpoint("3"))
+      .patch(getEndpoint("/users", "/3"))
       .send({
         nickname: "Test Nickname",
       })
@@ -61,14 +61,14 @@ describe("Users", () => {
       await handleSignupUser(201, i);
     }
     expect(await UserRepo.count()).toEqual(3);
-    await request(app()).delete(getEndpoint("4")).expect(404);
+    await request(app()).delete(getEndpoint("/users", "/4")).expect(404);
     expect(await UserRepo.count()).toEqual(3);
     for (const i of [1, 2, 3]) {
       await request(app())
-        .delete(getEndpoint(`${i}`))
+        .delete(getEndpoint("/users", `/${i}`))
         .expect(204);
     }
     expect(await UserRepo.count()).toEqual(0);
-    await request(app()).delete(getEndpoint("1")).expect(404);
+    await request(app()).delete(getEndpoint("/users", "/1")).expect(404);
   });
 });
