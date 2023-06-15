@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import app from "../../app";
 import { TUser } from "../../types/users";
 import HashPassword from "../../utils/HashPassword";
-import { getEndpoint, handleCreateOneUser } from "../../utils/tests";
+import { getEndpoint, handleSignupUser } from "../../utils/tests";
 import { ROUTE_PREFIX } from "../../constants";
 
 describe("Auth", () => {
@@ -17,7 +17,7 @@ describe("Auth", () => {
   test("Hashing `login_passcode` should be working as expected!", async () => {
     const id = 1;
     const login_passcode = "123456";
-    await handleCreateOneUser(201, id, { login_passcode });
+    await handleSignupUser(201, id, { login_passcode });
 
     const { body } = await request(app()).get(getEndpoint(`${id}`));
     await handleExpectPasscodeHashing(login_passcode, body.data.login_passcode);
@@ -33,7 +33,7 @@ describe("Auth", () => {
       login_passcode: oldLoginPasscode,
     };
 
-    await handleCreateOneUser(201, id, payload);
+    await handleSignupUser(201, id, payload);
 
     let getOneRes = await request(app()).get(getEndpoint(`${id}`));
     expect(getOneRes.body.data.one_time_password).toBeNull();
@@ -82,7 +82,7 @@ describe("Auth", () => {
       login_passcode: "654321",
     };
 
-    await handleCreateOneUser(201, userNameSuffix, user);
+    await handleSignupUser(201, userNameSuffix, user);
 
     await request(app())
       .post(ROUTE_PREFIX + "auth/signin")
