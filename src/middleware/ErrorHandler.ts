@@ -28,6 +28,12 @@ const ErrorHandler = (err: APIError, _: Request, res: Response, _next: NextFunct
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
 
+  if (err.name === "JsonWebTokenError") {
+    err.statusCode = 401;
+    err.status = "fail";
+    err.message = "Invalid token. Please log in again!";
+  }
+
   if (app().get("env") === "development") {
     sendDev(err, res);
   } else {

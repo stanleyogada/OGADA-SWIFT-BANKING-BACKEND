@@ -8,6 +8,7 @@ type TUser = {
   nickname?: string;
   phone: string;
   email: string;
+  email_is_verified?: boolean;
   login_passcode: string;
   one_time_password?: string | null;
 };

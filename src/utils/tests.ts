@@ -5,23 +5,24 @@ import app from "../app";
 import { TUser } from "../types/users";
 import { ROUTE_PREFIX } from "../constants";
 
-const getEndpoint = (params?: string) => {
-  return `${ROUTE_PREFIX}users${params ? "/" + params : ""}`;
+type TBody = Omit<Partial<TUser>, "nickname" | "id">;
+
+const getEndpoint = (endpoint: string, params?: string) => {
+  return `${ROUTE_PREFIX}${endpoint}${params ? params : ""}`;
 };
 
-const handleCreateOneUser = async (statusCode: number, n: number = 1, payload?: Partial<TUser>): Promise<Response> => {
-  const body = {
+const handleSignupUser = async (statusCode: number, n: number = 1, payload?: TBody): Promise<Response> => {
+  const body: TBody = {
     first_name: "Test" + n,
     last_name: "Last" + n,
     phone: "123456789" + n,
     middle_name: "Hire",
-    nickname: "Tire",
     email: `test${n}@gmail.com`,
     login_passcode: "123456",
     ...payload,
   };
 
-  return await request(app()).post(getEndpoint()).send(body).expect(statusCode);
+  return await request(app()).post(getEndpoint("/auth/signup")).send(body).expect(statusCode);
 };
 
-export { getEndpoint, handleCreateOneUser };
+export { getEndpoint, handleSignupUser };

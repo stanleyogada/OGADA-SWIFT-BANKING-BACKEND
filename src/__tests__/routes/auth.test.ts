@@ -4,8 +4,7 @@ import jwt from "jsonwebtoken";
 import app from "../../app";
 import { TUser } from "../../types/users";
 import HashPassword from "../../utils/HashPassword";
-import { getEndpoint, handleCreateOneUser } from "../../utils/tests";
-import { ROUTE_PREFIX } from "../../constants";
+import { getEndpoint, handleSignupUser } from "../../utils/tests";
 
 describe("Auth", () => {
   const handleExpectPasscodeHashing = async (loginPasscode: string, hashedLoginPasscode: string) => {
@@ -17,9 +16,9 @@ describe("Auth", () => {
   test("Hashing `login_passcode` should be working as expected!", async () => {
     const id = 1;
     const login_passcode = "123456";
-    await handleCreateOneUser(201, id, { login_passcode });
+    await handleSignupUser(201, id, { login_passcode });
 
-    const { body } = await request(app()).get(getEndpoint(`${id}`));
+    const { body } = await request(app()).get(getEndpoint("/users", `/${id}`));
     await handleExpectPasscodeHashing(login_passcode, body.data.login_passcode);
   });
 
@@ -33,15 +32,15 @@ describe("Auth", () => {
       login_passcode: oldLoginPasscode,
     };
 
-    await handleCreateOneUser(201, id, payload);
+    await handleSignupUser(201, id, payload);
 
-    let getOneRes = await request(app()).get(getEndpoint(`${id}`));
+    let getOneRes = await request(app()).get(getEndpoint("/users", `/${id}`));
     expect(getOneRes.body.data.one_time_password).toBeNull();
 
     await handleExpectPasscodeHashing(oldLoginPasscode, getOneRes.body.data.login_passcode);
 
     const { body } = await request(app())
-      .post(ROUTE_PREFIX + "auth/forgot-login-passcode")
+      .post(getEndpoint("/auth/forgot-login-passcode"))
       .send(
         (() => {
           const p = { ...payload };
@@ -50,27 +49,27 @@ describe("Auth", () => {
         })()
       )
       .expect(200);
-    getOneRes = await request(app()).get(getEndpoint(`${id}`));
+    getOneRes = await request(app()).get(getEndpoint("/users", `/${id}`));
     expect(getOneRes.body.data.one_time_password).toBe(body.data);
 
     await request(app())
-      .post(ROUTE_PREFIX + "auth/forgot-login-passcode")
+      .post(getEndpoint("/auth/forgot-login-passcode"))
       .send({ email: "test2@gmail.com", phone: "1234567891" })
       .expect(404);
     await request(app())
-      .post(ROUTE_PREFIX + "auth/forgot-login-passcode")
+      .post(getEndpoint("/auth/forgot-login-passcode"))
       .send({ email: payload.email, phone: "1234562342" })
       .expect(404);
 
     await request(app())
-      .post(ROUTE_PREFIX + "auth/reset-login-passcode")
+      .post(getEndpoint("/auth/reset-login-passcode"))
       .send({
         new_login_passcode: newLoginPasscode,
         one_time_password: body.data,
       })
       .expect(200);
 
-    getOneRes = await request(app()).get(getEndpoint(`${id}`));
+    getOneRes = await request(app()).get(getEndpoint("/users", `/${id}`));
     expect(getOneRes.body.data.one_time_password).toBeNull();
     await handleExpectPasscodeHashing(newLoginPasscode, getOneRes.body.data.login_passcode);
   });
@@ -82,28 +81,28 @@ describe("Auth", () => {
       login_passcode: "654321",
     };
 
-    await handleCreateOneUser(201, userNameSuffix, user);
+    await handleSignupUser(201, userNameSuffix, user);
 
     await request(app())
-      .post(ROUTE_PREFIX + "auth/signin")
+      .post(getEndpoint("/auth/signin"))
       .send({ phone: "9012343203", login_passcode: user.login_passcode })
-      .expect(401);
+      .expect(400);
 
     await request(app())
-      .post(ROUTE_PREFIX + "auth/signin")
+      .post(getEndpoint("/auth/signin"))
       .send({ phone: user.phone, login_passcode: "123456" })
-      .expect(401);
+      .expect(400);
 
     const {
       headers,
       body: { token },
-    } = await request(app())
-      .post(ROUTE_PREFIX + "auth/signin")
-      .send(user)
-      .expect(200);
+    } = await request(app()).post(getEndpoint("/auth/signin")).send(user).expect(200);
 
     // Assert that the token is valid
-    const decodedUser: TUser & { exp: number; iat: number } = jwt.verify(token, process.env.JWT_PRIVATE_SECRET_KEY);
+    const decodedUser = jwt.verify(token, process.env.JWT_PRIVATE_SECRET_KEY) as unknown as TUser & {
+      exp: number;
+      iat: number;
+    };
     expect(token).toBeTruthy();
     expect(decodedUser.first_name.includes(`${userNameSuffix}`)).toEqual(true);
     expect(decodedUser.last_name.includes(`${userNameSuffix}`)).toEqual(true);
@@ -123,9 +122,7 @@ describe("Auth", () => {
   });
 
   test("Have signout flow completed without errors", async () => {
-    const { headers } = await request(app())
-      .get(ROUTE_PREFIX + "auth/signout")
-      .expect(200);
+    const { headers } = await request(app()).get(getEndpoint("/auth/signout")).expect(200);
 
     // Assert the 'Set-Cookie' header to ensure the token cookie is cleared
     const cookieHeader = headers["set-cookie"];
@@ -144,23 +141,22 @@ describe("Auth", () => {
       login_passcode: "654321",
     };
 
-    await request(app()).get(getEndpoint(userId)).expect(404);
+    await request(app())
+      .get(getEndpoint("/users", `/${userId}`))
+      .expect(404);
 
     await request(app())
-      .post(ROUTE_PREFIX + "auth/signin")
+      .post(getEndpoint("/auth/signin"))
       .send({
         phone: user.phone,
         login_passcode: user.login_passcode,
       })
-      .expect(401);
+      .expect(400);
+
+    await request(app()).post(getEndpoint("/auth/signup")).send(user).expect(201);
 
     await request(app())
-      .post(ROUTE_PREFIX + "auth/signup")
-      .send(user)
-      .expect(201);
-
-    await request(app())
-      .post(ROUTE_PREFIX + "auth/signin")
+      .post(getEndpoint("/auth/signin"))
       .send({
         phone: user.phone,
         login_passcode: user.login_passcode,
@@ -171,7 +167,9 @@ describe("Auth", () => {
       body: {
         data: { phone, email },
       },
-    } = await request(app()).get(getEndpoint(userId)).expect(200);
+    } = await request(app())
+      .get(getEndpoint("/users", `/${userId}`))
+      .expect(200);
 
     expect(phone).toEqual(user.phone);
     expect(email).toEqual(user.email);
