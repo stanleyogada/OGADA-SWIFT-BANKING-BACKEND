@@ -111,10 +111,6 @@ describe("Users", () => {
       })
       .expect(400);
 
-    const {
-      body: { data: user },
-    } = await request(app()).get(getEndpoint("/users", "/1")).expect(200);
-
     expect(await handleComparePassword(new_login_passcode)).toBe(false);
 
     await request(app())
