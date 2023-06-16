@@ -5,7 +5,6 @@ import app from "../../app";
 import { TUser } from "../../types/users";
 import HashPassword from "../../utils/HashPassword";
 import { getEndpoint, handleSignupUser } from "../../utils/tests";
-import { ROUTE_PREFIX } from "../../constants";
 
 describe("Auth", () => {
   const handleExpectPasscodeHashing = async (loginPasscode: string, hashedLoginPasscode: string) => {
@@ -87,12 +86,12 @@ describe("Auth", () => {
     await request(app())
       .post(getEndpoint("/auth/signin"))
       .send({ phone: "9012343203", login_passcode: user.login_passcode })
-      .expect(401);
+      .expect(400);
 
     await request(app())
       .post(getEndpoint("/auth/signin"))
       .send({ phone: user.phone, login_passcode: "123456" })
-      .expect(401);
+      .expect(400);
 
     const {
       headers,
@@ -100,7 +99,10 @@ describe("Auth", () => {
     } = await request(app()).post(getEndpoint("/auth/signin")).send(user).expect(200);
 
     // Assert that the token is valid
-    const decodedUser: TUser & { exp: number; iat: number } = jwt.verify(token, process.env.JWT_PRIVATE_SECRET_KEY);
+    const decodedUser = jwt.verify(token, process.env.JWT_PRIVATE_SECRET_KEY) as unknown as TUser & {
+      exp: number;
+      iat: number;
+    };
     expect(token).toBeTruthy();
     expect(decodedUser.first_name.includes(`${userNameSuffix}`)).toEqual(true);
     expect(decodedUser.last_name.includes(`${userNameSuffix}`)).toEqual(true);
@@ -149,7 +151,7 @@ describe("Auth", () => {
         phone: user.phone,
         login_passcode: user.login_passcode,
       })
-      .expect(401);
+      .expect(400);
 
     await request(app()).post(getEndpoint("/auth/signup")).send(user).expect(201);
 

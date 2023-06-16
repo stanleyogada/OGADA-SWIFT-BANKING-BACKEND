@@ -88,3 +88,30 @@ export const deleteOneUser = handleTryCatch(async (req: Request, res: Response, 
 
   res.status(204).json({});
 });
+
+export const updateLoginPasscode = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
+  await handleInputValidate(req.body, {
+    old_login_passcode: Joi.string()
+      .pattern(new RegExp("^[0-9]{6,6}$"))
+      .message('"old_login_passcode" must be six digits'),
+    new_login_passcode: Joi.string()
+      .pattern(new RegExp("^[0-9]{6,6}$"))
+      .message('"new_login_passcode" must be six digits'),
+  });
+
+  // @ts-ignore
+  const { user } = req;
+
+  const isMatch = await HashPassword.handleCheck(req.body.old_login_passcode, user.login_passcode);
+  if (!isMatch) {
+    return next(new APIError("Old login passcode is incorrect!", 400));
+  }
+
+  const hash = await HashPassword.handleHash(req.body.new_login_passcode);
+  await UserRepo.findOneByAndUpdate({ id: user.id }, { login_passcode: hash });
+
+  res.status(200).json({
+    status: "success",
+    message: "Login passcode updated successfully!",
+  });
+});

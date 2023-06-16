@@ -4,6 +4,7 @@ import app from "../../app";
 import UserRepo from "../../repos/UserRepo";
 import { TUser } from "../../types/users";
 import { getEndpoint, handleSignupUser } from "../../utils/tests";
+import HashPassword from "../../utils/HashPassword";
 
 describe("Users", () => {
   test("Have /Get one and all users working", async () => {
@@ -71,4 +72,69 @@ describe("Users", () => {
     expect(await UserRepo.count()).toEqual(0);
     await request(app()).delete(getEndpoint("/users", "/1")).expect(404);
   });
+
+  test("Have update login passcode flow completed without errors", async () => {
+    const original_old_login_passcode = "123456";
+    const incorrect_old_login_passcode = "982353";
+    const new_login_passcode = "654321";
+    const user_phone = "1234567890";
+
+    await handleSignupUser(201, 1, {
+      login_passcode: original_old_login_passcode,
+      phone: user_phone,
+    });
+
+    await request(app())
+      .patch(getEndpoint("/users/update-login-passcode"))
+      .send({
+        old_login_passcode: original_old_login_passcode,
+        new_login_passcode,
+      })
+      .expect(401);
+
+    const {
+      body: { token },
+    } = await request(app())
+      .post(getEndpoint("/auth/signin"))
+      .send({
+        phone: user_phone,
+        login_passcode: original_old_login_passcode,
+      })
+      .expect(200);
+
+    await request(app())
+      .patch(getEndpoint("/users/update-login-passcode"))
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        old_login_passcode: incorrect_old_login_passcode,
+        new_login_passcode,
+      })
+      .expect(400);
+
+    const {
+      body: { data: user },
+    } = await request(app()).get(getEndpoint("/users", "/1")).expect(200);
+
+    expect(await handleComparePassword(new_login_passcode)).toBe(false);
+
+    await request(app())
+      .patch(getEndpoint("/users/update-login-passcode"))
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        old_login_passcode: original_old_login_passcode,
+        new_login_passcode,
+      })
+      .expect(200);
+
+    expect(await handleComparePassword(new_login_passcode)).toBe(true);
+  });
 });
+
+const handleComparePassword = async (new_login_passcode) => {
+  const {
+    body: { data: user },
+  } = await request(app()).get(getEndpoint("/users", "/1")).expect(200);
+
+  const isMatch = await HashPassword.handleCheck(new_login_passcode, user.login_passcode);
+  return isMatch;
+};

@@ -89,13 +89,14 @@ export const signin = handleTryCatch(async (req: Request, res: Response, next: N
 
   const user = await UserRepo.findOneBy({ phone: req.body.phone });
   if (!user) {
-    return next(new APIError("Invalid credentials!", 401));
+    return next(new APIError("Invalid credentials!", 400));
   }
   const isMatch = await HashPassword.handleCheck(req.body.login_passcode, user.login_passcode);
   if (!isMatch) {
-    return next(new APIError("Invalid credentials!", 401));
+    return next(new APIError("Invalid credentials!", 400));
   }
 
+  // @ts-ignore
   const token = await signJwt(user, process.env.JWT_PRIVATE_SECRET_KEY, { expiresIn: "10m" });
 
   // Set the token as a cookie in the response
