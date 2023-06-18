@@ -9,3 +9,5 @@ test-requests.http
 utils-scripts
 
 .env
+
+*.ppk
