@@ -11,7 +11,8 @@
     "test:watch": "jest --watch --no-cache",
     "lint": "npx eslint . --ext .ts",
     "migrate:create": "node-pg-migrate create",
-    "migrate": "ts-node-dev scripts/migrate.ts"
+    "migrate": "ts-node-dev scripts/migrate.ts",
+    "drop-schemas-roles": "ts-node-dev scripts/drop-schemas-roles.ts"
   },
   "keywords": [],
   "author": "",
