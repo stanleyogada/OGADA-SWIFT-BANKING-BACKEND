@@ -12,7 +12,7 @@ const router = Router();
 
 router.post("/signup", signup);
 router.post("/signin", signin);
-router.get("/signout", signout);
+router.get("/signoutx", signout);
 
 router.post("/send-email-verification", sendEmailVerification);
 
