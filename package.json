@@ -4,8 +4,9 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
+    "start": "tsc && pm2 start dist/src/index.js && pm2 logs index",
+    "restart": "pm2 restart index && pm2 logs index",
     "dev": "ts-node-dev src/index.ts",
-    "start": "tsc && node dist/src/index.js",
     "test": "jest --no-cache",
     "test:watch": "jest --watch --no-cache",
     "lint": "npx eslint . --ext .ts",
