@@ -21,13 +21,11 @@ export default () => {
         return morgan("dev");
       }
 
-      if (process.env.NODE_ENV === "production") {
-        return morgan("combined");
-      }
-
       if (process.env.NODE_ENV === "test") {
         return morgan("tiny");
       }
+
+      return morgan("combined");
     })()
   );
 
