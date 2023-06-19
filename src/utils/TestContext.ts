@@ -17,6 +17,7 @@ const DEFAULT_USER_ROLE_OPTS: TConnectOpts = getDBConnection(true);
 
 class TestContext implements IContext {
   static async build() {
+try{
     const roleName: string = `a${randomBytes(4).toString("hex")}`;
     // 1. Connect with default user-role && Create a new user-role && Create a new schema
     await pool.connect(DEFAULT_USER_ROLE_OPTS);
@@ -44,15 +45,21 @@ class TestContext implements IContext {
     await pool.connect(newUserRoleOpts);
 
     return new TestContext(roleName);
+  
+  } catch(err){
+	  console.error(err, err.message)
+
   }
 
-  private roleName: string = null;
+	  private roleName: string = null;
   constructor(roleName: string) {
     this.roleName = roleName;
   }
-
+  
   async destroy() {
-    // 1. Disconnect the new user-role && Connect with default user-role
+  
+	try{
+	  // 1. Disconnect the new user-role && Connect with default user-role
     await pool.disconnect();
     await pool.connect(DEFAULT_USER_ROLE_OPTS);
 
@@ -63,6 +70,9 @@ class TestContext implements IContext {
 
     // 3. Finally disconnect the default user
     await pool.disconnect();
+  } catch(err){
+  	console.error(err, err.message)
+  }
   }
 
   async reset() {
