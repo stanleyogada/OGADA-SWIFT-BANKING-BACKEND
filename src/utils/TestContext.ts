@@ -22,6 +22,7 @@ class TestContext implements IContext {
       // 1. Connect with default user-role && Create a new user-role && Create a new schema
       await pool.connect(DEFAULT_USER_ROLE_OPTS);
       await pool.query(format("CREATE ROLE %I WITH LOGIN PASSWORD %L", roleName, roleName));
+      await pool.query(format("GRANT %I TO %I;", roleName, DEFAULT_USER_ROLE_OPTS.user));
       await pool.query(format("CREATE SCHEMA %I AUTHORIZATION %I", roleName, roleName));
 
       // 2. Disconnect the default user-role
