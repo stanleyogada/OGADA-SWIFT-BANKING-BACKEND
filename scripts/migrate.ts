@@ -27,6 +27,6 @@ const DEFAULT_USER_OPTS: TConnectOpts = getDBConnection();
 
     console.log("Migration complete", results);
   } catch (err) {
-    console.error("Error running migration", err);
+    console.error("Error running migration", err, "Error running migration");
   }
 })();

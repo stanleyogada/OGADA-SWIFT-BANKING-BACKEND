@@ -14,11 +14,11 @@ interface IContext {
 }
 
 const DEFAULT_USER_ROLE_OPTS: TConnectOpts = getDBConnection(true);
-
+const ROLE_NAME_PREFIX = "test9role";
 class TestContext implements IContext {
   static async build() {
     try {
-      const roleName: string = `a${randomBytes(4).toString("hex")}`;
+      const roleName: string = `${ROLE_NAME_PREFIX}${randomBytes(4).toString("hex")}`;
       // 1. Connect with default user-role && Create a new user-role && Create a new schema
       await pool.connect(DEFAULT_USER_ROLE_OPTS);
       await pool.query(format("CREATE ROLE %I WITH LOGIN PASSWORD %L", roleName, roleName));
@@ -82,3 +82,4 @@ class TestContext implements IContext {
 }
 
 export default TestContext;
+export { ROLE_NAME_PREFIX };
