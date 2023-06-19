@@ -11,7 +11,7 @@
     "lint": "npx eslint . --ext .ts",
     "migrate:create": "node-pg-migrate create",
     "migrate": "ts-node-dev scripts/migrate.ts",
-    "migrate:prod": "tsc && node dist/scripts/migrate.ts"
+    "migrate:prod": "tsc && node dist/scripts/migrate.js"
   },
   "keywords": [],
   "author": "",
