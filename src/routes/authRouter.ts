@@ -20,4 +20,3 @@ router.post("/forgot-login-passcode", forgetLoginPasscode);
 router.post("/reset-login-passcode", resetLoginPasscode);
 
 export default router;
-``;
