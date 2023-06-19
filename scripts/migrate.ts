@@ -11,8 +11,8 @@ const DEFAULT_USER_OPTS: TConnectOpts = getDBConnection();
     const flags = process.argv.slice(2);
 
     const direction = (() => {
-      if (flags.includes("--up")) return "up";
-      if (flags.includes("--down")) return "down";
+      if (flags.includes("up")) return "up";
+      if (flags.includes("down")) return "down";
 
       throw new Error('Please specify "--up" or "--down"');
     })();

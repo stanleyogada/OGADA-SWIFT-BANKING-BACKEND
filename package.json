@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev src/index.ts",
-    "start": "tsc && node dist/index.js",
+    "start": "tsc && node dist/src/index.js",
     "test": "jest --no-cache",
     "test:watch": "jest --watch --no-cache",
     "lint": "npx eslint . --ext .ts",
@@ -24,6 +24,7 @@
     "helmet": "^6.0.1",
     "joi": "^17.8.4",
     "jsonwebtoken": "^9.0.0",
+    "morgan": "^1.10.0",
     "node-pg-migrate": "^6.2.2",
     "pg": "^8.10.0",
     "pg-format": "^1.0.4"

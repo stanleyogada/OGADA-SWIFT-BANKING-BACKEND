@@ -6,7 +6,7 @@ import throwErrorDBConnection from "./utils/getDBConnection";
 import getDBConnection from "./utils/getDBConnection";
 import { TConnectOpts } from "./types/db";
 
-const PORT = process.env.NODE_ENV;
+const PORT = process.env.PORT;
 const DEFAULT_USER_ROLE_OPTS: TConnectOpts = getDBConnection();
 
 throwErrorDBConnection();
