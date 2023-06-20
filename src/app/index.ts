@@ -17,7 +17,7 @@ export default () => {
   // Middleware
   app.use(express.json());
   app.use(helmet());
-  app.use(cors("*"));
+  app.use(cors());
 
   // Logging
   (() => {
