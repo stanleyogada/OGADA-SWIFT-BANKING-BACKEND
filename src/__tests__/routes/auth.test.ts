@@ -104,6 +104,14 @@ describe("Auth", () => {
       .send({ phone: user.phone, login_passcode: "123456" })
       .expect(400);
 
+    await request(app())
+      .post(getEndpoint("/auth/signin"))
+      .send({
+        ...user,
+        not_allowed: "not_allowed",
+      })
+      .expect(400);
+
     const {
       headers,
       body: { token },
@@ -161,6 +169,14 @@ describe("Auth", () => {
       .send({
         phone: user.phone,
         login_passcode: user.login_passcode,
+      })
+      .expect(400);
+
+    await request(app())
+      .post(getEndpoint("/auth/signup"))
+      .send({
+        ...user,
+        not_allowed: "not_allowed",
       })
       .expect(400);
 
