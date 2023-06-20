@@ -2,7 +2,7 @@
   "name": "opay-demo-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "scripts": {
     "start": "tsc && pm2 start dist/src/index.js && pm2 logs index",
     "restart": "pm2 start index && pm2 logs index",
