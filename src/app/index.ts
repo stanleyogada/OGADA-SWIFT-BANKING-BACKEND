@@ -39,7 +39,6 @@ export default () => {
   // Routes
   app.use("/api/v1/users", usersRouter);
   app.use("/api/v1/auth", authRouter);
-  app.use("/api/v1/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
   app.use("*", (req, _res, next) => {
     next(new APIError(`can't find ${req.originalUrl}, with the method:${req.method}, on this server!`));
