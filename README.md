@@ -1,6 +1,6 @@
 # Opay-Demo-Backend
 
-An application solely for education purposes!!
+An application solely for education purposes!
 
 #
 
