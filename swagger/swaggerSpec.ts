@@ -24,7 +24,7 @@ const swaggerOpts = {
       },
     ],
   },
-  apis: ["swagger/annotations/users.ts"], // Path to your user controller file
+  apis: ["swagger/annotations/user.ts", "swagger/annotations/auth.ts"],
 };
 
 const swaggerSpec = swaggerJSDoc(swaggerOpts);

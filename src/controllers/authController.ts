@@ -153,7 +153,10 @@ export const signup = handleTryCatch(async (req: Request, res: Response) => {
         tlds: { allow: INPUT_SCHEMA_EMAIL_ALLOW_TLDS },
       })
       .required(),
-    login_passcode: Joi.string().pattern(new RegExp("^[0-9]{6,6}$")).message('"login_passcode" must be six digits'),
+    login_passcode: Joi.string()
+      .pattern(new RegExp("^[0-9]{6,6}$"))
+      .message('"login_passcode" must be six digits')
+      .required(),
   });
 
   const hash = await HashPassword.handleHash(req.body.login_passcode);
