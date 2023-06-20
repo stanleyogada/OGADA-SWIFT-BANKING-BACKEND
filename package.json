@@ -1,7 +1,7 @@
 {
   "name": "opay-demo-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "An application solely for education purposes!",
   "main": "dist/src/index.js",
   "scripts": {
     "start": "tsc && pm2 start dist/src/index.js && pm2 logs index",
