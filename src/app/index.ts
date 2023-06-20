@@ -18,19 +18,23 @@ export default () => {
   app.use(express.json());
   app.use(helmet());
   app.use(cors());
-  app.use(
-    (() => {
-      if (process.env.NODE_ENV === "development") {
-        return morgan("dev");
-      }
 
-      if (process.env.NODE_ENV === "test") {
-        return morgan("tiny");
-      }
+  // Logging
+  (() => {
+    if (process.env.NODE_ENV === "test") return;
 
-      return morgan("combined");
-    })()
-  );
+    app.use(
+      (() => {
+        if (process.env.NODE_ENV === "development") {
+          return morgan("dev");
+        }
+
+        if (process.env.NODE_ENV === "production") {
+          return morgan("combined");
+        }
+      })()
+    );
+  })();
 
   // Routes
   app.use("/api/v1/users", usersRouter);
