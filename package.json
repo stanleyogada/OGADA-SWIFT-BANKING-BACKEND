@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "tsc && pm2 start dist/src/index.js && pm2 logs index",
-    "restart": "tsc && pm2 restart index && pm2 logs index",
+    "restart": "pm2 start index && pm2 logs index",
     "dev": "ts-node-dev src/index.ts",
     "test": "jest --no-cache",
     "test:watch": "jest --watch --no-cache",
