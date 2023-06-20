@@ -8,7 +8,7 @@ const { promisify } = require("util");
 
 const verifyJwt = promisify(jwt.verify);
 
-const handleProtectedRoute = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
+const handleProtectedRoute = handleTryCatch(async (req: Request, _, next: NextFunction) => {
   const token = req.headers.authorization?.split(" ")[1];
   const decoded = await verifyJwt(token, process.env.JWT_PRIVATE_SECRET_KEY);
 

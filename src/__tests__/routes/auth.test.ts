@@ -26,6 +26,7 @@ describe("Auth", () => {
     const id = 1;
     const oldLoginPasscode = "123456";
     const newLoginPasscode = "654321";
+    const incorrectOneTimePassword = "12345678901234567890";
     const payload: Partial<TUser> = {
       email: "test@gmail.com",
       phone: "1234567890",
@@ -39,7 +40,18 @@ describe("Auth", () => {
 
     await handleExpectPasscodeHashing(oldLoginPasscode, getOneRes.body.data.login_passcode);
 
-    const { body } = await request(app())
+    await request(app())
+      .post(getEndpoint("/auth/forgot-login-passcode"))
+      .send({ email: "test2@gmail.com", phone: payload.phone })
+      .expect(404);
+    await request(app())
+      .post(getEndpoint("/auth/forgot-login-passcode"))
+      .send({ email: payload.email, phone: "1234562342" })
+      .expect(404);
+
+    const {
+      body: { data: oneTimePassword },
+    } = await request(app())
       .post(getEndpoint("/auth/forgot-login-passcode"))
       .send(
         (() => {
@@ -50,22 +62,21 @@ describe("Auth", () => {
       )
       .expect(200);
     getOneRes = await request(app()).get(getEndpoint("/users", `/${id}`));
-    expect(getOneRes.body.data.one_time_password).toBe(body.data);
-
-    await request(app())
-      .post(getEndpoint("/auth/forgot-login-passcode"))
-      .send({ email: "test2@gmail.com", phone: "1234567891" })
-      .expect(404);
-    await request(app())
-      .post(getEndpoint("/auth/forgot-login-passcode"))
-      .send({ email: payload.email, phone: "1234562342" })
-      .expect(404);
+    expect(getOneRes.body.data.one_time_password).toBe(oneTimePassword);
 
     await request(app())
       .post(getEndpoint("/auth/reset-login-passcode"))
       .send({
         new_login_passcode: newLoginPasscode,
-        one_time_password: body.data,
+        one_time_password: incorrectOneTimePassword,
+      })
+      .expect(400);
+
+    await request(app())
+      .post(getEndpoint("/auth/reset-login-passcode"))
+      .send({
+        new_login_passcode: newLoginPasscode,
+        one_time_password: oneTimePassword,
       })
       .expect(200);
 

@@ -38,6 +38,12 @@ export const forgetLoginPasscode = handleTryCatch(async (req: Request, res: Resp
   }
 
   // TODO: Send one_time_password to user's email address
+  // TODO: sendEmail({ // TODO: Uncomment this
+  // to: user.email,
+  // subject: "One Time Password",
+  // text: `Your one time password is ${one_time_password}`,
+  // }); // TODO: Uncomment this
+
   const json = (() => {
     if (process.env.NODE_ENV === "test")
       return {
@@ -47,29 +53,33 @@ export const forgetLoginPasscode = handleTryCatch(async (req: Request, res: Resp
 
     return {
       status: "success",
+      message: "One time password sent to your email address!",
     };
   })();
 
   res.status(200).json(json);
 });
 
-export const resetLoginPasscode = handleTryCatch(async (req: Request, res: Response) => {
+export const resetLoginPasscode = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
   await handleInputValidate(req.body, {
     new_login_passcode: Joi.string()
       .pattern(new RegExp("^[0-9]{6,6}$"))
-      .message('"new_login_passcode" must be six digits'),
+      .message('"new_login_passcode" must be six digits')
+      .required(),
     one_time_password: Joi.string()
       .pattern(new RegExp("^[0-9a-z]{20,20}$", "i"))
-      .message('"one_time_password" must be valid'),
+      .message('"one_time_password" must be valid')
+      .required(),
   });
 
   const hash = await HashPassword.handleHash(req.body.new_login_passcode);
-
-  // TODO: const user = await UserRepo.findOneBy({ one_time_password: req.body.one_time_password });
-  // TODO: if(new Date(user.expire_at).getTime() < new Date().getTime()) return next(new APIError("Expe"))
+  const user = await UserRepo.findOneBy({ one_time_password: req.body.one_time_password });
+  if (!user) {
+    return next(new APIError("Invalid one time password!", 400));
+  }
 
   await UserRepo.findOneByAndUpdate(
-    { one_time_password: req.body.one_time_password },
+    { id: user.id },
     {
       one_time_password: null,
       login_passcode: hash,
@@ -78,13 +88,17 @@ export const resetLoginPasscode = handleTryCatch(async (req: Request, res: Respo
 
   res.status(200).json({
     status: "success",
+    message: "Login passcode reset successfully!",
   });
 });
 
 export const signin = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
   await handleInputValidate(req.body, {
     phone: Joi.string().min(10).max(10).required(),
-    login_passcode: Joi.string().pattern(new RegExp("^[0-9]{6,6}$")).message('"login_passcode" must be six digits'),
+    login_passcode: Joi.string()
+      .pattern(new RegExp("^[0-9]{6,6}$"))
+      .message('"login_passcode" must be six digits')
+      .required(),
   });
 
   const user = await UserRepo.findOneBy({ phone: req.body.phone });
@@ -123,24 +137,6 @@ export const signout = handleTryCatch(async (_req: Request, res: Response) => {
   });
 });
 
-export const sendEmailVerification = handleTryCatch(async (req: Request, res: Response) => {
-  await handleInputValidate(req.body, {
-    email: Joi.string()
-      .email({
-        minDomainSegments: 2,
-        tlds: { allow: INPUT_SCHEMA_EMAIL_ALLOW_TLDS },
-      })
-      .required(),
-  });
-
-  const oneTimePasscode = generateOneTimePasscode();
-
-  res.status(200).json({
-    status: "success",
-    oneTimePasscode,
-  });
-});
-
 export const signup = handleTryCatch(async (req: Request, res: Response) => {
   await handleInputValidate(req.body, {
     first_name: Joi.string().min(2).max(30).required(),
@@ -153,7 +149,10 @@ export const signup = handleTryCatch(async (req: Request, res: Response) => {
         tlds: { allow: INPUT_SCHEMA_EMAIL_ALLOW_TLDS },
       })
       .required(),
-    login_passcode: Joi.string().pattern(new RegExp("^[0-9]{6,6}$")).message('"login_passcode" must be six digits'),
+    login_passcode: Joi.string()
+      .pattern(new RegExp("^[0-9]{6,6}$"))
+      .message('"login_passcode" must be six digits')
+      .required(),
   });
 
   const hash = await HashPassword.handleHash(req.body.login_passcode);
@@ -166,3 +165,21 @@ export const signup = handleTryCatch(async (req: Request, res: Response) => {
     data: user,
   });
 });
+
+// export const sendEmailVerification = handleTryCatch(async (req: Request, res: Response) => {
+//   await handleInputValidate(req.body, {
+//     email: Joi.string()
+//       .email({
+//         minDomainSegments: 2,
+//         tlds: { allow: INPUT_SCHEMA_EMAIL_ALLOW_TLDS },
+//       })
+//       .required(),
+//   });
+
+//   const oneTimePasscode = generateOneTimePasscode();
+
+//   res.status(200).json({
+//     status: "success",
+//     oneTimePasscode,
+//   });
+// });
