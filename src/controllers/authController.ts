@@ -101,7 +101,7 @@ export const signin = handleTryCatch(async (req: Request, res: Response, next: N
       .required(),
   });
 
-  const user = await UserRepo.findOneBy({ phone: req.body.phone }, ["login_passcode", "one_time_password"]);
+  const user = await UserRepo.findOneBy({ phone: req.body.phone }, ["login_passcode"]);
   if (!user) {
     return next(new APIError("Invalid credentials!", 400));
   }
@@ -123,6 +123,9 @@ export const signin = handleTryCatch(async (req: Request, res: Response, next: N
     // sameSite: "strict", // TODO: Add this back or Add CORS to app middleware
     maxAge: 600000,
   });
+
+  // remove all sensitive data
+  delete user.login_passcode;
 
   res.status(200).json({
     status: "success",
