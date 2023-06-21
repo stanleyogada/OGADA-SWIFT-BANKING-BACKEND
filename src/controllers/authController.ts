@@ -11,7 +11,7 @@ import { INPUT_SCHEMA_EMAIL_ALLOW_TLDS } from "../constants";
 import handleInputValidate from "../utils/handleInputValidate";
 import handleTryCatch from "../utils/handleTryCatch";
 import APIError from "../utils/APIError";
-import generateOneTimePasscode from "../utils/generateOneTimePasscode";
+import handleDeleteReturnCols from "../utils/handleDeleteReturnCols";
 
 const signJwt = promisify(jwt.sign);
 
@@ -101,12 +101,11 @@ export const signin = handleTryCatch(async (req: Request, res: Response, next: N
       .required(),
   });
 
-  const user = await UserRepo.findOneBy({ phone: req.body.phone }, ["login_passcode"]);
+  const returnCols = ["login_passcode"];
+  const user = await UserRepo.findOneBy({ phone: req.body.phone }, returnCols);
   if (!user) {
     return next(new APIError("Invalid credentials!", 400));
   }
-
-  // console.log({ user });
 
   const isMatch = await HashPassword.handleCheck(req.body.login_passcode, user.login_passcode);
   if (!isMatch) {
@@ -114,7 +113,9 @@ export const signin = handleTryCatch(async (req: Request, res: Response, next: N
   }
 
   // @ts-ignore
-  const token = await signJwt(user, process.env.JWT_PRIVATE_SECRET_KEY, { expiresIn: "10m" });
+  const token = await signJwt(handleDeleteReturnCols(user, returnCols), process.env.JWT_PRIVATE_SECRET_KEY, {
+    expiresIn: "10m",
+  });
 
   // Set the token as a cookie in the response
   res.cookie("token", token, {
@@ -124,12 +125,9 @@ export const signin = handleTryCatch(async (req: Request, res: Response, next: N
     maxAge: 600000,
   });
 
-  // remove all sensitive data
-  delete user.login_passcode;
-
   res.status(200).json({
     status: "success",
-    data: user,
+    data: handleDeleteReturnCols(user, returnCols),
     token,
   });
 });

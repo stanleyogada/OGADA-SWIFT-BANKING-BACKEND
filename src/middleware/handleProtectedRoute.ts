@@ -3,6 +3,7 @@ import type { NextFunction, Request, Response } from "express";
 import handleTryCatch from "../utils/handleTryCatch";
 import APIError from "../utils/APIError";
 import { TRequestUser } from "../types/api";
+import handleDeleteReturnCols from "../utils/handleDeleteReturnCols";
 
 const jwt = require("jsonwebtoken");
 const { promisify } = require("util");
@@ -14,7 +15,7 @@ const handleProtectedRoute = handleTryCatch(async (req: TRequestUser, _, next: N
   const decoded = await verifyJwt(token, process.env.JWT_PRIVATE_SECRET_KEY);
 
   if (decoded) {
-    req.user = decoded;
+    req.user = handleDeleteReturnCols(decoded, ["exp", "iat"]) as TRequestUser["user"];
     return next();
   }
 

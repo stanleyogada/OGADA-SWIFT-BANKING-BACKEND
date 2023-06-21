@@ -10,12 +10,8 @@ const handleInputValidate = async (
   next: NextFunction,
   schemaObject: PartialSchemaMap<unknown>
 ) => {
-  try {
-    const schema = Joi.object(schemaObject);
-    await schema.validateAsync(reqBody);
-  } catch (err) {
-    next(new APIError(err.message, 400));
-  }
+  const schema = Joi.object(schemaObject);
+  await schema.validateAsync(reqBody);
 };
 
 export default handleInputValidate;

@@ -10,7 +10,7 @@ const sendDev = (err: APIError, res: Response) => {
 };
 
 const sendProd = (err: APIError, res: Response) => {
-  if (err.isAPIError) {
+  if (err.isAPIError || err.status === "fail") {
     return res.status(err.statusCode).json({
       status: err.status,
       message: err.message,
@@ -32,6 +32,12 @@ const ErrorHandler = (err: APIError, _: Request, res: Response, _next: NextFunct
     err.statusCode = 401;
     err.status = "fail";
     err.message = "Invalid token. Please log in again!";
+  }
+
+  if (err.stack.includes("ValidationError")) {
+    err.statusCode = 400;
+    err.status = "fail";
+    err.message = "Invalid request body";
   }
 
   if (app().get("env") === "development") {

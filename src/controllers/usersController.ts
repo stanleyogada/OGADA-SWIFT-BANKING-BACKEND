@@ -8,6 +8,7 @@ import handleInputValidate from "../utils/handleInputValidate";
 import handleTryCatch from "../utils/handleTryCatch";
 import APIError from "../utils/APIError";
 import { TRequestUser } from "../types/api";
+import handleDeleteReturnCols from "../utils/handleDeleteReturnCols";
 
 export const getAllUsers = handleTryCatch(async (_, res: Response) => {
   const users = await UserRepo.findManyBy();
@@ -43,11 +44,11 @@ export const updateOneUser = handleTryCatch(async (req: TRequestUser, res: Respo
 
   const { user } = req;
 
-  await UserRepo.findOneByAndUpdate({ id: +user.id }, req.body);
+  const _user = await UserRepo.findOneByAndUpdate({ id: +user.id }, req.body);
 
   res.status(200).json({
     status: "success",
-    data: user,
+    data: _user,
   });
 });
 
