@@ -31,8 +31,8 @@ export const getOneUser = handleTryCatch(async (req: Request, res: Response, nex
   });
 });
 
-export const createOneUser = handleTryCatch(async (req: Request, res: Response) => {
-  await handleInputValidate(req.body, {
+export const createOneUser = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
+  await handleInputValidate(req.body, next, {
     first_name: Joi.string().min(3).max(30).required(),
     last_name: Joi.string().min(3).max(30).required(),
     middle_name: Joi.string().min(3).max(30),
@@ -62,7 +62,7 @@ export const createOneUser = handleTryCatch(async (req: Request, res: Response) 
 });
 
 export const updateOneUser = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
-  await handleInputValidate(req.body, {
+  await handleInputValidate(req.body, next, {
     nickname: Joi.string().min(3).max(30),
     email: Joi.string().email({
       minDomainSegments: 2,
@@ -93,7 +93,7 @@ export const deleteOneUser = handleTryCatch(async (req: Request, res: Response, 
 });
 
 export const updateLoginPasscode = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
-  await handleInputValidate(req.body, {
+  await handleInputValidate(req.body, next, {
     old_login_passcode: Joi.string()
       .pattern(new RegExp("^[0-9]{6,6}$"))
       .message('"old_login_passcode" must be six digits'),

@@ -16,7 +16,7 @@ import generateOneTimePasscode from "../utils/generateOneTimePasscode";
 const signJwt = promisify(jwt.sign);
 
 export const forgetLoginPasscode = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
-  await handleInputValidate(req.body, {
+  await handleInputValidate(req.body, next, {
     phone: Joi.string().min(10).max(10).required(),
     email: Joi.string()
       .email({
@@ -61,7 +61,7 @@ export const forgetLoginPasscode = handleTryCatch(async (req: Request, res: Resp
 });
 
 export const resetLoginPasscode = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
-  await handleInputValidate(req.body, {
+  await handleInputValidate(req.body, next, {
     new_login_passcode: Joi.string()
       .pattern(new RegExp("^[0-9]{6,6}$"))
       .message('"new_login_passcode" must be six digits')
@@ -93,7 +93,7 @@ export const resetLoginPasscode = handleTryCatch(async (req: Request, res: Respo
 });
 
 export const signin = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
-  await handleInputValidate(req.body, {
+  await handleInputValidate(req.body, next, {
     phone: Joi.string().min(10).max(10).required(),
     login_passcode: Joi.string()
       .pattern(new RegExp("^[0-9]{6,6}$"))
@@ -137,8 +137,8 @@ export const signout = handleTryCatch(async (_req: Request, res: Response) => {
   });
 });
 
-export const signup = handleTryCatch(async (req: Request, res: Response) => {
-  await handleInputValidate(req.body, {
+export const signup = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
+  await handleInputValidate(req.body, next, {
     first_name: Joi.string().min(2).max(30).required(),
     last_name: Joi.string().min(2).max(30).required(),
     middle_name: Joi.string().min(2).max(30),
@@ -166,8 +166,8 @@ export const signup = handleTryCatch(async (req: Request, res: Response) => {
   });
 });
 
-// export const sendEmailVerification = handleTryCatch(async (req: Request, res: Response) => {
-//   await handleInputValidate(req.body, {
+// export const sendEmailVerification = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
+//   await handleInputValidate(req.body, next, {
 //     email: Joi.string()
 //       .email({
 //         minDomainSegments: 2,
