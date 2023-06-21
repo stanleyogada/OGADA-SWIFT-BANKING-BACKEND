@@ -45,7 +45,7 @@ export const forgetLoginPasscode = handleTryCatch(async (req: Request, res: Resp
   // }); // TODO: Uncomment this
 
   const json = (() => {
-    if (process.env.NODE_ENV === "test")
+    if (process.env.NODE_ENV !== "production")
       return {
         status: "success",
         data: one_time_password,
@@ -122,7 +122,7 @@ export const signin = handleTryCatch(async (req: Request, res: Response, next: N
     httpOnly: true,
     secure: true,
     // sameSite: "strict", // TODO: Add this back or Add CORS to app middleware
-    maxAge: 600000,
+    maxAge: 1000 * 60 * 10, // 10 minutes
   });
 
   res.status(200).json({
