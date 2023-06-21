@@ -21,29 +21,30 @@ class UserRepo {
     return rows;
   }
 
-  static async findOneBy(payload?: Partial<TUser>) {
-    const rows = await repo.findManyBy(payload);
+  static async findOneBy(payload?: Partial<TUser>, returnCols?: Repo<TUser>["cols"]) {
+    const rows = await repo.findManyBy(payload, returnCols);
     return rows[0];
   }
 
-  static async createOne(payload: TUser) {
-    const row = await repo.createOne(payload);
+  static async createOne(payload: TUser, returnCols?: Repo<TUser>["cols"]) {
+    const row = await repo.createOne(payload, returnCols);
 
     return row;
   }
 
   static async findOneByAndUpdate(
     findByPayload: Partial<TUser>,
-    updatePayload: Partial<Pick<TUser, "nickname" | "email" | "one_time_password" | "login_passcode">>
+    updatePayload: Partial<Pick<TUser, "nickname" | "email" | "one_time_password" | "login_passcode">>,
+    returnCols?: Repo<TUser>["cols"]
   ) {
-    const rows = await repo.findManyByAndUpdate(findByPayload, updatePayload);
+    const rows = await repo.findManyByAndUpdate(findByPayload, updatePayload, returnCols);
     return rows[0];
   }
 
-  static async deleteOneById(id: string) {
+  static async deleteOneById(id: string, returnCols?: Repo<TUser>["cols"]) {
     const payload: Partial<TUser> = { id: +id };
 
-    const rows = await repo.deleteManyBy(payload);
+    const rows = await repo.deleteManyBy(payload, returnCols);
     return rows[0];
   }
 

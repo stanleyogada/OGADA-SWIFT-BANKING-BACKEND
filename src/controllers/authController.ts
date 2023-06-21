@@ -101,10 +101,13 @@ export const signin = handleTryCatch(async (req: Request, res: Response, next: N
       .required(),
   });
 
-  const user = await UserRepo.findOneBy({ phone: req.body.phone });
+  const user = await UserRepo.findOneBy({ phone: req.body.phone }, ["login_passcode", "one_time_password"]);
   if (!user) {
     return next(new APIError("Invalid credentials!", 400));
   }
+
+  // console.log({ user });
+
   const isMatch = await HashPassword.handleCheck(req.body.login_passcode, user.login_passcode);
   if (!isMatch) {
     return next(new APIError("Invalid credentials!", 400));

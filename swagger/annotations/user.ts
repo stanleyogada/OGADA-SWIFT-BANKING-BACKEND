@@ -95,8 +95,9 @@
  *     summary: Update a user by ID
  *     tags: [Users]
  *     parameters:
- *       - in: path
- *         name: id
+ *       - in: header
+ *         name: Authorization
+ *         description: Bearer token
  *         required: true
  *         schema:
  *           type: string
