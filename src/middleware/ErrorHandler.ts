@@ -28,7 +28,7 @@ const ErrorHandler = (err: APIError, _: Request, res: Response, _next: NextFunct
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
 
-  if (err.name === "JsonWebTokenError") {
+  if (["JsonWebTokenError", "TokenExpiredError"].includes(err.name)) {
     err.statusCode = 401;
     err.status = "fail";
     err.message = "Invalid token. Please log in again!";

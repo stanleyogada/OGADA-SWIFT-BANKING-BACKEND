@@ -65,13 +65,16 @@ export const updateLoginPasscode = handleTryCatch(async (req: TRequestUser, res:
   await handleInputValidate(req.body, next, {
     old_login_passcode: Joi.string()
       .pattern(new RegExp("^[0-9]{6,6}$"))
-      .message('"old_login_passcode" must be six digits'),
+      .message('"old_login_passcode" must be six digits')
+      .required(),
     new_login_passcode: Joi.string()
       .pattern(new RegExp("^[0-9]{6,6}$"))
-      .message('"new_login_passcode" must be six digits'),
+      .message('"new_login_passcode" must be six digits')
+      .required(),
   });
 
-  const { user } = req;
+  const { user: _user } = req;
+  const user = await UserRepo.findOneBy({ id: +_user.id }, ["login_passcode"]);
 
   const isMatch = await HashPassword.handleCheck(req.body.old_login_passcode, user.login_passcode);
   if (!isMatch) {
