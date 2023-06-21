@@ -32,28 +32,44 @@ describe("Users", () => {
   });
 
   test("Have /Update working", async () => {
-    await handleSignupUser(201, 1);
-    let res: { body: { data: TUser } } = await request(app()).get(getEndpoint("/users", "/1")).expect(200);
+    const user = {
+      login_passcode: "123456",
+      phone: "1234567890",
+    };
+
+    await handleSignupUser(201, 1, user);
+
+    let res: { body: { data: TUser } } = await request(app()).get(getEndpoint("/users/1")).expect(200);
     expect(res.body.data.nickname).toBeNull();
     expect(res.body.data.email).toEqual("test1@gmail.com");
+
     await request(app())
-      .patch(getEndpoint("/users", "/1"))
+      .patch(getEndpoint("/users"))
+      .send({
+        nickname: "Test Nickname",
+        email: "test2@gmail.com",
+      })
+      .expect(401);
+
+    const {
+      body: { token },
+    } = await request(app()).post(getEndpoint("/auth/signin")).send(user).expect(200);
+
+    await request(app())
+      .patch(getEndpoint("/users"))
+      .set("Authorization", `Bearer ${token}`)
       .send({
         nickname: "Test Nickname",
         email: "test2@gmail.com",
       })
       .expect(200);
-    res = await request(app()).get(getEndpoint("/users", "/1")).expect(200);
+
+    res = await request(app()).get(getEndpoint("/users/1")).expect(200);
+
     expect(res.body.data.nickname).toEqual("Test Nickname");
     expect(res.body.data.email).toEqual("test2@gmail.com");
     expect(res.body.data.nickname).not.toBeNull();
     expect(res.body.data.email).not.toEqual("test1@gmail.com");
-    await request(app())
-      .patch(getEndpoint("/users", "/3"))
-      .send({
-        nickname: "Test Nickname",
-      })
-      .expect(404);
   });
 
   test("Have /Delete working", async () => {

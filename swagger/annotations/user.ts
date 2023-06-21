@@ -90,55 +90,6 @@
 
 /**
  * @swagger
- * /api/v1/users:
- *   post:
- *     summary: Create a new user
- *     tags: [Users]
- *     requestBody:
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               first_name:
- *                 type: string
- *                 require: true
- *               last_name:
- *                 type: string
- *                 require: true
- *               middle_name:
- *                 type: string
- *               nickname:
- *                 type: string
- *               phone:
- *                 type: string
- *                 require: true
- *               email:
- *                 type: string
- *                 require: true
- *               login_passcode:
- *                 type: string
- *                 require: true
- *     responses:
- *       201:
- *         description: Successful response
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                 data:
- *                   $ref: '#/components/schemas/TUser'
- *       400:
- *         description: Invalid request body
- *       500:
- *         description: Internal server error
- */
-
-/**
- * @swagger
  * /api/v1/users/{id}:
  *   patch:
  *     summary: Update a user by ID

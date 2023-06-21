@@ -13,8 +13,8 @@ const router = Router();
 router.get("/", getAllUsers);
 router.get("/:id", getOneUser);
 
+router.patch("/", handleProtectedRoute, updateOneUser);
 router.patch("/update-login-passcode", handleProtectedRoute, updateLoginPasscode);
-router.patch("/:id", updateOneUser);
 
 router.delete("/:id", deleteOneUser);
 

@@ -2,18 +2,18 @@ import type { NextFunction, Request, Response } from "express";
 
 import handleTryCatch from "../utils/handleTryCatch";
 import APIError from "../utils/APIError";
+import { TRequestUser } from "../types/api";
 
 const jwt = require("jsonwebtoken");
 const { promisify } = require("util");
 
 const verifyJwt = promisify(jwt.verify);
 
-const handleProtectedRoute = handleTryCatch(async (req: Request, _, next: NextFunction) => {
+const handleProtectedRoute = handleTryCatch(async (req: TRequestUser, _, next: NextFunction) => {
   const token = req.headers.authorization?.split(" ")[1];
   const decoded = await verifyJwt(token, process.env.JWT_PRIVATE_SECRET_KEY);
 
   if (decoded) {
-    // @ts-ignore
     req.user = decoded;
     return next();
   }

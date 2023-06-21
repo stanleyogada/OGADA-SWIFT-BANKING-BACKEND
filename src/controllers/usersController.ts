@@ -7,6 +7,7 @@ import { INPUT_SCHEMA_EMAIL_ALLOW_TLDS } from "../constants";
 import handleInputValidate from "../utils/handleInputValidate";
 import handleTryCatch from "../utils/handleTryCatch";
 import APIError from "../utils/APIError";
+import { TRequestUser } from "../types/api";
 
 export const getAllUsers = handleTryCatch(async (_, res: Response) => {
   const users = await UserRepo.findManyBy();
@@ -31,7 +32,7 @@ export const getOneUser = handleTryCatch(async (req: Request, res: Response, nex
   });
 });
 
-export const updateOneUser = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
+export const updateOneUser = handleTryCatch(async (req: TRequestUser, res: Response, next: NextFunction) => {
   await handleInputValidate(req.body, next, {
     nickname: Joi.string().min(3).max(30),
     email: Joi.string().email({
@@ -40,11 +41,9 @@ export const updateOneUser = handleTryCatch(async (req: Request, res: Response, 
     }),
   });
 
-  const user = await UserRepo.findOneByAndUpdate({ id: +req.params.id }, req.body);
+  const { user } = req;
 
-  if (!user) {
-    return next(new APIError("User not found!", 404));
-  }
+  await UserRepo.findOneByAndUpdate({ id: +user.id }, req.body);
 
   res.status(200).json({
     status: "success",
@@ -62,7 +61,7 @@ export const deleteOneUser = handleTryCatch(async (req: Request, res: Response, 
   res.status(204).json({});
 });
 
-export const updateLoginPasscode = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
+export const updateLoginPasscode = handleTryCatch(async (req: TRequestUser, res: Response, next: NextFunction) => {
   await handleInputValidate(req.body, next, {
     old_login_passcode: Joi.string()
       .pattern(new RegExp("^[0-9]{6,6}$"))
@@ -72,7 +71,6 @@ export const updateLoginPasscode = handleTryCatch(async (req: Request, res: Resp
       .message('"new_login_passcode" must be six digits'),
   });
 
-  // @ts-ignore
   const { user } = req;
 
   const isMatch = await HashPassword.handleCheck(req.body.old_login_passcode, user.login_passcode);
