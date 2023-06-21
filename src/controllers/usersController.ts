@@ -31,36 +31,6 @@ export const getOneUser = handleTryCatch(async (req: Request, res: Response, nex
   });
 });
 
-export const createOneUser = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
-  await handleInputValidate(req.body, next, {
-    first_name: Joi.string().min(3).max(30).required(),
-    last_name: Joi.string().min(3).max(30).required(),
-    middle_name: Joi.string().min(3).max(30),
-    nickname: Joi.string().min(3).max(30),
-    phone: Joi.string().min(10).max(10).required(),
-    email: Joi.string()
-      .email({
-        minDomainSegments: 2,
-        tlds: { allow: INPUT_SCHEMA_EMAIL_ALLOW_TLDS },
-      })
-      .required(),
-    login_passcode: Joi.string()
-      .pattern(new RegExp("^[0-9]{6,6}$"))
-      .message('"login_passcode" must be six digits')
-      .required(),
-  });
-
-  const hash = await HashPassword.handleHash(req.body.login_passcode);
-  req.body.login_passcode = hash;
-
-  const user = await UserRepo.createOne(req.body);
-
-  res.status(201).json({
-    status: "success",
-    data: user,
-  });
-});
-
 export const updateOneUser = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
   await handleInputValidate(req.body, next, {
     nickname: Joi.string().min(3).max(30),
