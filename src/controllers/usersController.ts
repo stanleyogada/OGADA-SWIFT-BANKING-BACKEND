@@ -43,12 +43,11 @@ export const updateOneUser = handleTryCatch(async (req: TRequestUser, res: Respo
   });
 
   const { user } = req;
-
-  const _user = await UserRepo.findOneByAndUpdate({ id: +user.id }, req.body);
+  await UserRepo.findOneByAndUpdate({ id: +user.id }, req.body);
 
   res.status(200).json({
     status: "success",
-    data: _user,
+    message: "User updated successfully!",
   });
 });
 
