@@ -15,11 +15,22 @@ describe("Auth", () => {
 
   test("Hashing `login_passcode` should be working as expected!", async () => {
     const id = 1;
-    const login_passcode = "123456";
-    await handleSignupUser(201, id, { login_passcode });
 
-    const { body } = await request(app()).get(getEndpoint("/users", `/${id}`));
-    await handleExpectPasscodeHashing(login_passcode, body.data.login_passcode);
+    const user = {
+      phone: "1234567890",
+      login_passcode: "123456",
+    };
+
+    await handleSignupUser(201, id, user);
+
+    const { token } = await handleSigninUser(200, user);
+
+    const { body } = await request(app())
+      .get(getEndpoint(`/users/${id}`))
+      .set("Authorization", `Bearer ${token}`)
+      .expect(200);
+
+    await handleExpectPasscodeHashing(user.login_passcode, body.data.login_passcode);
   });
 
   test("Have forget/reset `login_passcode` flow completed without errors", async () => {
@@ -35,7 +46,15 @@ describe("Auth", () => {
 
     await handleSignupUser(201, id, payload);
 
-    let getOneRes = await request(app()).get(getEndpoint("/users", `/${id}`));
+    const { token } = await handleSigninUser(200, {
+      phone: payload.phone,
+      login_passcode: payload.login_passcode,
+    });
+
+    let getOneRes = await request(app())
+      .get(getEndpoint(`/users/${id}`))
+      .set("Authorization", `Bearer ${token}`)
+      .expect(200);
     expect(getOneRes.body.data.one_time_password).toBeNull();
 
     await handleExpectPasscodeHashing(oldLoginPasscode, getOneRes.body.data.login_passcode);
@@ -61,7 +80,10 @@ describe("Auth", () => {
         })()
       )
       .expect(200);
-    getOneRes = await request(app()).get(getEndpoint("/users", `/${id}`));
+    getOneRes = await request(app())
+      .get(getEndpoint(`/users/${id}`))
+      .set("Authorization", `Bearer ${token}`)
+      .expect(200);
     expect(getOneRes.body.data.one_time_password).toBe(oneTimePassword);
 
     await request(app())
@@ -80,7 +102,10 @@ describe("Auth", () => {
       })
       .expect(200);
 
-    getOneRes = await request(app()).get(getEndpoint("/users", `/${id}`));
+    getOneRes = await request(app())
+      .get(getEndpoint(`/users/${id}`))
+      .set("Authorization", `Bearer ${token}`)
+      .expect(200);
     expect(getOneRes.body.data.one_time_password).toBeNull();
     await handleExpectPasscodeHashing(newLoginPasscode, getOneRes.body.data.login_passcode);
   });
@@ -150,10 +175,6 @@ describe("Auth", () => {
       login_passcode: "654321",
     };
 
-    await request(app())
-      .get(getEndpoint("/users", `/${userId}`))
-      .expect(404);
-
     await handleSigninUser(400, {
       phone: user.phone,
       login_passcode: user.login_passcode,
@@ -169,7 +190,7 @@ describe("Auth", () => {
 
     await request(app()).post(getEndpoint("/auth/signup")).send(user).expect(201);
 
-    await handleSigninUser(200, {
+    const { token } = await handleSigninUser(200, {
       phone: user.phone,
       login_passcode: user.login_passcode,
     });
@@ -179,7 +200,8 @@ describe("Auth", () => {
         data: { phone, email },
       },
     } = await request(app())
-      .get(getEndpoint("/users", `/${userId}`))
+      .get(getEndpoint(`/users/${userId}`))
+      .set("Authorization", `Bearer ${token}`)
       .expect(200);
 
     expect(phone).toEqual(user.phone);
