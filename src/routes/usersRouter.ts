@@ -10,7 +10,7 @@ import handleProtectedRoute from "../middleware/handleProtectedRoute";
 
 const router = Router();
 
-router.get("/", getAllUsers);
+router.get("/", handleProtectedRoute, getAllUsers);
 router.get("/:id", getOneUser);
 
 router.patch("/", handleProtectedRoute, updateOneUser);

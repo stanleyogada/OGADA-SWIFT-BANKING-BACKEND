@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import app from "../../app";
 import { TUser } from "../../types/users";
 import HashPassword from "../../utils/HashPassword";
-import { getEndpoint, handleSignupUser } from "../../utils/tests";
+import { getEndpoint, handleSigninUser, handleSignupUser } from "../../utils/tests";
 
 describe("Auth", () => {
   const handleExpectPasscodeHashing = async (loginPasscode: string, hashedLoginPasscode: string) => {
@@ -94,28 +94,18 @@ describe("Auth", () => {
 
     await handleSignupUser(201, userNameSuffix, user);
 
-    await request(app())
-      .post(getEndpoint("/auth/signin"))
-      .send({ phone: "9012343203", login_passcode: user.login_passcode })
-      .expect(400);
+    await handleSigninUser(400, { phone: "9012343203", login_passcode: user.login_passcode });
+    await handleSigninUser(400, { phone: user.phone, login_passcode: "123456" });
+    await handleSigninUser(
+      400,
 
-    await request(app())
-      .post(getEndpoint("/auth/signin"))
-      .send({ phone: user.phone, login_passcode: "123456" })
-      .expect(400);
-
-    await request(app())
-      .post(getEndpoint("/auth/signin"))
-      .send({
+      {
         ...user,
         not_allowed: "not_allowed",
-      })
-      .expect(400);
+      }
+    );
 
-    const {
-      headers,
-      body: { token },
-    } = await request(app()).post(getEndpoint("/auth/signin")).send(user).expect(200);
+    const { token, headers } = await handleSigninUser(200, user);
 
     // Assert that the token is valid
     const decodedUser = jwt.verify(token, process.env.JWT_PRIVATE_SECRET_KEY) as unknown as TUser & {
@@ -164,13 +154,10 @@ describe("Auth", () => {
       .get(getEndpoint("/users", `/${userId}`))
       .expect(404);
 
-    await request(app())
-      .post(getEndpoint("/auth/signin"))
-      .send({
-        phone: user.phone,
-        login_passcode: user.login_passcode,
-      })
-      .expect(400);
+    await handleSigninUser(400, {
+      phone: user.phone,
+      login_passcode: user.login_passcode,
+    });
 
     await request(app())
       .post(getEndpoint("/auth/signup"))
@@ -182,13 +169,10 @@ describe("Auth", () => {
 
     await request(app()).post(getEndpoint("/auth/signup")).send(user).expect(201);
 
-    await request(app())
-      .post(getEndpoint("/auth/signin"))
-      .send({
-        phone: user.phone,
-        login_passcode: user.login_passcode,
-      })
-      .expect(200);
+    await handleSigninUser(200, {
+      phone: user.phone,
+      login_passcode: user.login_passcode,
+    });
 
     const {
       body: {

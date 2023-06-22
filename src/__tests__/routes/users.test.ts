@@ -3,7 +3,7 @@ import request from "supertest";
 import app from "../../app";
 import UserRepo from "../../repos/UserRepo";
 import { TUser } from "../../types/users";
-import { getEndpoint, handleSignupUser } from "../../utils/tests";
+import { getEndpoint, handleSigninUser, handleSignupUser } from "../../utils/tests";
 import HashPassword from "../../utils/HashPassword";
 
 describe("Users", () => {
@@ -51,13 +51,9 @@ describe("Users", () => {
       })
       .expect(401);
 
-    const {
-      body: { token },
-    } = await request(app()).post(getEndpoint("/auth/signin")).send(user).expect(200);
-
     await request(app())
       .patch(getEndpoint("/users"))
-      .set("Authorization", `Bearer ${token}`)
+      .set("Authorization", `Bearer ${(await handleSigninUser(200, user)).token}`)
       .send({
         nickname: "Test Nickname",
         email: "test2@gmail.com",
@@ -108,15 +104,10 @@ describe("Users", () => {
       })
       .expect(401);
 
-    const {
-      body: { token },
-    } = await request(app())
-      .post(getEndpoint("/auth/signin"))
-      .send({
-        phone: user_phone,
-        login_passcode: original_old_login_passcode,
-      })
-      .expect(200);
+    const { token } = await handleSigninUser(200, {
+      phone: user_phone,
+      login_passcode: original_old_login_passcode,
+    });
 
     await request(app())
       .patch(getEndpoint("/users/update-login-passcode"))
