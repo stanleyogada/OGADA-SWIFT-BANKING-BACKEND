@@ -1,7 +1,7 @@
 import { randomBytes } from "crypto";
 import Joi from "joi";
 import jwt from "jsonwebtoken";
-import { promisify } from "util";
+const { promisify } = require("util");
 
 import type { NextFunction, Request, Response } from "express";
 
@@ -112,7 +112,6 @@ export const signin = handleTryCatch(async (req: Request, res: Response, next: N
     return next(new APIError("Invalid credentials!", 400));
   }
 
-  // @ts-ignore
   const token = await signJwt(handleDeleteReturnCols(user, returnCols), process.env.JWT_PRIVATE_SECRET_KEY, {
     expiresIn: "10m",
   });

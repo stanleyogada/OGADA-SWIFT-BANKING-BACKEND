@@ -5,7 +5,7 @@ import APIError from "../utils/APIError";
 import { TRequestUser } from "../types/api";
 import handleDeleteReturnCols from "../utils/handleDeleteReturnCols";
 
-const jwt = require("jsonwebtoken");
+import jwt from "jsonwebtoken";
 const { promisify } = require("util");
 
 const verifyJwt = promisify(jwt.verify);
