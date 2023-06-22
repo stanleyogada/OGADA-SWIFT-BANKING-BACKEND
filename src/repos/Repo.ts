@@ -15,11 +15,13 @@ interface IRepo<T> {
 
 class Repo<T> implements IRepo<T> {
   private selectListQuery: string;
+  private selectListQueryReturnColsQuery: string = "";
   private cols: TCol[];
   private resource: TResource;
 
-  private setSelectListQuery = () => {
+  private setSelectListQuery = (returnCols?: Repo<T>["cols"]) => {
     const cols = [];
+
     for (let i = 0; i < this.cols.length; i++) {
       let col = this.cols[i];
       if (typeof col !== "string" && col.env.includes(app().get("env") as TEnv)) {
@@ -31,6 +33,10 @@ class Repo<T> implements IRepo<T> {
     }
 
     this.selectListQuery = cols.join(", ");
+
+    if (returnCols) {
+      this.selectListQueryReturnColsQuery = `, ${returnCols.join(", ")}`;
+    }
   };
 
   private handleWhereListQuery = (payload: Partial<T>) => {
@@ -51,13 +57,13 @@ class Repo<T> implements IRepo<T> {
     this.resource = resource;
   }
 
-  async findManyBy(payload?: Partial<T>) {
-    this.setSelectListQuery();
+  async findManyBy(payload?: Partial<T>, returnCols?: Repo<T>["cols"]) {
+    this.setSelectListQuery(returnCols);
     const where = this.handleWhereListQuery(payload);
 
     const { rows } = await pool.query(
       `
-      SELECT ${this.selectListQuery}
+      SELECT ${this.selectListQuery}${this.selectListQueryReturnColsQuery}
       FROM ${this.resource}
       ${payload ? `WHERE ${where?.query}` : ""}
       ;
@@ -68,8 +74,8 @@ class Repo<T> implements IRepo<T> {
     return rows as T[];
   }
 
-  async findManyByAndUpdate(findPayload: Partial<T>, updatePayload: Partial<T>) {
-    this.setSelectListQuery();
+  async findManyByAndUpdate(findPayload: Partial<T>, updatePayload: Partial<T>, returnCols?: Repo<T>["cols"]) {
+    this.setSelectListQuery(returnCols);
     const { queryDependencies, whereQuery, setQuery } = handlePatchSetQuery(findPayload, updatePayload);
 
     const { rows } = await pool.query(
@@ -77,7 +83,7 @@ class Repo<T> implements IRepo<T> {
         UPDATE users
         SET ${setQuery}
         WHERE ${whereQuery}
-        RETURNING ${this.selectListQuery}
+        RETURNING ${this.selectListQuery}${this.selectListQueryReturnColsQuery}
         ;
       `,
       queryDependencies
@@ -86,15 +92,15 @@ class Repo<T> implements IRepo<T> {
     return rows as T[];
   }
 
-  async deleteManyBy(payload: Partial<T>) {
-    this.setSelectListQuery();
+  async deleteManyBy(payload: Partial<T>, returnCols?: Repo<T>["cols"]) {
+    this.setSelectListQuery(returnCols);
     const where = this.handleWhereListQuery(payload);
 
     const { rows } = await pool.query(
       `
       DELETE FROM ${this.resource}
       WHERE ${where.query}
-      RETURNING ${this.selectListQuery}
+      RETURNING ${this.selectListQuery}${this.selectListQueryReturnColsQuery}
       ;
     `,
       where.queryDependencies
@@ -103,15 +109,15 @@ class Repo<T> implements IRepo<T> {
     return rows as T[];
   }
 
-  async createOne(payload: Partial<T>) {
-    this.setSelectListQuery();
+  async createOne(payload: Partial<T>, returnCols?: Repo<T>["cols"]) {
+    this.setSelectListQuery(returnCols);
     const insert = handleInsertQuery(payload);
 
     const { rows } = await pool.query(
       `
       INSERT INTO ${this.resource} 
       ${insert.query}
-      RETURNING ${this.selectListQuery}
+      RETURNING ${this.selectListQuery}${this.selectListQueryReturnColsQuery}
       ;
     `,
       insert.queryDependencies

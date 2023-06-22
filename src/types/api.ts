@@ -1,3 +1,7 @@
-type TResource = "users" | "auth";
+import { Request } from "express";
+import { TUser } from "./users";
 
-export { TResource };
+type TResource = "users" | "auth";
+type TRequestUser = Request & { user: TUser };
+
+export { TResource, TRequestUser };

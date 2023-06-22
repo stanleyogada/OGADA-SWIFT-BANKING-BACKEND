@@ -1,7 +1,7 @@
 import { randomBytes } from "crypto";
 import Joi from "joi";
 import jwt from "jsonwebtoken";
-import { promisify } from "util";
+const { promisify } = require("util");
 
 import type { NextFunction, Request, Response } from "express";
 
@@ -11,7 +11,7 @@ import { INPUT_SCHEMA_EMAIL_ALLOW_TLDS } from "../constants";
 import handleInputValidate from "../utils/handleInputValidate";
 import handleTryCatch from "../utils/handleTryCatch";
 import APIError from "../utils/APIError";
-import generateOneTimePasscode from "../utils/generateOneTimePasscode";
+import handleDeleteReturnCols from "../utils/handleDeleteReturnCols";
 
 const signJwt = promisify(jwt.sign);
 
@@ -45,7 +45,7 @@ export const forgetLoginPasscode = handleTryCatch(async (req: Request, res: Resp
   // }); // TODO: Uncomment this
 
   const json = (() => {
-    if (process.env.NODE_ENV === "test")
+    if (process.env.NODE_ENV !== "production")
       return {
         status: "success",
         data: one_time_password,
@@ -101,29 +101,32 @@ export const signin = handleTryCatch(async (req: Request, res: Response, next: N
       .required(),
   });
 
-  const user = await UserRepo.findOneBy({ phone: req.body.phone });
+  const returnCols = ["login_passcode"];
+  const user = await UserRepo.findOneBy({ phone: req.body.phone }, returnCols);
   if (!user) {
     return next(new APIError("Invalid credentials!", 400));
   }
+
   const isMatch = await HashPassword.handleCheck(req.body.login_passcode, user.login_passcode);
   if (!isMatch) {
     return next(new APIError("Invalid credentials!", 400));
   }
 
-  // @ts-ignore
-  const token = await signJwt(user, process.env.JWT_PRIVATE_SECRET_KEY, { expiresIn: "10m" });
+  const token = await signJwt(handleDeleteReturnCols(user, returnCols), process.env.JWT_PRIVATE_SECRET_KEY, {
+    expiresIn: "10m",
+  });
 
   // Set the token as a cookie in the response
   res.cookie("token", token, {
     httpOnly: true,
     secure: true,
     // sameSite: "strict", // TODO: Add this back or Add CORS to app middleware
-    maxAge: 600000,
+    maxAge: 1000 * 60 * 10, // 10 minutes
   });
 
   res.status(200).json({
     status: "success",
-    data: user,
+    data: handleDeleteReturnCols(user, returnCols),
     token,
   });
 });

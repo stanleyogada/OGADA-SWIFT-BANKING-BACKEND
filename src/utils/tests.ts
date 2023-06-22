@@ -5,13 +5,13 @@ import app from "../app";
 import { TUser } from "../types/users";
 import { ROUTE_PREFIX } from "../constants";
 
-type TBody = Omit<Partial<TUser>, "nickname" | "id">;
+type TBody = Omit<Partial<TUser & { not_allowed: string }>, "nickname" | "id">;
 
 const getEndpoint = (endpoint: string, params?: string) => {
   return `${ROUTE_PREFIX}${endpoint}${params ? params : ""}`;
 };
 
-const handleSignupUser = async (statusCode: number, n: number = 1, payload?: TBody): Promise<Response> => {
+const handleSignupUser = async (statusCode: number, n: number = 1, payload: TBody = {}): Promise<Response> => {
   const body: TBody = {
     first_name: "Test" + n,
     last_name: "Last" + n,
@@ -25,4 +25,13 @@ const handleSignupUser = async (statusCode: number, n: number = 1, payload?: TBo
   return await request(app()).post(getEndpoint("/auth/signup")).send(body).expect(statusCode);
 };
 
-export { getEndpoint, handleSignupUser };
+const handleSigninUser = async (statusCode: number, payload: TBody) => {
+  const {
+    headers,
+    body: { token },
+  } = await request(app()).post(getEndpoint("/auth/signin")).send(payload).expect(statusCode);
+
+  return { token, headers };
+};
+
+export { getEndpoint, handleSignupUser, handleSigninUser };
