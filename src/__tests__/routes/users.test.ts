@@ -8,15 +8,26 @@ import HashPassword from "../../utils/HashPassword";
 
 describe("Users", () => {
   test("Have /Get one and all users working", async () => {
-    await handleSignupUser(201);
+    const user = {
+      phone: "1234567890",
+      login_passcode: "123456",
+    };
+
+    await handleSignupUser(201, 1, user);
     await handleSignupUser(201, 2);
-    const { body: allBody } = await request(app()).get(getEndpoint("/users")).expect(200);
+
+    const { token } = await handleSigninUser(200, user);
+
+    const { body: allBody } = await request(app())
+      .get(getEndpoint("/users"))
+      .set("Authorization", `Bearer ${token}`)
+      .expect(200);
     expect(allBody.count).toEqual(2);
-    await request(app()).get(getEndpoint("/users", "/1")).expect(200);
+    await request(app()).get(getEndpoint("/users/1")).expect(200);
     const { body: oneBody } = await request(app()).get(getEndpoint("/users", "/2")).expect(200);
     expect(oneBody.count).toBeUndefined();
     expect(oneBody.data.id).toEqual(2);
-    await request(app()).get(getEndpoint("/users", "/3")).expect(404);
+    await request(app()).get(getEndpoint("/users/3")).expect(404);
   });
 
   test("Have /Create working", async () => {
@@ -51,9 +62,10 @@ describe("Users", () => {
       })
       .expect(401);
 
+    const { token } = await handleSigninUser(200, user);
     await request(app())
       .patch(getEndpoint("/users"))
-      .set("Authorization", `Bearer ${(await handleSigninUser(200, user)).token}`)
+      .set("Authorization", `Bearer ${token}`)
       .send({
         nickname: "Test Nickname",
         email: "test2@gmail.com",
