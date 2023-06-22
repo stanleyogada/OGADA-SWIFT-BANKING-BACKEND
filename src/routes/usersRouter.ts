@@ -6,16 +6,16 @@ import {
   deleteOneUser,
   updateLoginPasscode,
 } from "../controllers/usersController";
-import handleProtectedRoute from "../middleware/handleProtectedRoute";
+import handleAuthGuardRoute from "../middleware/handleAuthGuardRoute";
 
 const router = Router();
 
-router.get("/", handleProtectedRoute, getAllUsers);
-router.get("/:id", handleProtectedRoute, getOneUser);
+router.get("/", handleAuthGuardRoute, getAllUsers);
+router.get("/:id", handleAuthGuardRoute, getOneUser);
 
-router.patch("/", handleProtectedRoute, updateOneUser);
-router.patch("/update-login-passcode", handleProtectedRoute, updateLoginPasscode);
+router.patch("/", handleAuthGuardRoute, updateOneUser);
+router.patch("/update-login-passcode", handleAuthGuardRoute, updateLoginPasscode);
 
-router.delete("/:id", handleProtectedRoute, deleteOneUser);
+router.delete("/:id", handleAuthGuardRoute, deleteOneUser);
 
 export default router;

@@ -10,7 +10,7 @@ const { promisify } = require("util");
 
 const verifyJwt = promisify(jwt.verify);
 
-const handleProtectedRoute = handleTryCatch(async (req: TRequestUser, _, next: NextFunction) => {
+const handleAuthGuardRoute = handleTryCatch(async (req: TRequestUser, _, next: NextFunction) => {
   const token = req.headers.authorization?.split(" ")[1];
   const decoded = await verifyJwt(token, process.env.JWT_PRIVATE_SECRET_KEY);
 
@@ -22,4 +22,4 @@ const handleProtectedRoute = handleTryCatch(async (req: TRequestUser, _, next: N
   return next(new APIError("You are not authorized to access this route!", 401));
 });
 
-export default handleProtectedRoute;
+export default handleAuthGuardRoute;
