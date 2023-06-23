@@ -1,4 +1,4 @@
-const handleDeleteReturnCols = <TResource>(resource: TResource, returnCols: Array<keyof typeof resource>) => {
+const handleDeleteReturnCols = <TResource>(resource: TResource, returnCols: Array<keyof TResource>) => {
   if (process.env.NODE_ENV === "test") return resource;
 
   returnCols.forEach((col) => {

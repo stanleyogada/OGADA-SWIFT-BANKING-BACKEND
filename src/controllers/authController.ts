@@ -14,6 +14,7 @@ import handleDeleteReturnCols from "../utils/handleDeleteReturnCols";
 import sendEmail from "../services/sendEmail";
 import { getForgetLoginPasscodeEmailTemplate, getSendEmailVerificationEmailTemplate } from "../emails";
 import generateOneTimePassword from "../utils/generateOneTimePassword";
+import { TUser } from "../types/users";
 
 const signJwt = promisify(jwt.sign);
 
@@ -101,7 +102,7 @@ export const signin = handleTryCatch(async (req: Request, res: Response, next: N
       .required(),
   });
 
-  const returnCols = ["login_passcode"];
+  const returnCols: Array<keyof TUser> = ["login_passcode"];
   const user = await UserRepo.findOneBy({ phone: req.body.phone }, returnCols);
   if (!user) {
     return next(new APIError("Invalid credentials!", 400));
@@ -112,7 +113,7 @@ export const signin = handleTryCatch(async (req: Request, res: Response, next: N
     return next(new APIError("Invalid credentials!", 400));
   }
 
-  const token = await signJwt(handleDeleteReturnCols(user, returnCols), process.env.JWT_PRIVATE_SECRET_KEY, {
+  const token = await signJwt(handleDeleteReturnCols<TUser>(user, returnCols), process.env.JWT_PRIVATE_SECRET_KEY, {
     expiresIn: "10m",
   });
 
@@ -126,7 +127,7 @@ export const signin = handleTryCatch(async (req: Request, res: Response, next: N
 
   res.status(200).json({
     status: "success",
-    data: handleDeleteReturnCols(user, returnCols),
+    data: handleDeleteReturnCols<TUser>(user, returnCols),
     token,
   });
 });
