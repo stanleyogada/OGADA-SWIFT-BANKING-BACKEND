@@ -1,3 +1,4 @@
 import getForgetLoginPasscodeEmailTemplate from "./forgotLoginPasscode";
+import getSendEmailVerificationEmailTemplate from "./sendEmailVerification";
 
-export { getForgetLoginPasscodeEmailTemplate };
+export { getForgetLoginPasscodeEmailTemplate, getSendEmailVerificationEmailTemplate };

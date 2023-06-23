@@ -1,4 +1,3 @@
-import { randomBytes } from "crypto";
 import Joi from "joi";
 import jwt from "jsonwebtoken";
 const { promisify } = require("util");
@@ -13,7 +12,8 @@ import handleTryCatch from "../utils/handleTryCatch";
 import APIError from "../utils/APIError";
 import handleDeleteReturnCols from "../utils/handleDeleteReturnCols";
 import sendEmail from "../services/sendEmail";
-import { getForgetLoginPasscodeEmailTemplate } from "../emails";
+import { getForgetLoginPasscodeEmailTemplate, getSendEmailVerificationEmailTemplate } from "../emails";
+import generateOneTimePassword from "../utils/generateOneTimePassword";
 
 const signJwt = promisify(jwt.sign);
 
@@ -28,7 +28,7 @@ export const forgetLoginPasscode = handleTryCatch(async (req: Request, res: Resp
       .required(),
   });
 
-  const one_time_password = randomBytes(10).toString("hex");
+  const one_time_password = generateOneTimePassword();
   const user = await UserRepo.findOneByAndUpdate(req.body, {
     one_time_password,
   });
@@ -39,7 +39,7 @@ export const forgetLoginPasscode = handleTryCatch(async (req: Request, res: Resp
 
   await sendEmail({
     to: user.email,
-    subject: "One Time Password",
+    subject: "Forgot Login Passcode",
     text: `Your one time password is ${one_time_password}`,
     html: getForgetLoginPasscodeEmailTemplate({ one_time_password }),
   });
@@ -169,20 +169,71 @@ export const signup = handleTryCatch(async (req: Request, res: Response, next: N
   });
 });
 
-// export const sendEmailVerification = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
-//   await handleInputValidate(req.body, next, {
-//     email: Joi.string()
-//       .email({
-//         minDomainSegments: 2,
-//         tlds: { allow: INPUT_SCHEMA_EMAIL_ALLOW_TLDS },
-//       })
-//       .required(),
-//   });
+export const sendEmailVerification = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
+  await handleInputValidate(req.body, next, {
+    email: Joi.string()
+      .email({
+        minDomainSegments: 2,
+        tlds: { allow: INPUT_SCHEMA_EMAIL_ALLOW_TLDS },
+      })
+      .required(),
+  });
 
-//   const oneTimePasscode = generateOneTimePasscode();
+  const one_time_password = generateOneTimePassword();
+  const user = await UserRepo.findOneByAndUpdate(req.body, {
+    one_time_password,
+  });
 
-//   res.status(200).json({
-//     status: "success",
-//     oneTimePasscode,
-//   });
-// });
+  if (!user) {
+    return next(new APIError("User not found!", 404));
+  }
+
+  await sendEmail({
+    to: user.email,
+    subject: "Verify Email Address",
+    text: `Your one time password is ${one_time_password}`,
+    html: getSendEmailVerificationEmailTemplate({ one_time_password }),
+  });
+
+  const json = (() => {
+    if (process.env.NODE_ENV !== "production")
+      return {
+        status: "success",
+        data: one_time_password,
+      };
+
+    return {
+      status: "success",
+      message: "One time password sent to your email address!",
+    };
+  })();
+
+  res.status(200).json(json);
+});
+
+export const confirmEmailVerification = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
+  await handleInputValidate({ one_time_password: req.params.otp }, next, {
+    one_time_password: Joi.string()
+      .pattern(new RegExp("^[0-9a-z]{20,20}$", "i"))
+      .message('"one_time_password" must be valid')
+      .required(),
+  });
+
+  const user = await UserRepo.findOneBy({ one_time_password: req.params.otp });
+  if (!user) {
+    return next(new APIError("Invalid one time password!", 400));
+  }
+
+  await UserRepo.findOneByAndUpdate(
+    { id: user.id },
+    {
+      one_time_password: null,
+      email_is_verified: true,
+    }
+  );
+
+  res.status(200).json({
+    status: "success",
+    message: "Email address verified successfully!",
+  });
+});
