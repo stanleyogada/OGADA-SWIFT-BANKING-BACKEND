@@ -28,6 +28,7 @@
     "jsonwebtoken": "^9.0.0",
     "morgan": "^1.10.0",
     "node-pg-migrate": "^6.2.2",
+    "nodemailer": "^6.9.3",
     "pg": "^8.10.0",
     "pg-format": "^1.0.4",
     "swagger-jsdoc": "^6.2.8",

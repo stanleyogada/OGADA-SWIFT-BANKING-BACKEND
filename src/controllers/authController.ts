@@ -12,6 +12,8 @@ import handleInputValidate from "../utils/handleInputValidate";
 import handleTryCatch from "../utils/handleTryCatch";
 import APIError from "../utils/APIError";
 import handleDeleteReturnCols from "../utils/handleDeleteReturnCols";
+import sendEmail from "../services/sendEmail";
+import { getForgetLoginPasscodeEmailTemplate } from "../emails";
 
 const signJwt = promisify(jwt.sign);
 
@@ -27,22 +29,20 @@ export const forgetLoginPasscode = handleTryCatch(async (req: Request, res: Resp
   });
 
   const one_time_password = randomBytes(10).toString("hex");
-  // TODO: const expire_at = new Date(new Date().getTime() + 1000 * 60 * 10); // 10 minutes
   const user = await UserRepo.findOneByAndUpdate(req.body, {
     one_time_password,
-    // TODO: expire_at,
   });
 
   if (!user) {
     return next(new APIError("User not found!", 404));
   }
 
-  // TODO: Send one_time_password to user's email address
-  // TODO: sendEmail({ // TODO: Uncomment this
-  // to: user.email,
-  // subject: "One Time Password",
-  // text: `Your one time password is ${one_time_password}`,
-  // }); // TODO: Uncomment this
+  await sendEmail({
+    to: user.email,
+    subject: "One Time Password",
+    text: `Your one time password is ${one_time_password}`,
+    html: getForgetLoginPasscodeEmailTemplate({ one_time_password }),
+  });
 
   const json = (() => {
     if (process.env.NODE_ENV !== "production")
