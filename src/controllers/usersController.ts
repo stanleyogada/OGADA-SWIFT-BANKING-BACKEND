@@ -9,6 +9,7 @@ import handleTryCatch from "../utils/handleTryCatch";
 import APIError from "../utils/APIError";
 import { TRequestUser } from "../types/api";
 import handleDeleteReturnCols from "../utils/handleDeleteReturnCols";
+import { TUser } from "../types/users";
 
 export const getAllUsers = handleTryCatch(async (_, res: Response) => {
   const users = await UserRepo.findManyBy();
@@ -30,6 +31,15 @@ export const getOneUser = handleTryCatch(async (req: Request, res: Response, nex
   res.status(200).json({
     status: "success",
     data: user,
+  });
+});
+
+export const getCurrentUser = handleTryCatch(async (req: TRequestUser, res: Response, next: NextFunction) => {
+  const user = await UserRepo.findOneBy({ id: +req.user.id });
+
+  res.status(200).json({
+    status: "success",
+    data: handleDeleteReturnCols<TUser>(user, ["login_passcode"]),
   });
 });
 
