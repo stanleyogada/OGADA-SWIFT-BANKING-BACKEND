@@ -71,6 +71,8 @@ class Repo<T> implements IRepo<T> {
       where?.queryDependencies
     );
 
+    console.log(this.selectListQuery, this.selectListQueryReturnColsQuery);
+
     return rows as T[];
   }
 
