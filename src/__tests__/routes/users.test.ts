@@ -146,6 +146,49 @@ describe("Users", () => {
 
     expect(await handleComparePassword(new_login_passcode, token)).toBe(true);
   });
+
+  test("Have /me working", async () => {
+    const user = {
+      first_name: "Current Logged In User",
+      email: "current@gmail.com",
+      phone: "1234567890",
+      login_passcode: "123456",
+    };
+
+    await handleSignupUser(201, 1, user);
+
+    await request(app()).get(getEndpoint("/users/me")).expect(401);
+
+    const { token } = await handleSigninUser(200, {
+      phone: user.phone,
+      login_passcode: user.login_passcode,
+    });
+
+    const { body } = await request(app())
+      .get(getEndpoint("/users/me"))
+      .set("Authorization", `Bearer ${token}`)
+      .expect(200);
+
+    expect(body.data.first_name).toEqual(user.first_name);
+    expect(body.data.email).toEqual(user.email);
+    expect(body.data.phone).toEqual(user.phone);
+    expect(body.data.nickname).toBeNull();
+
+    await request(app())
+      .patch(getEndpoint("/users"))
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        nickname: "Nickname 1",
+      })
+      .expect(200);
+
+    const { body: body2 } = await request(app())
+      .get(getEndpoint("/users/me"))
+      .set("Authorization", `Bearer ${token}`)
+      .expect(200);
+
+    expect(body2.data.nickname).toEqual("Nickname 1");
+  });
 });
 
 const handleComparePassword = async (new_login_passcode: string, token: string) => {

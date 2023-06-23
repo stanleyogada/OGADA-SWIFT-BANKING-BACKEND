@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   getAllUsers,
   getOneUser,
+  getCurrentUser,
   updateOneUser,
   deleteOneUser,
   updateLoginPasscode,
@@ -9,6 +10,8 @@ import {
 import handleAuthGuardRoute from "../middleware/handleAuthGuardRoute";
 
 const router = Router();
+
+router.get("/me", handleAuthGuardRoute, getCurrentUser);
 
 router.get("/", handleAuthGuardRoute, getAllUsers);
 router.get("/:id", handleAuthGuardRoute, getOneUser);

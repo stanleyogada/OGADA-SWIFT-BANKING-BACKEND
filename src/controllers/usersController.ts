@@ -33,6 +33,15 @@ export const getOneUser = handleTryCatch(async (req: Request, res: Response, nex
   });
 });
 
+export const getCurrentUser = handleTryCatch(async (req: TRequestUser, res: Response, next: NextFunction) => {
+  const user = await UserRepo.findOneBy({ id: +req.user.id });
+
+  res.status(200).json({
+    status: "success",
+    data: user,
+  });
+});
+
 export const updateOneUser = handleTryCatch(async (req: TRequestUser, res: Response, next: NextFunction) => {
   await handleInputValidate(req.body, next, {
     nickname: Joi.string().min(3).max(30),
