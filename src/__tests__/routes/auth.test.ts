@@ -110,6 +110,25 @@ describe("Auth", () => {
     await handleExpectPasscodeHashing(newLoginPasscode, getOneRes.body.data.login_passcode);
   });
 
+  test("Have email verification flow completed without errors", async () => {
+    const id = 1;
+    const oldLoginPasscode = "123456";
+    const newLoginPasscode = "654321";
+    const incorrectOneTimePassword = "12345678901234567890";
+    const payload: Partial<TUser> = {
+      email: "test@gmail.com",
+      phone: "1234567890",
+      login_passcode: oldLoginPasscode,
+    };
+
+    await handleSignupUser(201, id, payload);
+
+    const { token } = await handleSigninUser(200, {
+      phone: payload.phone,
+      login_passcode: payload.login_passcode,
+    });
+  });
+
   test("Have signin flow completed without errors", async () => {
     const userNameSuffix = 100;
     const user = {

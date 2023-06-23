@@ -10,6 +10,7 @@ const repo = new Repo<TUser>("users", [
   "middle_name",
   "nickname",
   "email",
+  "email_is_verified",
   "phone",
   { env: ["test"], value: "one_time_password" },
   { env: ["test"], value: "login_passcode" },
@@ -34,7 +35,9 @@ class UserRepo {
 
   static async findOneByAndUpdate(
     findByPayload: Partial<TUser>,
-    updatePayload: Partial<Pick<TUser, "nickname" | "email" | "one_time_password" | "login_passcode">>,
+    updatePayload: Partial<
+      Pick<TUser, "nickname" | "email" | "email_is_verified" | "one_time_password" | "login_passcode">
+    >,
     returnCols?: Repo<TUser>["cols"]
   ) {
     const rows = await repo.findManyByAndUpdate(findByPayload, updatePayload, returnCols);
