@@ -127,6 +127,45 @@ describe("Auth", () => {
       phone: payload.phone,
       login_passcode: payload.login_passcode,
     });
+
+    let getOneRes = await request(app())
+      .get(getEndpoint(`/users/${id}`))
+      .set("Authorization", `Bearer ${token}`)
+      .expect(200);
+    expect(getOneRes.body.data.email_is_verified).toBe(false);
+
+    await request(app())
+      .post(getEndpoint("/auth/send-email-verification"))
+      .send({ email: "test2@gmail.com" })
+      .expect(404);
+
+    const {
+      body: { data: oneTimePassword },
+    } = await request(app())
+      .post(getEndpoint("/auth/send-email-verification"))
+      .send({ email: payload.email })
+      .expect(200);
+
+    getOneRes = await request(app())
+      .get(getEndpoint(`/users/${id}`))
+      .set("Authorization", `Bearer ${token}`)
+      .expect(200);
+    expect(getOneRes.body.data.one_time_password).toBe(oneTimePassword);
+
+    await request(app())
+      .post(getEndpoint(`/auth/confirm-email-verification/${incorrectOneTimePassword}`))
+      .expect(400);
+
+    await request(app())
+      .post(getEndpoint(`/auth/confirm-email-verification/${oneTimePassword}`))
+      .expect(200);
+
+    getOneRes = await request(app())
+      .get(getEndpoint(`/users/${id}`))
+      .set("Authorization", `Bearer ${token}`)
+      .expect(200);
+    expect(getOneRes.body.data.one_time_password).toBeNull();
+    expect(getOneRes.body.data.email_is_verified).toBe(true);
   });
 
   test("Have signin flow completed without errors", async () => {

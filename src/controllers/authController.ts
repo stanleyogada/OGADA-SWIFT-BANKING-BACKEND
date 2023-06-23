@@ -224,7 +224,13 @@ export const confirmEmailVerification = handleTryCatch(async (req: Request, res:
     return next(new APIError("Invalid one time password!", 400));
   }
 
-  await UserRepo.findOneByAndUpdate({ id: user.id }, { email_is_verified: true });
+  await UserRepo.findOneByAndUpdate(
+    { id: user.id },
+    {
+      one_time_password: null,
+      email_is_verified: true,
+    }
+  );
 
   res.status(200).json({
     status: "success",
