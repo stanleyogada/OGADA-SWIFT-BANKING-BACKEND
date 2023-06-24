@@ -7,6 +7,7 @@ import { getEndpoint, handleSigninUser, handleSignupUser } from "../../utils/tes
 import HashPassword from "../../utils/HashPassword";
 
 const ADMIN_USER_SIGNIN_CREDENTIALS = {
+  // TODO: Move this to constants
   phone: "1234567890",
   login_passocde: "123456",
 };

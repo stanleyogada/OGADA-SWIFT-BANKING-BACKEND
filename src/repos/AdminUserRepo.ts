@@ -16,7 +16,7 @@ class AdminUserRepo {
     return rows[0];
   }
 
-  static async createOne(payload: TAdminUser, returnCols?: Repo<TAdminUser>["cols"]) {
+  static async createOne(payload: Pick<TAdminUser, "login_passcode" | "phone">, returnCols?: Repo<TAdminUser>["cols"]) {
     const row = await repo.createOne(payload, returnCols);
 
     return row;

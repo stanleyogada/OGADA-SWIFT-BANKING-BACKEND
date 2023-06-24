@@ -3,22 +3,33 @@ import { MigrationBuilder, ColumnDefinitions } from "node-pg-migrate";
 
 export const shorthands: ColumnDefinitions | undefined = undefined;
 
+const ADMIN_USER_SIGNIN_CREDENTIALS = {
+  // TODO: Move this to constants
+  phone: "1234567890",
+  login_passcode: "123456",
+};
+
 export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.sql(`
     CREATE TABLE admin_users (
       id SERIAL PRIMARY KEY,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
       updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
-
+      
       is_admin_user BOOLEAN DEFAULT TRUE,
       phone VARCHAR(10) NOT NULL UNIQUE,
       login_passcode VARCHAR(100) NOT NULL
     );
+
+    
+    INSERT INTO admin_users (phone, login_passcode)
+    VALUES ('${ADMIN_USER_SIGNIN_CREDENTIALS.phone}', '${ADMIN_USER_SIGNIN_CREDENTIALS.login_passcode}')
+    RETURNING *;
   `);
 }
 
 export async function down(pgm: MigrationBuilder): Promise<void> {
   pgm.sql(`
-    DROP TABLE admin_users;
+    DROP TABLE IF EXISTS admin_users;
   `);
 }
