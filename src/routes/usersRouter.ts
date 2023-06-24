@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { NextFunction, Router } from "express";
 import {
   getAllUsers,
   getOneUser,
@@ -8,12 +8,22 @@ import {
   updateLoginPasscode,
 } from "../controllers/usersController";
 import handleAuthGuardRoute from "../middleware/handleAuthGuardRoute";
+import { TRequestUser } from "../types/api";
+import APIError from "../utils/APIError";
 
 const router = Router();
 
+const handleProtectRoute = (req: TRequestUser, _, next: NextFunction) => {
+  if (!req.user.is_admin_user) {
+    return next(new APIError("You do not have permission to perform this action!", 403));
+  }
+
+  next();
+};
+
 router.get("/me", handleAuthGuardRoute, getCurrentUser);
 
-router.get("/", handleAuthGuardRoute, getAllUsers);
+router.get("/", handleAuthGuardRoute, handleProtectRoute, getAllUsers);
 router.get("/:id", handleAuthGuardRoute, getOneUser);
 
 router.patch("/", handleAuthGuardRoute, updateOneUser);
