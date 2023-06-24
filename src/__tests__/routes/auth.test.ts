@@ -127,7 +127,6 @@ describe("Auth", () => {
 
     const id = 1;
     const oldLoginPasscode = "123456";
-    const newLoginPasscode = "654321"; // TODO: Remove this
     const incorrectOneTimePassword = "12345678901234567890";
     const payload: Partial<TUser> = {
       email: "test@gmail.com",
