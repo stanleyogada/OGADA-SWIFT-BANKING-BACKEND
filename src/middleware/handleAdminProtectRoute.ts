@@ -1,4 +1,4 @@
-import e, { NextFunction } from "express";
+import { NextFunction } from "express";
 import APIError from "../utils/APIError";
 import { TRequestUser } from "../types/api";
 
