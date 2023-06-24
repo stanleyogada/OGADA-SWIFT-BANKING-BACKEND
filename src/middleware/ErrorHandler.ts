@@ -37,7 +37,6 @@ const ErrorHandler = (err: APIError, _: Request, res: Response, _next: NextFunct
   if (err.stack.includes("ValidationError")) {
     err.statusCode = 400;
     err.status = "fail";
-    err.message = "Invalid request body";
   }
 
   if (app().get("env") === "development") {
