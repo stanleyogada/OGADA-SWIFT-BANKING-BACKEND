@@ -18,6 +18,7 @@ type TAdminUser = {
   created_at: Date;
   updated_at: Date;
   is_admin_user: boolean;
+  phone: string;
   login_passcode: string;
 };
 

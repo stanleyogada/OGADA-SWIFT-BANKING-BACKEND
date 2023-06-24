@@ -11,6 +11,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
 
       is_admin_user BOOLEAN DEFAULT TRUE,
+      phone VARCHAR(10) NOT NULL UNIQUE,
       login_passcode VARCHAR(100) NOT NULL
     );
   `);

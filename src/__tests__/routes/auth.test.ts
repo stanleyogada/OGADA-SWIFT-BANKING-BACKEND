@@ -2,7 +2,7 @@ import request from "supertest";
 import jwt from "jsonwebtoken";
 
 import app from "../../app";
-import { TUser } from "../../types/users";
+import { TAdminUser, TUser } from "../../types/users";
 import HashPassword from "../../utils/HashPassword";
 import { getEndpoint, handleSigninUser, handleSignupUser } from "../../utils/tests";
 
@@ -264,5 +264,30 @@ describe("Auth", () => {
 
     expect(phone).toEqual(user.phone);
     expect(email).toEqual(user.email);
+  });
+
+  // Admin user
+  test("Have admin SIGNUP/SIGNIN flow completed without errors", async () => {
+    const user = {
+      phone: "1234567891",
+      login_passcode: "654321",
+    };
+
+    await request(app()).post(getEndpoint("/auth/signin/admin")).send(user).expect(400);
+
+    const {
+      body: { data: adminUser },
+    } = await request(app()).post(getEndpoint("/auth/signup/admin")).send(user).expect(201);
+    expect(adminUser.is_admin_user).toBe(true);
+
+    const {
+      body: { token },
+    } = await request(app()).post(getEndpoint("/auth/signin/admin")).send(user).expect(200);
+
+    const decodedUser = jwt.verify(token, process.env.JWT_PRIVATE_SECRET_KEY) as unknown as TAdminUser;
+
+    expect(decodedUser.is_admin_user).toBe(adminUser.is_admin_user);
+    expect(decodedUser.phone).toBe(adminUser.phone);
+    expect(decodedUser.login_passcode).toBe(adminUser.login_passcode);
   });
 });
