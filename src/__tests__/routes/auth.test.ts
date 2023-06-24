@@ -301,7 +301,7 @@ describe("Auth", () => {
 
     const {
       body: { data: adminUser },
-    } = await request(app()).post(getEndpoint("/auth/signup/admin")).send(user).expect(201);
+    } = await request(app()).post(getEndpoint("/auth/signup/admin")).send(user).expect(201); // TODO: Remove signup admin from the API (As it is not part of the documentation)
     expect(adminUser.is_admin_user).toBe(true);
 
     const {
