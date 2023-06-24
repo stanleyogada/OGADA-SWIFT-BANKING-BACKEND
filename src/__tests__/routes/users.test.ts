@@ -9,7 +9,9 @@ import { ADMIN_USER_SIGNIN_CREDENTIALS } from "../../constants";
 
 describe("Users", () => {
   test("Have /Get one and all users working", async () => {
-    await request(app()).post(getEndpoint("/auth/signin/admin")).send(ADMIN_USER_SIGNIN_CREDENTIALS).expect(200);
+    const {
+      body: { token },
+    } = await request(app()).post(getEndpoint("/auth/signin/admin")).send(ADMIN_USER_SIGNIN_CREDENTIALS).expect(200);
 
     const user = {
       phone: "1234567890",
@@ -19,7 +21,7 @@ describe("Users", () => {
     await handleSignupUser(201, 1, user);
     await handleSignupUser(201, 2);
 
-    const { token } = await handleSigninUser(200, user);
+    // const { token } = await handleSigninUser(200, user);
 
     await request(app()).get(getEndpoint("/users")).expect(401);
     const { body: allBody } = await request(app())
