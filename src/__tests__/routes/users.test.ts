@@ -5,12 +5,7 @@ import UserRepo from "../../repos/UserRepo";
 import { TUser } from "../../types/users";
 import { getEndpoint, handleSigninUser, handleSignupUser } from "../../utils/tests";
 import HashPassword from "../../utils/HashPassword";
-
-const ADMIN_USER_SIGNIN_CREDENTIALS = {
-  // TODO: Move this to constants
-  phone: "1234567890",
-  login_passocde: "123456",
-};
+import { ADMIN_USER_SIGNIN_CREDENTIALS } from "../../constants";
 
 describe("Users", () => {
   test("Have /Get one and all users working", async () => {

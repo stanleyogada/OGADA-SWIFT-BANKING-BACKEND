@@ -1,13 +1,8 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { MigrationBuilder, ColumnDefinitions } from "node-pg-migrate";
+import { ADMIN_USER_SIGNIN_CREDENTIALS } from "../src/constants";
 
 export const shorthands: ColumnDefinitions | undefined = undefined;
-
-const ADMIN_USER_SIGNIN_CREDENTIALS = {
-  // TODO: Move this to constants
-  phone: "1234567890",
-  login_passcode: "123456",
-};
 
 export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.sql(`

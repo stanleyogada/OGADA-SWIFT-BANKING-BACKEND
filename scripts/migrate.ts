@@ -17,13 +17,13 @@ const DEFAULT_USER_OPTS: TConnectOpts = getDBConnection();
       throw new Error('Please specify "--up" or "--down"');
     })();
 
-    console.log("Running migration", direction);
-
     const results = await migrate({
       dir: "migrations",
       direction,
       migrationsTable: "pgmigrations",
-      log: () => {},
+      log: (msg: string) => {
+        console.log("Migration message", msg);
+      },
       databaseUrl: DEFAULT_USER_OPTS,
     });
 
