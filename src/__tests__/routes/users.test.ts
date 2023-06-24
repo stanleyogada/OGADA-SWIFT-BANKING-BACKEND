@@ -5,7 +5,6 @@ import UserRepo from "../../repos/UserRepo";
 import { TUser } from "../../types/users";
 import { getEndpoint, handleSigninAdminUser, handleSigninUser, handleSignupUser } from "../../utils/tests";
 import HashPassword from "../../utils/HashPassword";
-import { ADMIN_USER_SIGNIN_CREDENTIALS } from "../../constants";
 
 describe("Users", () => {
   test("Have /Get one and all users working", async () => {
