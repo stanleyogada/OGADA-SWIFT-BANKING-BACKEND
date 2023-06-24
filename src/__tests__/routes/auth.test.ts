@@ -2,9 +2,9 @@ import request from "supertest";
 import jwt from "jsonwebtoken";
 
 import app from "../../app";
-import { TUser } from "../../types/users";
+import { TAdminUser, TUser } from "../../types/users";
 import HashPassword from "../../utils/HashPassword";
-import { getEndpoint, handleSigninUser, handleSignupUser } from "../../utils/tests";
+import { getEndpoint, handleSigninAdminUser, handleSigninUser, handleSignupUser } from "../../utils/tests";
 
 describe("Auth", () => {
   const handleExpectPasscodeHashing = async (loginPasscode: string, hashedLoginPasscode: string) => {
@@ -14,6 +14,8 @@ describe("Auth", () => {
   };
 
   test("Hashing `login_passcode` should be working as expected!", async () => {
+    const { adminToken } = await handleSigninAdminUser();
+
     const id = 1;
 
     const user = {
@@ -24,16 +26,22 @@ describe("Auth", () => {
     await handleSignupUser(201, id, user);
 
     const { token } = await handleSigninUser(200, user);
+    await request(app())
+      .get(getEndpoint(`/users/${id}`))
+      .set("Authorization", `Bearer ${token}`)
+      .expect(403);
 
     const { body } = await request(app())
       .get(getEndpoint(`/users/${id}`))
-      .set("Authorization", `Bearer ${token}`)
+      .set("Authorization", `Bearer ${adminToken}`)
       .expect(200);
 
     await handleExpectPasscodeHashing(user.login_passcode, body.data.login_passcode);
   });
 
   test("Have forget/reset `login_passcode` flow completed without errors", async () => {
+    const { adminToken } = await handleSigninAdminUser();
+
     const id = 1;
     const oldLoginPasscode = "123456";
     const newLoginPasscode = "654321";
@@ -50,10 +58,14 @@ describe("Auth", () => {
       phone: payload.phone,
       login_passcode: payload.login_passcode,
     });
+    await request(app())
+      .get(getEndpoint(`/users/${id}`))
+      .set("Authorization", `Bearer ${token}`)
+      .expect(403);
 
     let getOneRes = await request(app())
       .get(getEndpoint(`/users/${id}`))
-      .set("Authorization", `Bearer ${token}`)
+      .set("Authorization", `Bearer ${adminToken}`)
       .expect(200);
     expect(getOneRes.body.data.one_time_password).toBeNull();
 
@@ -82,7 +94,7 @@ describe("Auth", () => {
       .expect(200);
     getOneRes = await request(app())
       .get(getEndpoint(`/users/${id}`))
-      .set("Authorization", `Bearer ${token}`)
+      .set("Authorization", `Bearer ${adminToken}`)
       .expect(200);
     expect(getOneRes.body.data.one_time_password).toBe(oneTimePassword);
 
@@ -104,16 +116,17 @@ describe("Auth", () => {
 
     getOneRes = await request(app())
       .get(getEndpoint(`/users/${id}`))
-      .set("Authorization", `Bearer ${token}`)
+      .set("Authorization", `Bearer ${adminToken}`)
       .expect(200);
     expect(getOneRes.body.data.one_time_password).toBeNull();
     await handleExpectPasscodeHashing(newLoginPasscode, getOneRes.body.data.login_passcode);
   });
 
   test("Have email verification flow completed without errors", async () => {
+    const { adminToken } = await handleSigninAdminUser();
+
     const id = 1;
     const oldLoginPasscode = "123456";
-    const newLoginPasscode = "654321";
     const incorrectOneTimePassword = "12345678901234567890";
     const payload: Partial<TUser> = {
       email: "test@gmail.com",
@@ -127,10 +140,14 @@ describe("Auth", () => {
       phone: payload.phone,
       login_passcode: payload.login_passcode,
     });
+    await request(app())
+      .get(getEndpoint(`/users/${id}`))
+      .set("Authorization", `Bearer ${token}`)
+      .expect(403);
 
     let getOneRes = await request(app())
       .get(getEndpoint(`/users/${id}`))
-      .set("Authorization", `Bearer ${token}`)
+      .set("Authorization", `Bearer ${adminToken}`)
       .expect(200);
     expect(getOneRes.body.data.email_is_verified).toBe(false);
 
@@ -148,7 +165,7 @@ describe("Auth", () => {
 
     getOneRes = await request(app())
       .get(getEndpoint(`/users/${id}`))
-      .set("Authorization", `Bearer ${token}`)
+      .set("Authorization", `Bearer ${adminToken}`)
       .expect(200);
     expect(getOneRes.body.data.one_time_password).toBe(oneTimePassword);
 
@@ -162,7 +179,7 @@ describe("Auth", () => {
 
     getOneRes = await request(app())
       .get(getEndpoint(`/users/${id}`))
-      .set("Authorization", `Bearer ${token}`)
+      .set("Authorization", `Bearer ${adminToken}`)
       .expect(200);
     expect(getOneRes.body.data.one_time_password).toBeNull();
     expect(getOneRes.body.data.email_is_verified).toBe(true);
@@ -223,6 +240,8 @@ describe("Auth", () => {
   });
 
   test("Have signup flow completed without errors", async () => {
+    const { adminToken } = await handleSigninAdminUser();
+
     const userId = "1";
     const user = {
       first_name: "first_name",
@@ -252,6 +271,10 @@ describe("Auth", () => {
       phone: user.phone,
       login_passcode: user.login_passcode,
     });
+    await request(app())
+      .get(getEndpoint(`/users/${userId}`))
+      .set("Authorization", `Bearer ${token}`)
+      .expect(403);
 
     const {
       body: {
@@ -259,10 +282,35 @@ describe("Auth", () => {
       },
     } = await request(app())
       .get(getEndpoint(`/users/${userId}`))
-      .set("Authorization", `Bearer ${token}`)
+      .set("Authorization", `Bearer ${adminToken}`)
       .expect(200);
 
     expect(phone).toEqual(user.phone);
     expect(email).toEqual(user.email);
+  });
+
+  // Admin user
+  test("Have admin SIGNUP/SIGNIN flow completed without errors", async () => {
+    const user = {
+      phone: "1234567891",
+      login_passcode: "654321",
+    };
+
+    await request(app()).post(getEndpoint("/auth/signin/admin")).send(user).expect(400);
+
+    const {
+      body: { data: adminUser },
+    } = await request(app()).post(getEndpoint("/auth/signup/admin")).send(user).expect(201); // TODO: Remove signup admin from the API (As it is not part of the documentation)
+    expect(adminUser.is_admin_user).toBe(true);
+
+    const {
+      body: { token },
+    } = await request(app()).post(getEndpoint("/auth/signin/admin")).send(user).expect(200);
+
+    const decodedUser = jwt.verify(token, process.env.JWT_PRIVATE_SECRET_KEY) as unknown as TAdminUser;
+
+    expect(decodedUser.is_admin_user).toBe(adminUser.is_admin_user);
+    expect(decodedUser.phone).toBe(adminUser.phone);
+    expect(decodedUser.login_passcode).toBe(adminUser.login_passcode);
   });
 });

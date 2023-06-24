@@ -3,6 +3,8 @@ import {
   signin,
   signout,
   signup,
+  signupAdmin,
+  signinAdmin,
   forgetLoginPasscode,
   resetLoginPasscode,
   sendEmailVerification,
@@ -10,6 +12,9 @@ import {
 } from "../controllers/authController";
 
 const router = Router();
+
+router.post("/signup/admin", signupAdmin); // TODO: Remove signup admin from the API (As it is not part of the documentation)
+router.post("/signin/admin", signinAdmin);
 
 router.post("/signup", signup);
 router.post("/signin", signin);

@@ -14,7 +14,8 @@ import handleDeleteReturnCols from "../utils/handleDeleteReturnCols";
 import sendEmail from "../services/sendEmail";
 import { getForgetLoginPasscodeEmailTemplate, getSendEmailVerificationEmailTemplate } from "../emails";
 import generateOneTimePassword from "../utils/generateOneTimePassword";
-import { TUser } from "../types/users";
+import { TAdminUser, TUser } from "../types/users";
+import AdminUserRepo from "../repos/AdminUserRepo";
 
 const signJwt = promisify(jwt.sign);
 
@@ -121,7 +122,6 @@ export const signin = handleTryCatch(async (req: Request, res: Response, next: N
   res.cookie("token", token, {
     httpOnly: true,
     secure: true,
-    // sameSite: "strict", // TODO: Add this back or Add CORS to app middleware
     maxAge: 1000 * 60 * 10, // 10 minutes
   });
 
@@ -236,5 +236,64 @@ export const confirmEmailVerification = handleTryCatch(async (req: Request, res:
   res.status(200).json({
     status: "success",
     message: "Email address verified successfully!",
+  });
+});
+
+export const signupAdmin = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
+  await handleInputValidate(req.body, next, {
+    phone: Joi.string().min(10).max(10).required(),
+    login_passcode: Joi.string()
+      .pattern(new RegExp("^[0-9]{6,6}$"))
+      .message('"login_passcode" must be six digits')
+      .required(),
+  });
+
+  const hash = await HashPassword.handleHash(req.body.login_passcode);
+  req.body.login_passcode = hash;
+
+  const adminUser = await AdminUserRepo.createOne(req.body);
+
+  res.status(201).json({
+    status: "success",
+    data: adminUser,
+  });
+});
+
+export const signinAdmin = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
+  await handleInputValidate(req.body, next, {
+    phone: Joi.string().min(10).max(10).required(),
+    login_passcode: Joi.string()
+      .pattern(new RegExp("^[0-9]{6,6}$"))
+      .message('"login_passcode" must be six digits')
+      .required(),
+  });
+
+  const returnCols: Array<keyof TAdminUser> = ["login_passcode"];
+
+  const adminUser = await AdminUserRepo.findOneBy({ phone: req.body.phone }, returnCols);
+  if (!adminUser) {
+    return next(new APIError("Invalid credentials!", 400));
+  }
+
+  const isMatch = await HashPassword.handleCheck(req.body.login_passcode, adminUser.login_passcode);
+  if (!isMatch) {
+    return next(new APIError("Invalid credentials!", 400));
+  }
+
+  const token = await signJwt(
+    handleDeleteReturnCols<TAdminUser>(adminUser, returnCols),
+    process.env.JWT_PRIVATE_SECRET_KEY
+  );
+
+  // Set the token as a cookie in the response
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: true,
+  });
+
+  res.status(200).json({
+    status: "success",
+    data: handleDeleteReturnCols<TAdminUser>(adminUser, returnCols),
+    token,
   });
 });

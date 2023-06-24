@@ -2,10 +2,10 @@ import request from "supertest";
 import type { Response } from "supertest";
 
 import app from "../app";
-import { TUser } from "../types/users";
-import { ROUTE_PREFIX } from "../constants";
+import { TAdminUser, TUser } from "../types/users";
+import { ADMIN_USER_SIGNIN_CREDENTIALS, ROUTE_PREFIX } from "../constants";
 
-type TBody = Omit<Partial<TUser & { not_allowed: string }>, "nickname" | "id">;
+type TBody = Omit<Partial<TUser & TAdminUser & { not_allowed: string }>, "nickname" | "id">;
 
 const getEndpoint = (endpoint: string, params?: string) => {
   return `${ROUTE_PREFIX}${endpoint}${params ? params : ""}`;
@@ -34,4 +34,16 @@ const handleSigninUser = async (statusCode: number, payload: TBody) => {
   return { token, headers };
 };
 
-export { getEndpoint, handleSignupUser, handleSigninUser };
+const handleSigninAdminUser = async (statusCode: number = 200, payload: TBody = ADMIN_USER_SIGNIN_CREDENTIALS) => {
+  const {
+    headers,
+    body: { token },
+  } = await request(app()).post(getEndpoint("/auth/signin/admin")).send(payload).expect(statusCode);
+
+  return {
+    adminToken: token,
+    adminHeaders: headers,
+  };
+};
+
+export { getEndpoint, handleSignupUser, handleSigninUser, handleSigninAdminUser };

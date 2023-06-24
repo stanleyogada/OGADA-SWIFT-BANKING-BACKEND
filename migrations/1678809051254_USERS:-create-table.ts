@@ -1,8 +1,9 @@
 /* eslint-disable camelcase */
+import { MigrationBuilder, ColumnDefinitions } from "node-pg-migrate";
 
-exports.shorthands = undefined;
+export const shorthands: ColumnDefinitions | undefined = undefined;
 
-exports.up = (pgm) => {
+export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.sql(`
     CREATE TABLE users (
       id SERIAL PRIMARY KEY,
@@ -20,10 +21,10 @@ exports.up = (pgm) => {
       one_time_password VARCHAR(20) UNIQUE
     );
   `);
-};
+}
 
-exports.down = (pgm) => {
+export async function down(pgm: MigrationBuilder): Promise<void> {
   pgm.sql(`
-    DROP TABLE users;
+     DROP TABLE IF EXISTS users;
   `);
-};
+}

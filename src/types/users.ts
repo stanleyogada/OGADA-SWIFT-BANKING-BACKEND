@@ -13,4 +13,13 @@ type TUser = {
   one_time_password?: string | null;
 };
 
-export type { TUser };
+type TAdminUser = {
+  id: number;
+  created_at: Date;
+  updated_at: Date;
+  is_admin_user: boolean;
+  phone: string;
+  login_passcode: string;
+};
+
+export type { TUser, TAdminUser };

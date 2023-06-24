@@ -21,7 +21,9 @@ const DEFAULT_USER_OPTS: TConnectOpts = getDBConnection();
       dir: "migrations",
       direction,
       migrationsTable: "pgmigrations",
-      log: () => {},
+      log: (msg: string) => {
+        console.log("Migration message", msg);
+      },
       databaseUrl: DEFAULT_USER_OPTS,
     });
 

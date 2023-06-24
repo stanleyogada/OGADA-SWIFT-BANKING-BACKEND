@@ -4,7 +4,7 @@ import pool from "../utils/pool";
 
 type TEnv = "test" | "development" | "production";
 type TCol = string | { env: TEnv[]; value: string };
-type TResource = "users" | "accounts"; // TODO: add more as migration tables are added ...
+type TResource = "users" | "admin_users"; // TODO: add more as migration tables are added ...
 interface IRepo<T> {
   findManyBy: (payload?: Partial<T>) => Promise<T[]>;
   findManyByAndUpdate: (findByPayload: Partial<T>, updatePayload: Partial<T>) => Promise<T[]>;
