@@ -38,6 +38,8 @@ describe("Users", () => {
   });
 
   test("Have /Update working", async () => {
+    const { adminToken } = await handleSigninAdminUser();
+
     const user = {
       login_passcode: "123456",
       phone: "1234567890",
@@ -46,10 +48,11 @@ describe("Users", () => {
     await handleSignupUser(201, 1, user);
 
     let { token } = await handleSigninUser(200, user);
+    await request(app()).get(getEndpoint("/users/1")).set("Authorization", `Bearer ${token}`).expect(403);
 
     let res: { body: { data: TUser } } = await request(app())
       .get(getEndpoint("/users/1"))
-      .set("Authorization", `Bearer ${token}`)
+      .set("Authorization", `Bearer ${adminToken}`)
       .expect(200);
     expect(res.body.data.nickname).toBeNull();
     expect(res.body.data.email).toEqual("test1@gmail.com");
@@ -64,14 +67,14 @@ describe("Users", () => {
 
     await request(app())
       .patch(getEndpoint("/users"))
-      .set("Authorization", `Bearer ${token}`)
+      .set("Authorization", `Bearer ${adminToken}`)
       .send({
         nickname: "Test Nickname",
         email: "test2@gmail.com",
       })
       .expect(200);
 
-    res = await request(app()).get(getEndpoint("/users/1")).set("Authorization", `Bearer ${token}`).expect(200);
+    res = await request(app()).get(getEndpoint("/users/1")).set("Authorization", `Bearer ${adminToken}`).expect(200);
 
     expect(res.body.data.nickname).toEqual("Test Nickname");
     expect(res.body.data.email).toEqual("test2@gmail.com");
@@ -80,6 +83,8 @@ describe("Users", () => {
   });
 
   test("Have /Delete working", async () => {
+    const { adminToken } = await handleSigninAdminUser();
+
     expect(await UserRepo.count()).toEqual(0);
 
     for (const i of [1, 2, 3]) {
@@ -90,21 +95,24 @@ describe("Users", () => {
       phone: "1234567891",
       login_passcode: "123456",
     });
+    await request(app()).delete(getEndpoint("/users/4")).set("Authorization", `Bearer ${token}`).expect(403);
 
     expect(await UserRepo.count()).toEqual(3);
-    await request(app()).delete(getEndpoint("/users/4")).set("Authorization", `Bearer ${token}`).expect(404);
+    await request(app()).delete(getEndpoint("/users/4")).set("Authorization", `Bearer ${adminToken}`).expect(404);
     expect(await UserRepo.count()).toEqual(3);
     for (const i of [1, 2, 3]) {
       await request(app())
         .delete(getEndpoint(`/users/${i}`))
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", `Bearer ${adminToken}`)
         .expect(204);
     }
     expect(await UserRepo.count()).toEqual(0);
-    await request(app()).delete(getEndpoint("/users/1")).set("Authorization", `Bearer ${token}`).expect(404);
+    await request(app()).delete(getEndpoint("/users/1")).set("Authorization", `Bearer ${adminToken}`).expect(404);
   });
 
   test("Have update login passcode flow completed without errors", async () => {
+    const { adminToken } = await handleSigninAdminUser();
+
     const original_old_login_passcode = "123456";
     const incorrect_old_login_passcode = "982353";
     const new_login_passcode = "654321";
@@ -127,6 +135,14 @@ describe("Users", () => {
       phone: user_phone,
       login_passcode: original_old_login_passcode,
     });
+    await request(app())
+      .patch(getEndpoint("/users/update-login-passcode"))
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        old_login_passcode: incorrect_old_login_passcode,
+        new_login_passcode,
+      })
+      .expect(400);
 
     await request(app())
       .patch(getEndpoint("/users/update-login-passcode"))
@@ -137,7 +153,7 @@ describe("Users", () => {
       })
       .expect(400);
 
-    expect(await handleComparePassword(new_login_passcode, token)).toBe(false);
+    expect(await handleComparePassword(new_login_passcode, adminToken)).toBe(false);
 
     await request(app())
       .patch(getEndpoint("/users/update-login-passcode"))
@@ -148,7 +164,7 @@ describe("Users", () => {
       })
       .expect(200);
 
-    expect(await handleComparePassword(new_login_passcode, token)).toBe(true);
+    expect(await handleComparePassword(new_login_passcode, adminToken)).toBe(true);
   });
 
   test("Have /me working", async () => {
