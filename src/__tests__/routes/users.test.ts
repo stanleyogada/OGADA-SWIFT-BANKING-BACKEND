@@ -3,15 +3,13 @@ import request from "supertest";
 import app from "../../app";
 import UserRepo from "../../repos/UserRepo";
 import { TUser } from "../../types/users";
-import { getEndpoint, handleSigninUser, handleSignupUser } from "../../utils/tests";
+import { getEndpoint, handleSigninAdminUser, handleSigninUser, handleSignupUser } from "../../utils/tests";
 import HashPassword from "../../utils/HashPassword";
 import { ADMIN_USER_SIGNIN_CREDENTIALS } from "../../constants";
 
 describe("Users", () => {
   test("Have /Get one and all users working", async () => {
-    const {
-      body: { token },
-    } = await request(app()).post(getEndpoint("/auth/signin/admin")).send(ADMIN_USER_SIGNIN_CREDENTIALS).expect(200);
+    const { adminToken } = await handleSigninAdminUser();
 
     const user = {
       phone: "1234567890",
@@ -21,22 +19,23 @@ describe("Users", () => {
     await handleSignupUser(201, 1, user);
     await handleSignupUser(201, 2);
 
-    // const { token } = await handleSigninUser(200, user);
+    const { token } = await handleSigninUser(200, user);
+    await request(app()).get(getEndpoint("/users")).set("Authorization", `Bearer ${token}`).expect(403);
 
     await request(app()).get(getEndpoint("/users")).expect(401);
     const { body: allBody } = await request(app())
       .get(getEndpoint("/users"))
-      .set("Authorization", `Bearer ${token}`)
+      .set("Authorization", `Bearer ${adminToken}`)
       .expect(200);
     expect(allBody.count).toEqual(2);
-    await request(app()).get(getEndpoint("/users/1")).set("Authorization", `Bearer ${token}`).expect(200);
+    await request(app()).get(getEndpoint("/users/1")).set("Authorization", `Bearer ${adminToken}`).expect(200);
     const { body: oneBody } = await request(app())
       .get(getEndpoint("/users/2"))
-      .set("Authorization", `Bearer ${token}`)
+      .set("Authorization", `Bearer ${adminToken}`)
       .expect(200);
     expect(oneBody.count).toBeUndefined();
     expect(oneBody.data.id).toEqual(2);
-    await request(app()).get(getEndpoint("/users/3")).set("Authorization", `Bearer ${token}`).expect(404);
+    await request(app()).get(getEndpoint("/users/3")).set("Authorization", `Bearer ${adminToken}`).expect(404);
   });
 
   test("Have /Update working", async () => {
