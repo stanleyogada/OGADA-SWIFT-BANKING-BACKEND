@@ -20,6 +20,7 @@ const sendProd = (err: APIError, res: Response) => {
   res.status(err.statusCode).json({
     status: err.status,
     message: "An unexpected error occurred! Please try again later",
+    devMessage: err.message,
   });
 };
 
