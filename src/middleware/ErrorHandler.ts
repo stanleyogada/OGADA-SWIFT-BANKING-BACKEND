@@ -40,6 +40,12 @@ const ErrorHandler = (err: APIError, _: Request, res: Response, _next: NextFunct
     err.status = "fail";
   }
 
+  if (err.message.includes("duplicate key value violates unique constraint")) {
+    err.statusCode = 400;
+    err.status = "fail";
+    err.message = "User already exists! Please verify your email address or log in instead";
+  }
+
   if (app().get("env") === "development") {
     sendDev(err, res);
   } else {
