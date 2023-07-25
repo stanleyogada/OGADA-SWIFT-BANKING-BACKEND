@@ -1,6 +1,6 @@
-import app from "../app";
-import { handleWhereQuery, handlePatchSetQuery, handleInsertQuery } from "../utils/handleQueryFormat";
-import pool from "../utils/pool";
+import app from "src/app";
+import { handleWhereQuery, handlePatchSetQuery, handleInsertQuery } from "src/utils/handleQueryFormat";
+import pool from "src/utils/pool";
 
 type TEnv = "test" | "development" | "production";
 type TCol = string | { env: TEnv[]; value: string };

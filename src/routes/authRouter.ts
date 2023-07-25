@@ -9,7 +9,7 @@ import {
   resetLoginPasscode,
   sendEmailVerification,
   confirmEmailVerification,
-} from "../controllers/authController";
+} from "src/controllers/authController";
 
 const router = Router();
 

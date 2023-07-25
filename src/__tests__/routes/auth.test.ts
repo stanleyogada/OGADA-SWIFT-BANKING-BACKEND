@@ -1,10 +1,10 @@
 import request from "supertest";
 import jwt from "jsonwebtoken";
 
-import app from "../../app";
-import { TAdminUser, TUser } from "../../types/users";
-import HashPassword from "../../utils/HashPassword";
-import { getEndpoint, handleSigninAdminUser, handleSigninUser, handleSignupUser } from "../../utils/tests";
+import app from "src/app";
+import { TAdminUser, TUser } from "src/types/users";
+import HashPassword from "src/utils/HashPassword";
+import { getEndpoint, handleSigninAdminUser, handleSigninUser, handleSignupUser } from "src/utils/tests";
 
 describe("Auth", () => {
   const handleExpectPasscodeHashing = async (loginPasscode: string, hashedLoginPasscode: string) => {

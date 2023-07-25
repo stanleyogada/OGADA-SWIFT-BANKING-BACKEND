@@ -1,10 +1,10 @@
 import request from "supertest";
 
-import app from "../../app";
-import UserRepo from "../../repos/UserRepo";
-import { TUser } from "../../types/users";
-import { getEndpoint, handleSigninAdminUser, handleSigninUser, handleSignupUser } from "../../utils/tests";
-import HashPassword from "../../utils/HashPassword";
+import app from "src/app";
+import UserRepo from "src/repos/UserRepo";
+import { TUser } from "src/types/users";
+import { getEndpoint, handleSigninAdminUser, handleSigninUser, handleSignupUser } from "src/utils/tests";
+import HashPassword from "src/utils/HashPassword";
 
 describe("Users", () => {
   test("Have /Get one and all users working", async () => {
