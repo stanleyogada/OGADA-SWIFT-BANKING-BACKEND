@@ -1,8 +1,8 @@
 require("dotenv").config();
 
 import migrate from "node-pg-migrate";
-import { TConnectOpts } from "../src/types/db";
-import getDBConnection from "../src/utils/getDBConnection";
+import { TConnectOpts } from "src/types/db";
+import getDBConnection from "src/utils/getDBConnection";
 
 const DEFAULT_USER_OPTS: TConnectOpts = getDBConnection();
 

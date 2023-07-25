@@ -6,9 +6,9 @@ import {
   updateOneUser,
   deleteOneUser,
   updateLoginPasscode,
-} from "../controllers/usersController";
-import handleAuthGuardRoute from "../middleware/handleAuthGuardRoute";
-import handleAdminProtectRoute from "../middleware/handleAdminProtectRoute";
+} from "src/controllers/usersController";
+import handleAuthGuardRoute from "src/middleware/handleAuthGuardRoute";
+import handleAdminProtectRoute from "src/middleware/handleAdminProtectRoute";
 
 const router = Router();
 

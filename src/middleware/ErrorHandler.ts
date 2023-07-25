@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
-import app from "../app";
-import APIError from "../utils/APIError";
+import app from "src/app";
+import APIError from "src/utils/APIError";
 
 const sendDev = (err: APIError, res: Response) => {
   res.status(err.statusCode).json({

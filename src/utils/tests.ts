@@ -1,9 +1,9 @@
 import request from "supertest";
 import type { Response } from "supertest";
 
-import app from "../app";
-import { TAdminUser, TUser } from "../types/users";
-import { ADMIN_USER_SIGNIN_CREDENTIALS, ROUTE_PREFIX } from "../constants";
+import app from "src/app";
+import { TAdminUser, TUser } from "src/types/users";
+import { ADMIN_USER_SIGNIN_CREDENTIALS, ROUTE_PREFIX } from "src/constants";
 
 type TBody = Omit<Partial<TUser & TAdminUser & { not_allowed: string }>, "nickname" | "id">;
 

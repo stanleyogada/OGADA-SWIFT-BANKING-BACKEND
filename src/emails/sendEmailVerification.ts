@@ -1,5 +1,3 @@
-import e from "express";
-
 const getSendEmailVerificationEmailTemplate = ({ one_time_password }: { one_time_password: string }) => `
   <div>
     <h1 style="text-align: center; color: #333; font-size: 2rem; margin: 20px 0; font-weight: 500; line-height: 1.2;">
