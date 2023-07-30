@@ -3,37 +3,6 @@ import { MigrationBuilder, ColumnDefinitions } from "node-pg-migrate";
 
 export const shorthands: ColumnDefinitions | undefined = undefined;
 
-// TABLE kyc_1 {
-//   id SERIAL [PK]
-//   created_at TIMESTAMP [note: 'WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP']
-
-//   bvn VARCHAR(10) [NOT NULL, UNIQUE]
-//   local_bank_account_number VARCHAR(10) [NOT NULL]
-//   local_bank_atm_card_last_six_digits VARCHAR(6) [NOT NULL]
-
-//   account_id INTEGER [ref: > accounts.id, NOT NULL, UNIQUE, note: 'ON DELETE CASCADE']
-// }
-
-// TABLE kyc_2 {
-//   id SERIAL [PK]
-//   created_at TIMESTAMP [note: 'WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP']
-
-//   address VARCHAR(200) [NOT NULL]
-//   avatar_image VARCHAR(200) [NOT NULL]
-
-//   account_id INTEGER [ref: > accounts.id, NOT NULL, UNIQUE, note: 'ON DELETE CASCADE']
-// }
-
-// TABLE kyc_3 {
-//   id SERIAL [PK]
-//   created_at TIMESTAMP [note: 'WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP']
-
-//   utility_bill_image VARCHAR(200) [NOT NULL]
-//   identity_card_image VARCHAR(200) [NOT NULL]
-
-//  account_id INTEGER [ref: > accounts.id, NOT NULL, UNIQUE, note: 'ON DELETE CASCADE']
-// }
-
 export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.sql(`
     CREATE TABLE IF NOT EXISTS kyc_1 (
