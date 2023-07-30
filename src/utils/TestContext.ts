@@ -2,7 +2,7 @@ import migrate from "node-pg-migrate";
 import format from "pg-format";
 import { randomBytes } from "crypto";
 
-import { TConnectOpts } from "src/types/db";
+import { TConnectOpts } from "../types/db";
 import pool from "./pool";
 import getDBConnection from "./getDBConnection";
 
