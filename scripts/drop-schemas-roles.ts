@@ -35,6 +35,6 @@ const DEFAULT_USER_OPTS: TConnectOpts = getDBConnection();
 
     console.log("Dropped all schemas and roles");
   } catch (err) {
-    console.error("Error dropping roles ans schemas", err, "Error dropping roles ans schemas");
+    console.error("Error dropping roles and schemas", err, "Error dropping roles ans schemas");
   }
 })();
