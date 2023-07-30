@@ -11,6 +11,7 @@ const REPO_RESOURCES = {
   users: "users",
   adminUsers: "admin_users",
   accounts: "accounts",
+  otherAccounts: "other_accounts",
 };
 
 //

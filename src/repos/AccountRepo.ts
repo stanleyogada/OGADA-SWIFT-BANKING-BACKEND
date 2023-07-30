@@ -1,27 +1,20 @@
 import { REPO_RESOURCES } from "../constants";
-import type { TAdminUser } from "../types/users";
 import Repo from "./Repo";
 
-const repo = new Repo<TAdminUser>(REPO_RESOURCES.accounts, [
+import type { TAccount, TOtherAccount } from "../types/accounts";
+
+const account = new Repo<TAccount>(REPO_RESOURCES.accounts, [
   "id",
-  "created_at",
-  "updated_at",
-  "is_admin_user",
-  "phone",
-  { env: ["test"], value: "login_passcode" },
+  "balance",
+  "account_number",
+  "transfer_pin",
+  "user_id",
 ]);
 
-class AccountRepo {
-  static async findOneBy(payload?: Partial<TAdminUser>, returnCols?: Repo<TAdminUser>["cols"]) {
-    const rows = await repo.findManyBy(payload, returnCols);
-    return rows[0];
-  }
+const otherAccount = new Repo<TOtherAccount>(REPO_RESOURCES.otherAccounts, ["id", "type", "balance", "account_id"]);
 
-  static async createOne(payload: Pick<TAdminUser, "login_passcode" | "phone">, returnCols?: Repo<TAdminUser>["cols"]) {
-    const row = await repo.createOne(payload, returnCols);
+class AccountRepo {}
 
-    return row;
-  }
-}
+class OtherAccountRepo {}
 
-export default AccountRepo;
+export { AccountRepo, OtherAccountRepo };
