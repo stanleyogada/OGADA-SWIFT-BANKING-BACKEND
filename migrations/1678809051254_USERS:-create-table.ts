@@ -25,6 +25,6 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 
 export async function down(pgm: MigrationBuilder): Promise<void> {
   pgm.sql(`
-     DROP TABLE IF EXISTS users;
+     DROP TABLE users;
   `);
 }

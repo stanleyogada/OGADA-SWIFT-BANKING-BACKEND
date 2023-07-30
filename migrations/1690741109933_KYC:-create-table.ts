@@ -42,8 +42,8 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 
 export async function down(pgm: MigrationBuilder): Promise<void> {
   pgm.sql(`
-    DROP TABLE IF EXISTS kyc_1;
-    DROP TABLE IF EXISTS kyc_3;
-    DROP TABLE IF EXISTS kyc_2;
+    DROP TABLE kyc_1;
+    DROP TABLE kyc_3;
+    DROP TABLE kyc_2;
   `);
 }

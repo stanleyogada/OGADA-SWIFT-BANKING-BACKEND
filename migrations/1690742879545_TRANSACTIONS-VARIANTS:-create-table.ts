@@ -31,7 +31,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     CREATE TABLE IF NOT EXISTS transactions_rewards (
       id SERIAL PRIMARY KEY,
 
-      type ACCOUNT_TYPE NOT NULL,
+      type OTHER_ACCOUNT_TYPE NOT NULL,
       note VARCHAR(50) NOT NULL,
 
       transaction_id INTEGER NOT NULL UNIQUE REFERENCES transactions(id) ON DELETE CASCADE
@@ -52,9 +52,9 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 
 export async function down(pgm: MigrationBuilder): Promise<void> {
   pgm.sql(`
-    DROP TABLE IF EXISTS transactions_banks;
-    DROP TABLE IF EXISTS transactions_in_house;
-    DROP TABLE IF EXISTS transactions_rewards;
-    DROP TABLE IF EXISTS transactions_mobile;
+    DROP TABLE transactions_banks;
+    DROP TABLE transactions_in_house;
+    DROP TABLE transactions_rewards;
+    DROP TABLE transactions_mobile;
   `);
 }
