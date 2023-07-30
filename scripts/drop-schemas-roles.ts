@@ -1,9 +1,9 @@
 require("dotenv").config();
 
-import { TConnectOpts } from "src/types/db";
-import getDBConnection from "src/utils/getDBConnection";
-import pool from "src/utils/pool";
-import { ROLE_NAME_PREFIX } from "src/utils/TestContext";
+import { TConnectOpts } from "../src/types/db";
+import getDBConnection from "../src/utils/getDBConnection";
+import pool from "../src/utils/pool";
+import { ROLE_NAME_PREFIX } from "../src/utils/TestContext";
 
 const DEFAULT_USER_OPTS: TConnectOpts = getDBConnection();
 
