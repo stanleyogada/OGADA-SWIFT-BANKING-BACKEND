@@ -1,4 +1,4 @@
-import type { TUser } from "src/types/users";
+import { TUser } from "../types/users";
 import Repo from "./Repo";
 
 const repo = new Repo<TUser>("users", [

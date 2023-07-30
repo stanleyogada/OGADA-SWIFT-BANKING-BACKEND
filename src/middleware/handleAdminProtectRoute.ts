@@ -1,6 +1,6 @@
 import { NextFunction } from "express";
-import APIError from "src/utils/APIError";
-import { TRequestUser } from "src/types/api";
+import APIError from "../utils/APIError";
+import { TRequestUser } from "../types/api";
 
 const handleAdminProtectRoute = (req: TRequestUser, _, next: NextFunction) => {
   if (!req.user.is_admin_user) {
