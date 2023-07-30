@@ -2,7 +2,7 @@ import { REPO_RESOURCES } from "../constants";
 import type { TAdminUser } from "../types/users";
 import Repo from "./Repo";
 
-const repo = new Repo<TAdminUser>(REPO_RESOURCES.adminUsers, [
+const repo = new Repo<TAdminUser>(REPO_RESOURCES.accounts, [
   "id",
   "created_at",
   "updated_at",
@@ -11,7 +11,7 @@ const repo = new Repo<TAdminUser>(REPO_RESOURCES.adminUsers, [
   { env: ["test"], value: "login_passcode" },
 ]);
 
-class AdminUserRepo {
+class AccountRepo {
   static async findOneBy(payload?: Partial<TAdminUser>, returnCols?: Repo<TAdminUser>["cols"]) {
     const rows = await repo.findManyBy(payload, returnCols);
     return rows[0];
@@ -24,4 +24,4 @@ class AdminUserRepo {
   }
 }
 
-export default AdminUserRepo;
+export default AccountRepo;

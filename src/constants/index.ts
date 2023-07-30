@@ -7,7 +7,13 @@ const ADMIN_USER_SIGNIN_CREDENTIALS = {
   login_passcode: "123456",
 };
 
+const REPO_RESOURCES = {
+  users: "users",
+  adminUsers: "admin_users",
+  accounts: "accounts",
+};
+
 //
 //
 
-export { ROUTE_PREFIX, INPUT_SCHEMA_EMAIL_ALLOW_TLDS, ADMIN_USER_SIGNIN_CREDENTIALS };
+export { ROUTE_PREFIX, INPUT_SCHEMA_EMAIL_ALLOW_TLDS, ADMIN_USER_SIGNIN_CREDENTIALS, REPO_RESOURCES };

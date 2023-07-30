@@ -1,7 +1,8 @@
+import { REPO_RESOURCES } from "../constants";
 import { TUser } from "../types/users";
 import Repo from "./Repo";
 
-const repo = new Repo<TUser>("users", [
+const repo = new Repo<TUser>(REPO_RESOURCES.users, [
   "id",
   "created_at",
   "updated_at",
