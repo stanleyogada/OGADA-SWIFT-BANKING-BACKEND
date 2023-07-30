@@ -3,10 +3,10 @@ import helmet from "helmet";
 import cors from "cors";
 import morgan from "morgan";
 
-import usersRouter from "src/routes/usersRouter";
-import authRouter from "src/routes/authRouter";
-import ErrorHandler from "src/middleware/ErrorHandler";
-import APIError from "src/utils/APIError";
+import usersRouter from "../routes/usersRouter";
+import authRouter from "../routes/authRouter";
+import ErrorHandler from "../middleware/ErrorHandler";
+import APIError from "../utils/APIError";
 
 export default () => {
   const app = express();
