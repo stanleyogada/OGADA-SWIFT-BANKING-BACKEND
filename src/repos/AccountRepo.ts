@@ -2,7 +2,6 @@ import { REPO_RESOURCES } from "../constants";
 import Repo from "./Repo";
 
 import type { TAccount, TOtherAccount } from "../types/accounts";
-
 const account = new Repo<TAccount>(REPO_RESOURCES.accounts, [
   "id",
   "balance",
@@ -25,6 +24,21 @@ class AccountRepo {
     const rows = await account.findManyBy(payload, returnCols);
     return rows[0];
   }
+
+  // TODO: Implement this inside a transactions repo
+  // static async sendMoney(payload: { senderAccountNumber: string; receiverAccountNumber: string; amount: number }) {
+  //   await pool.query(
+  //     `
+  //     BEGIN;
+
+  //     UPDATE ${REPO_RESOURCES.accounts}
+  //     SET balance = balance + $1
+
+  //     COMMIT;
+  //     `,
+  //     []
+  //   )
+  // }
 }
 
 class OtherAccountRepo {
