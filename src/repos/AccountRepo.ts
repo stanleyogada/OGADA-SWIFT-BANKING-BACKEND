@@ -13,8 +13,30 @@ const account = new Repo<TAccount>(REPO_RESOURCES.accounts, [
 
 const otherAccount = new Repo<TOtherAccount>(REPO_RESOURCES.otherAccounts, ["id", "type", "balance", "account_id"]);
 
-class AccountRepo {}
+const NEW_ACCOUNT_BALANCE = 100000.0;
 
-class OtherAccountRepo {}
+class AccountRepo {
+  static async create(payload: Omit<TAccount, "id" | "balance">): Promise<TAccount> {
+    const row = await account.createOne({ ...payload, balance: NEW_ACCOUNT_BALANCE });
+    return row;
+  }
+
+  static async findOneBy(payload?: Partial<TAccount>, returnCols?: Repo<TAccount>["cols"]) {
+    const rows = await account.findManyBy(payload, returnCols);
+    return rows[0];
+  }
+}
+
+class OtherAccountRepo {
+  static async create(payload: Omit<TOtherAccount, "id" | "balance">): Promise<TOtherAccount> {
+    const row = await otherAccount.createOne(payload);
+    return row;
+  }
+
+  static async findOneBy(payload?: Partial<TAccount>, returnCols?: Repo<TAccount>["cols"]) {
+    const rows = await otherAccount.findManyBy(payload, returnCols);
+    return rows[0];
+  }
+}
 
 export { AccountRepo, OtherAccountRepo };
