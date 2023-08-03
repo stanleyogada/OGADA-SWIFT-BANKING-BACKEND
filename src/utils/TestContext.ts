@@ -5,6 +5,7 @@ import { randomBytes } from "crypto";
 import { TConnectOpts } from "../types/db";
 import pool from "./pool";
 import getDBConnection from "./getDBConnection";
+import handleDropSchemaRoles from "./handleDropSchemaRoles";
 
 //
 
@@ -48,6 +49,7 @@ class TestContext implements IContext {
       return new TestContext(roleName);
     } catch (err) {
       console.error(err, err.message);
+      handleDropSchemaRoles().catch((err) => console.error(err, err.message));
     }
   }
 
@@ -71,6 +73,7 @@ class TestContext implements IContext {
       await pool.disconnect();
     } catch (err) {
       console.error(err, err.message);
+      handleDropSchemaRoles().catch((err) => console.error(err, err.message));
     }
   }
 

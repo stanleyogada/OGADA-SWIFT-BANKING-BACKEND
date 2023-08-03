@@ -16,7 +16,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       amount DECIMAL(15, 2) NOT NULL,
       charge DECIMAL(15, 2) NOT NULL,
 
-      account_id INTEGER REFERENCES accounts(id) ON DELETE CASCADE,
+      account_id INTEGER REFERENCES accounts(id) ON DELETE CASCADE
       other_account_id INTEGER REFERENCES accounts(id) ON DELETE CASCADE,
 
       CHECK(
