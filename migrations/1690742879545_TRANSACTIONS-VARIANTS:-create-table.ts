@@ -22,9 +22,17 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       id SERIAL PRIMARY KEY,
 
       remark VARCHAR(50),
-      receiver_account_number VARCHAR(10) NOT NULL,
+      receiver_account_number VARCHAR(10)
+      sender_account_number VARCHAR(10),
 
-      transaction_id INTEGER NOT NULL UNIQUE REFERENCES transactions(id) ON DELETE CASCADE
+      transaction_id INTEGER NOT NULL UNIQUE REFERENCES transactions(id) ON DELETE CASCADE,
+
+      CHECK(
+        COALESCE((sender_account_number)::BOOLEAN::INTEGER, 0)
+        +
+        COALESCE((receiver_account_number)::BOOLEAN::INTEGER, 0)
+        = 1
+      )
     );
 
 
