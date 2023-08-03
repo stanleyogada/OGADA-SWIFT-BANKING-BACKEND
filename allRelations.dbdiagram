@@ -1,0 +1,170 @@
+TABLE admin_users {
+  id SERIAL [PK]
+  created_at TIMESTAMP [note: 'WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP']
+  updated_at TIMESTAMP [note: 'WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP']
+
+  is_admin_user BOOLEAN [note: 'DEFAULT TRUE']
+  phone VARCHAR(10) [NOT NULL, UNIQUE]
+  login_passcode VARCHAR(100) [NOT NULL]
+} 
+
+TABLE users {
+  id SERIAL [PK]
+  created_at TIMESTAMP [note: 'WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP']
+  updated_at TIMESTAMP [note: 'WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP']
+
+  first_name VARCHAR(30) [NOT NULL]
+  last_name VARCHAR(30) [NOT NULL]
+  middle_name VARCHAR(30)
+  nickname VARCHAR(30)
+  phone VARCHAR(10) [NOT NULL, UNIQUE]
+  email VARCHAR(50) [NOT NULL, UNIQUE]
+  login_passcode VARCHAR(100) [NOT NULL]
+  email_is_verified BOOLEAN [note: 'DEFAULT FALSE']
+  one_time_password VARCHAR(20)
+} 
+
+TABLE accounts {
+  id SERIAL [PK]
+
+  balance DECIMAL(15, 2) [NOT NULL, note: 'DEFAULT 0.00']
+  account_number VARCHAR(10) [NOT NULL, UNIQUE]
+  transfer_pin VARCHAR(100) [NOT NULL]
+  kyc KYC_TYPE
+
+  user_id INTEGER [ref: > users.id, UNIQUE, NOT NULL, note: 'ON DELETE CASCADE']
+}
+
+TABLE other_accounts {
+  id SERIAL [PK]
+
+  type OTHER_ACCOUNT_TYPE [NOT NULL]
+  balance DECIMAL(15, 2) [NOT NULL, note: 'DEFAULT 0.00']
+
+  account_id INTEGER [ref: > accounts.id, NOT NULL, note: 'ON DELETE CASCADE']
+
+   note: '
+    UNIQUE (type, account_id)
+  '
+}
+
+TABLE kyc_1 { 
+  id SERIAL [PK]
+  created_at TIMESTAMP [note: 'WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP']
+
+  bvn VARCHAR(10) [NOT NULL, UNIQUE]
+  local_bank_account_number VARCHAR(10) [NOT NULL]
+  local_bank_atm_card_last_six_digits VARCHAR(6) [NOT NULL]
+
+  account_id INTEGER [ref: > accounts.id, NOT NULL, UNIQUE, note: 'ON DELETE CASCADE']
+}
+
+TABLE kyc_2 {
+  id SERIAL [PK]
+  created_at TIMESTAMP [note: 'WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP']
+
+  address VARCHAR(200) [NOT NULL]
+  avatar_image VARCHAR(200) [NOT NULL]
+
+  account_id INTEGER [ref: > accounts.id, NOT NULL, UNIQUE, note: 'ON DELETE CASCADE']
+}
+
+TABLE kyc_3 {
+  id SERIAL [PK]
+  created_at TIMESTAMP [note: 'WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP']
+
+  utility_bill_image VARCHAR(200) [NOT NULL]
+  identity_card_image VARCHAR(200) [NOT NULL]
+  
+ account_id INTEGER [ref: > accounts.id, NOT NULL, UNIQUE, note: 'ON DELETE CASCADE']
+}
+
+TABLE transactions {
+  id SERIAL [PK]
+  created_at TIMESTAMP [note: 'WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP']
+
+  transactions_number VARCHAR(50) [NOT NULL, UNIQUE]
+  is_deposit BOOLEAN
+  type OTHER_ACCOUNT_TYPE [NOT NULL]
+  is_success BOOLEAN
+  amount DECIMAL(15, 2) [NOT NULL]
+  charge DECIMAL(15, 2) [NOT NULL]
+
+  account_id INTEGER [ref: > accounts.id, UNIQUE, note: 'ON DELETE CASCADE']
+  other_account_id INTEGER [ref: > accounts.id, UNIQUE, note: 'ON DELETE CASCADE']
+
+   note: '
+-- either for accounts or other_accounts
+    CHECK(
+      COALESCE((account_id)::BOOLEAN::INTEGER, 0)
+      +
+      COALESCE((other_account_id)::BOOLEAN::INTEGER, 0)
+      = 1
+    )
+  '
+}
+
+TABLE transactions_banks {
+  id SERIAL [PK]
+
+  session_id VARCHAR(100) [UNIQUE]
+  remark VARCHAR(50)
+  bank_name VARCHAR(50) [NOT NULL]
+  bank_account_full_name VARCHAR(100) [NOT NULL]
+  bank_account_number VARCHAR(10) [NOT NULL]
+
+  transaction_id INTEGER [ref: > transactions.id, NOT NULL, UNIQUE, note: 'ON DELETE CASCADE']
+}
+
+TABLE transactions_in_house {
+  id SERIAL [PK]
+
+  remark VARCHAR(50)
+  receiver_account_number VARCHAR(10)
+  sender_account_number VARCHAR(10)
+
+  transaction_id INTEGER [ref: > transactions.id, NOT NULL, UNIQUE, note: 'ON DELETE CASCADE']
+
+//  note: '
+// -- either for receiver_account_number or sender_account_number
+//     CHECK(
+//       COALESCE((sender_account_number)::BOOLEAN::INTEGER, 0)
+//       +
+//       COALESCE((receiver_account_number)::BOOLEAN::INTEGER, 0)
+//       = 1
+//     )
+//   '
+}
+
+
+TABLE transactions_rewards {
+  id SERIAL [PK]
+
+  type OTHER_ACCOUNT_TYPE [NOT NULL]
+  note VARCHAR(50) [NOT NULL]
+
+  transaction_id INTEGER [ref: > transactions.id, NOT NULL, UNIQUE, note: 'ON DELETE CASCADE']
+}
+
+
+TABLE transactions_mobile {
+  id SERIAL [PK]
+
+  operator VARCHAR(50) [NOT NULL]
+  phone_number VARCHAR(10) [NOT NULL]
+  is_airtime BOOLEAN
+
+  transaction_id INTEGER [ref: > transactions.id, NOT NULL, UNIQUE, note: 'ON DELETE CASCADE']
+}
+
+// Types
+ 
+ ENUM OTHER_ACCOUNT_TYPE {
+  cashback
+ }
+
+  ENUM KYC_TYPE {
+    one
+    two
+    three
+ }
