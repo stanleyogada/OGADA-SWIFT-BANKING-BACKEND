@@ -127,13 +127,13 @@ TABLE transactions_in_house {
 
    note: '
   -- either for receiver_account_number or sender_account_number
-      CHECK(
-        COALESCE((sender_account_number)::BOOLEAN::INTEGER, 0)
-        +
-        COALESCE((receiver_account_number)::BOOLEAN::INTEGER, 0) 
-        = 1
-      )
-    '
+    CHECK(
+      COALESCE((sender_account_number)::BOOLEAN::INTEGER, 0)
+      +
+      COALESCE((receiver_account_number)::BOOLEAN::INTEGER, 0) 
+      = 1
+    )
+  '
 }
 
 
