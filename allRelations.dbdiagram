@@ -130,7 +130,7 @@ TABLE transactions_in_house {
       CHECK(
         COALESCE((sender_account_number)::BOOLEAN::INTEGER, 0)
         +
-        COALESCE((receiver_account_number)::BOOLEAN::INTEGER, 0)
+        COALESCE((receiver_account_number)::BOOLEAN::INTEGER, 0) 
         = 1
       )
     '
@@ -158,12 +158,12 @@ TABLE transactions_mobile {
 }
 
 // Types
- ENUM OTHER_ACCOUNT_TYPE {
+ENUM OTHER_ACCOUNT_TYPE {
   CASHBACK
- }
+}
 
-  ENUM KYC_TYPE {
-    BASIC
-    PRO
-    VIP
- }
+ENUM KYC_TYPE {
+  BASIC
+  PRO
+  VIP
+}
