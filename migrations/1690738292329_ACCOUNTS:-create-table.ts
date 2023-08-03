@@ -40,5 +40,3 @@ export async function down(pgm: MigrationBuilder): Promise<void> {
     DROP TYPE OTHER_ACCOUNT_TYPE;
   `);
 }
-
-// ALTER TABLE other_accounts DROP constraint other_accounts_type_account_id_key;
