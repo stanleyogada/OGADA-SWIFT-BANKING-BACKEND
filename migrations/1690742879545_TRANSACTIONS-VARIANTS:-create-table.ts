@@ -22,7 +22,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       id SERIAL PRIMARY KEY,
 
       remark VARCHAR(50),
-      receiver_account_number VARCHAR(10)
+      receiver_account_number VARCHAR(10),
       sender_account_number VARCHAR(10),
 
       transaction_id INTEGER NOT NULL UNIQUE REFERENCES transactions(id) ON DELETE CASCADE,
