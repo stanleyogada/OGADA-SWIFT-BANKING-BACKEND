@@ -239,26 +239,6 @@ export const confirmEmailVerification = handleTryCatch(async (req: Request, res:
   });
 });
 
-export const signupAdmin = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
-  await handleInputValidate(req.body, next, {
-    phone: Joi.string().min(10).max(10).required(),
-    login_passcode: Joi.string()
-      .pattern(new RegExp("^[0-9]{6,6}$"))
-      .message('"login_passcode" must be six digits')
-      .required(),
-  });
-
-  const hash = await HashPassword.handleHash(req.body.login_passcode);
-  req.body.login_passcode = hash;
-
-  const adminUser = await AdminUserRepo.createOne(req.body);
-
-  res.status(201).json({
-    status: "success",
-    data: adminUser,
-  });
-});
-
 export const signinAdmin = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
   await handleInputValidate(req.body, next, {
     phone: Joi.string().min(10).max(10).required(),
