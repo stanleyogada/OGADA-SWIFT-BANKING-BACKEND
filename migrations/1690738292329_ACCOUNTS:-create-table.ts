@@ -6,6 +6,7 @@ export const shorthands: ColumnDefinitions | undefined = undefined;
 export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.sql(`
     CREATE TYPE OTHER_ACCOUNT_TYPE AS ENUM ('CASHBACK', 'OWEALTH');
+    CREATE TYPE KYC_TYPE AS ENUM ('BASIC', 'PRO', 'VIP');
 
 
     CREATE TABLE IF NOT EXISTS accounts (
@@ -13,7 +14,8 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 
       balance DECIMAL(15, 2) NOT NULL DEFAULT 0.00,
       account_number VARCHAR(10) NOT NULL UNIQUE,
-      transfer_pin VARCHAR(4) NOT NULL,
+      transfer_pin VARCHAR(100) NOT NULL,
+      kyc KYC_TYPE,
 
       user_id INTEGER NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE
     );
