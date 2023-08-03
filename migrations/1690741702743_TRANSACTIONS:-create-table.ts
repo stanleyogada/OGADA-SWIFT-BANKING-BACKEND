@@ -11,8 +11,8 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 
       transactions_number VARCHAR(50) NOT NULL UNIQUE,
       is_deposit BOOLEAN NOT NULL,
-      is_owealth BOOLEAN NOT NULL,
       is_success BOOLEAN NOT NULL,
+      type OTHER_ACCOUNT_TYPE NOT NULL,
       amount DECIMAL(15, 2) NOT NULL,
       charge DECIMAL(15, 2) NOT NULL,
 
