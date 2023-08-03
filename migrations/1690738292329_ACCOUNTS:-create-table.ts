@@ -40,5 +40,6 @@ export async function down(pgm: MigrationBuilder): Promise<void> {
     DROP TABLE accounts;
 
     DROP TYPE OTHER_ACCOUNT_TYPE;
+    DROP TYPE KYC_TYPE;
   `);
 }
