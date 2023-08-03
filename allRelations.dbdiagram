@@ -125,15 +125,15 @@ TABLE transactions_in_house {
 
   transaction_id INTEGER [ref: > transactions.id, NOT NULL, UNIQUE, note: 'ON DELETE CASCADE']
 
-//  note: '
-// -- either for receiver_account_number or sender_account_number
-//     CHECK(
-//       COALESCE((sender_account_number)::BOOLEAN::INTEGER, 0)
-//       +
-//       COALESCE((receiver_account_number)::BOOLEAN::INTEGER, 0)
-//       = 1
-//     )
-//   '
+   note: '
+  -- either for receiver_account_number or sender_account_number
+      CHECK(
+        COALESCE((sender_account_number)::BOOLEAN::INTEGER, 0)
+        +
+        COALESCE((receiver_account_number)::BOOLEAN::INTEGER, 0)
+        = 1
+      )
+    '
 }
 
 
@@ -158,13 +158,12 @@ TABLE transactions_mobile {
 }
 
 // Types
- 
  ENUM OTHER_ACCOUNT_TYPE {
-  cashback
+  CASHBACK
  }
 
   ENUM KYC_TYPE {
-    one
-    two
-    three
+    BASIC
+    PRO
+    VIP
  }
