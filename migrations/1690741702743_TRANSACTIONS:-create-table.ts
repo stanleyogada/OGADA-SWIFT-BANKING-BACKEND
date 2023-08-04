@@ -12,19 +12,11 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       transactions_number VARCHAR(50) NOT NULL UNIQUE,
       is_deposit BOOLEAN NOT NULL,
       is_success BOOLEAN NOT NULL,
-      type OTHER_ACCOUNT_TYPE NOT NULL,
+      type ACCOUNT_TYPE NOT NULL,
       amount DECIMAL(15, 2) NOT NULL,
       charge DECIMAL(15, 2) NOT NULL,
 
-      account_id INTEGER REFERENCES accounts(id) ON DELETE CASCADE,
-      other_account_id INTEGER REFERENCES accounts(id) ON DELETE CASCADE,
-
-      CHECK(
-        COALESCE((account_id)::BOOLEAN::INTEGER, 0)
-        +
-        COALESCE((other_account_id)::BOOLEAN::INTEGER, 0)
-        = 1
-      )
+      account_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
     );
   `);
 }
