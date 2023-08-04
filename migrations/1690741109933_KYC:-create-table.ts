@@ -13,7 +13,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       local_bank_account_number VARCHAR(10) NOT NULL,
       local_bank_atm_card_last_six_digits VARCHAR(6) NOT NULL,
 
-      account_id INTEGER NOT NULL UNIQUE REFERENCES accounts(id) ON DELETE CASCADE
+      user_id INTEGER NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE
     );
 
 
@@ -24,7 +24,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       address VARCHAR(200) NOT NULL,
       avatar_image VARCHAR(200) NOT NULL,
 
-      account_id INTEGER NOT NULL UNIQUE REFERENCES accounts(id) ON DELETE CASCADE
+      user_id INTEGER NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE
     );
 
 
@@ -35,7 +35,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       utility_bill_image VARCHAR(200) NOT NULL,
       identity_card_image VARCHAR(200) NOT NULL,
 
-      account_id INTEGER NOT NULL UNIQUE REFERENCES accounts(id) ON DELETE CASCADE
+      user_id INTEGER NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE
     );
   `);
 }
