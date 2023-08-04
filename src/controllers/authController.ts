@@ -170,11 +170,8 @@ export const signup = handleTryCatch(
     req.body.transfer_pin = await HashPassword.handleHash(req.body.transfer_pin);
 
     await pool.query(`BEGIN TRANSACTION;`);
-
     const user = await UserRepo.createOne(req.body);
-
     await AccountRepo.createAccounts(user.id);
-
     await pool.query(`COMMIT TRANSACTION;`);
 
     res.status(201).json({
