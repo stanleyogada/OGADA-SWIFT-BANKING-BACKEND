@@ -268,8 +268,6 @@ describe("Auth", () => {
 
     await handleSignupUser(201, userId, user);
 
-    // await request(app()).post(getEndpoint("/auth/signup")).send(user).expect(201);
-
     const { token } = await handleSigninUser(200, {
       phone: user.phone,
       login_passcode: user.login_passcode,
@@ -287,8 +285,6 @@ describe("Auth", () => {
       .expect(200);
 
     const { phone, email, transfer_pin } = data;
-
-    console.log("data", data);
 
     expect(phone).toEqual(user.phone);
     expect(email).toEqual(user.email);
