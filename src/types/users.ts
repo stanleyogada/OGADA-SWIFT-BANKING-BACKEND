@@ -26,6 +26,7 @@ type TAdminUser = {
 };
 
 type TUserAccount = {
+  created_at: Date;
   user_id: number;
   email: string;
   account_number: string;

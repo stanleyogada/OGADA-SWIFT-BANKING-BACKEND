@@ -7,6 +7,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.sql(`
     CREATE VIEW "users_accounts" AS
     SELECT 
+      users.created_at,
 		  users.id AS "user_id", 
       users.email, 
       users.phone AS "account_number",
@@ -17,7 +18,8 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     FROM
       "users"
     LEFT JOIN 
-      "accounts" ON accounts.user_id = users.id;
+      "accounts" ON accounts.user_id = users.id
+    ORDER BY users.created_at DESC;
   `);
 }
 

@@ -20,6 +20,7 @@ const repo = new Repo<TUser>(REPO_RESOURCES.users, [
 ]);
 
 const userAccountRepo = new Repo<TUserAccount>(REPO_RESOURCES.usersAccounts, [
+  "created_at",
   "user_id",
   "email",
   "account_number",

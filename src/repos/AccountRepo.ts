@@ -7,6 +7,7 @@ const repo = new Repo<TAccount>(REPO_RESOURCES.accounts, ["id", "balance", "type
 
 class AccountRepo {
   static async createAccounts(userId: number) {
+    // TODO: implement createMany inside Repo (insert multiple values at once)
     await repo.createOne({
       balance: +ACCOUNT_DEFAULT_BALANCE[EAccountType.NORMAL], // TODO: remove this: add as default value in db
       type: EAccountType.NORMAL,

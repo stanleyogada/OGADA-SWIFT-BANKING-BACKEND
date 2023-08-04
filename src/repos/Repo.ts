@@ -3,7 +3,7 @@ import { handleWhereQuery, handlePatchSetQuery, handleInsertQuery } from "../uti
 import pool from "../utils/pool";
 
 type TEnv = "test" | "development" | "production";
-type TCol = string | { env: TEnv[]; value: string };
+type TCol<T> = keyof T | { env: TEnv[]; value: keyof T };
 type TResource = string; // TODO: add more as migration tables are added ...
 interface IRepo<T> {
   findManyBy: (payload?: Partial<T>) => Promise<T[]>;
@@ -16,7 +16,7 @@ interface IRepo<T> {
 class Repo<T> implements IRepo<T> {
   private selectListQuery: string;
   private selectListQueryReturnColsQuery: string = "";
-  private cols: TCol[];
+  private cols: TCol<T>[];
   private resource: TResource;
 
   private setSelectListQuery = (returnCols?: Repo<T>["cols"]) => {
@@ -24,11 +24,11 @@ class Repo<T> implements IRepo<T> {
 
     for (let i = 0; i < this.cols.length; i++) {
       let col = this.cols[i];
-      if (typeof col !== "string" && col.env.includes(app().get("env") as TEnv)) {
+      if (typeof col === "object" && col.env.includes(app().get("env") as TEnv)) {
         col = col.value;
       }
 
-      if (typeof col !== "string") continue;
+      if (typeof col === "object") continue;
       cols.push(col);
     }
 
@@ -42,7 +42,14 @@ class Repo<T> implements IRepo<T> {
   private handleWhereListQuery = (payload: Partial<T>) => {
     if (!payload) return;
 
-    const cols = this.cols.reduce((acc, col) => [...acc, typeof col === "string" ? col : col.value], [] as string[]);
+    const cols = this.cols.reduce((acc, col) => {
+      if (typeof col === "object") {
+        col = col.value;
+      }
+
+      return [...acc, col];
+    }, []) as string[];
+
     const { q, queryDeps } = handleWhereQuery(payload, cols);
 
     return {

@@ -199,14 +199,7 @@ describe("Auth", () => {
 
     await handleSigninUser(400, { phone: "9012343203", login_passcode: user.login_passcode });
     await handleSigninUser(400, { phone: user.phone, login_passcode: "123456" });
-    await handleSigninUser(
-      400,
-
-      {
-        ...user,
-        not_allowed: "not_allowed",
-      }
-    );
+    await handleSigninUser(400, { not_allowed: "not_allowed" });
 
     const { token, headers } = await handleSigninUser(200, user);
 
