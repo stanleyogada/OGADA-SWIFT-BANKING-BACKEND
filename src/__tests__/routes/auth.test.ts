@@ -2,9 +2,11 @@ import request from "supertest";
 import jwt from "jsonwebtoken";
 
 import app from "../../app";
-import { TUser, TUserAccount } from "../../types/users";
 import HashPassword from "../../utils/HashPassword";
 import { getEndpoint, handleSigninAdminUser, handleSigninUser, handleSignupUser } from "../../utils/tests";
+import { ACCOUNT_DEFAULT_BALANCE } from "../../constants";
+
+import type { TUser, TUserAccount } from "../../types/users";
 import { EAccountType } from "../../types/accounts";
 
 describe("Auth", () => {
@@ -286,7 +288,7 @@ describe("Auth", () => {
     expect(allMyAccountsData[1].user_id).toBe(userId);
     expect(allMyAccountsData[0].type).toBe(EAccountType.NORMAL);
     expect(allMyAccountsData[1].type).toBe(EAccountType.CASHBACK);
-    expect(allMyAccountsData[0].balance).toBe(0.0);
-    expect(allMyAccountsData[1].balance).toBe(800);
+    expect(allMyAccountsData[0].balance).toBe(ACCOUNT_DEFAULT_BALANCE[EAccountType.NORMAL]);
+    expect(allMyAccountsData[1].balance).toBe(ACCOUNT_DEFAULT_BALANCE[EAccountType.CASHBACK]);
   });
 });

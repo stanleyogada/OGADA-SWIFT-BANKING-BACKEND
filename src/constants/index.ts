@@ -1,3 +1,5 @@
+import { EAccountType } from "../types/accounts";
+
 const ROUTE_PREFIX = "/api/v1";
 
 const INPUT_SCHEMA_EMAIL_ALLOW_TLDS = ["com", "net"];
@@ -15,7 +17,18 @@ const REPO_RESOURCES = {
   usersAccounts: "users_accounts",
 };
 
+const ACCOUNT_DEFAULT_BALANCE = {
+  [EAccountType.NORMAL]: "0.00",
+  [EAccountType.CASHBACK]: "900.00",
+};
+
 //
 //
 
-export { ROUTE_PREFIX, INPUT_SCHEMA_EMAIL_ALLOW_TLDS, ADMIN_USER_SIGNIN_CREDENTIALS, REPO_RESOURCES };
+export {
+  ROUTE_PREFIX,
+  INPUT_SCHEMA_EMAIL_ALLOW_TLDS,
+  ADMIN_USER_SIGNIN_CREDENTIALS,
+  REPO_RESOURCES,
+  ACCOUNT_DEFAULT_BALANCE,
+};

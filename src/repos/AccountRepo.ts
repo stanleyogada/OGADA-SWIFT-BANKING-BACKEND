@@ -1,23 +1,20 @@
-import { REPO_RESOURCES } from "../constants";
+import { ACCOUNT_DEFAULT_BALANCE, REPO_RESOURCES } from "../constants";
 import Repo from "./Repo";
 
 import { EAccountType, type TAccount } from "../types/accounts";
 
 const repo = new Repo<TAccount>(REPO_RESOURCES.accounts, ["id", "balance", "type", "user_id"]);
 
-const NEW_ACCOUNT_BALANCE = 0.0; // TODO: remove this: add as default value in db
-const NEW_CASHBACK_ACCOUNT_BALANCE = 800.0; // TODO: remove this: add as default value in db
-
 class AccountRepo {
   static async createAccounts(userId: number) {
     await repo.createOne({
-      balance: NEW_ACCOUNT_BALANCE,
+      balance: +ACCOUNT_DEFAULT_BALANCE[EAccountType.NORMAL], // TODO: remove this: add as default value in db
       type: EAccountType.NORMAL,
       user_id: userId,
     });
 
     await repo.createOne({
-      balance: NEW_CASHBACK_ACCOUNT_BALANCE,
+      balance: +ACCOUNT_DEFAULT_BALANCE[EAccountType.CASHBACK], // TODO: remove this: add as default value in db
       type: EAccountType.CASHBACK,
       user_id: userId,
     });
