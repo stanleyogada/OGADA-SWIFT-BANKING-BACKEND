@@ -73,7 +73,6 @@ class Repo<T> implements IRepo<T> {
       where?.queryDependencies
     );
 
-    console.log("Repo -> findManyBy -> rows", rows);
     return rows as T[];
   }
 

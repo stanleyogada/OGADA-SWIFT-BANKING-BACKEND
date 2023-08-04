@@ -33,7 +33,6 @@ export const getOneUser = handleTryCatch(async (req: Request, res: Response, nex
 
 export const getCurrentUser = handleTryCatch(async (req: TRequestUser, res: Response, next: NextFunction) => {
   const user = await UserRepo.findOneBy({ id: +req.user.id });
-  console.log(req.user, user);
 
   res.status(200).json({
     status: "success",
