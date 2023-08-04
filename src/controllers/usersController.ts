@@ -8,9 +8,6 @@ import handleInputValidate from "../utils/handleInputValidate";
 import handleTryCatch from "../utils/handleTryCatch";
 import APIError from "../utils/APIError";
 import { TRequestUser } from "../types/api";
-import handleDeleteReturnCols from "../utils/handleDeleteReturnCols";
-import { TUser } from "../types/users";
-
 export const getAllUsers = handleTryCatch(async (_, res: Response) => {
   const users = await UserRepo.findManyBy();
 
@@ -36,10 +33,21 @@ export const getOneUser = handleTryCatch(async (req: Request, res: Response, nex
 
 export const getCurrentUser = handleTryCatch(async (req: TRequestUser, res: Response, next: NextFunction) => {
   const user = await UserRepo.findOneBy({ id: +req.user.id });
+  console.log(req.user, user);
 
   res.status(200).json({
     status: "success",
-    data: handleDeleteReturnCols<TUser>(user, ["login_passcode"]),
+    data: user,
+  });
+});
+
+export const getAllAccounts = handleTryCatch(async (req: TRequestUser, res: Response, next: NextFunction) => {
+  const accounts = await UserRepo.findAllAccountsByUserId(+req.user.id);
+
+  res.status(200).json({
+    status: "success",
+    data: accounts,
+    count: accounts.length,
   });
 });
 
@@ -84,7 +92,7 @@ export const updateLoginPasscode = handleTryCatch(async (req: TRequestUser, res:
   });
 
   const { user: _user } = req;
-  const user = await UserRepo.findOneBy({ id: +_user.id }, ["login_passcode"]);
+  const user = await UserRepo.findOneBy({ id: +_user.id }, ["login_passcode", "transfer_pin"]);
 
   const isMatch = await HashPassword.handleCheck(req.body.old_login_passcode, user.login_passcode);
   if (!isMatch) {

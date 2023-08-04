@@ -103,7 +103,7 @@ export const signin = handleTryCatch(async (req: Request, res: Response, next: N
       .required(),
   });
 
-  const returnCols: Array<keyof TUser> = ["login_passcode"];
+  const returnCols: Array<keyof TUser> = ["login_passcode", "transfer_pin"];
   const user = await UserRepo.findOneBy({ phone: req.body.phone }, returnCols);
   if (!user) {
     return next(new APIError("Invalid credentials!", 400));
