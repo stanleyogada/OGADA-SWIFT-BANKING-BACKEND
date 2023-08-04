@@ -19,6 +19,7 @@ const handleSignupUser = async (statusCode: number, n: number = 1, payload: TBod
     middle_name: "Hire",
     email: `test${n}@gmail.com`,
     login_passcode: "123456",
+    transfer_pin: "4321",
     ...payload,
   };
 

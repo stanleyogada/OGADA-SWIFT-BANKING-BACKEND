@@ -11,6 +11,7 @@ type TUser = {
   email_is_verified?: boolean;
   login_passcode: string;
   one_time_password?: string | null;
+  transfer_pin: string;
 };
 
 type TAdminUser = {

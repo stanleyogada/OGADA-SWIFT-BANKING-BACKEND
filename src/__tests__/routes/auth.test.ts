@@ -250,7 +250,7 @@ describe("Auth", () => {
       phone: "1234567891",
       email: "signup-email@gmail.com",
       login_passcode: "654321",
-      // transfer_pin: "4321"
+      transfer_pin: "1234",
     };
 
     await handleSigninUser(400, {
@@ -266,7 +266,9 @@ describe("Auth", () => {
       })
       .expect(400);
 
-    await request(app()).post(getEndpoint("/auth/signup")).send(user).expect(201);
+    await handleSignupUser(201, 1, user);
+
+    // await request(app()).post(getEndpoint("/auth/signup")).send(user).expect(201);
 
     const { token } = await handleSigninUser(200, {
       phone: user.phone,

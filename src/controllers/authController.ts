@@ -157,6 +157,10 @@ export const signup = handleTryCatch(async (req: Request, res: Response, next: N
       .pattern(new RegExp("^[0-9]{6,6}$"))
       .message('"login_passcode" must be six digits')
       .required(),
+    transfer_pin: Joi.string()
+      .pattern(new RegExp("^[0-9]{4,4}$"))
+      .message('"transfer_pin" must be 4 digits')
+      .required(),
   });
 
   const hash = await HashPassword.handleHash(req.body.login_passcode);
