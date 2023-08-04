@@ -257,14 +257,10 @@ describe("Auth", () => {
       login_passcode: user.login_passcode,
     });
 
-    await request(app())
-      .post(getEndpoint("/auth/signup"))
-      .send({
-        ...user,
-        not_allowed: "not_allowed",
-      })
-      .expect(400);
-
+    await handleSignupUser(400, userId, {
+      ...user,
+      not_allowed: "not_allowed",
+    });
     await handleSignupUser(201, userId, user);
 
     const { token } = await handleSigninUser(200, {

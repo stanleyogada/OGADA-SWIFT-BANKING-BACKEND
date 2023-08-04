@@ -16,6 +16,7 @@ import { getForgetLoginPasscodeEmailTemplate, getSendEmailVerificationEmailTempl
 import generateOneTimePassword from "../utils/generateOneTimePassword";
 import { TAdminUser, TUser } from "../types/users";
 import AdminUserRepo from "../repos/AdminUserRepo";
+import pool from "../utils/pool";
 
 const signJwt = promisify(jwt.sign);
 
@@ -141,38 +142,47 @@ export const signout = handleTryCatch(async (_req: Request, res: Response) => {
   });
 });
 
-export const signup = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
-  await handleInputValidate(req.body, next, {
-    first_name: Joi.string().min(2).max(30).required(),
-    last_name: Joi.string().min(2).max(30).required(),
-    middle_name: Joi.string().min(2).max(30),
-    phone: Joi.string().min(10).max(10).required(),
-    email: Joi.string()
-      .email({
-        minDomainSegments: 2,
-        tlds: { allow: INPUT_SCHEMA_EMAIL_ALLOW_TLDS },
-      })
-      .required(),
-    login_passcode: Joi.string()
-      .pattern(new RegExp("^[0-9]{6,6}$"))
-      .message('"login_passcode" must be six digits')
-      .required(),
-    transfer_pin: Joi.string()
-      .pattern(new RegExp("^[0-9]{4,4}$"))
-      .message('"transfer_pin" must be 4 digits')
-      .required(),
-  });
+export const signup = handleTryCatch(
+  async (req: Request, res: Response, next: NextFunction) => {
+    await handleInputValidate(req.body, next, {
+      first_name: Joi.string().min(2).max(30).required(),
+      last_name: Joi.string().min(2).max(30).required(),
+      middle_name: Joi.string().min(2).max(30),
+      phone: Joi.string().min(10).max(10).required(),
+      email: Joi.string()
+        .email({
+          minDomainSegments: 2,
+          tlds: { allow: INPUT_SCHEMA_EMAIL_ALLOW_TLDS },
+        })
+        .required(),
+      login_passcode: Joi.string()
+        .pattern(new RegExp("^[0-9]{6,6}$"))
+        .message('"login_passcode" must be six digits')
+        .required(),
+      transfer_pin: Joi.string()
+        .pattern(new RegExp("^[0-9]{4,4}$"))
+        .message('"transfer_pin" must be 4 digits')
+        .required(),
+    });
 
-  req.body.login_passcode = await HashPassword.handleHash(req.body.login_passcode);
-  req.body.transfer_pin = await HashPassword.handleHash(req.body.transfer_pin);
+    req.body.login_passcode = await HashPassword.handleHash(req.body.login_passcode);
+    req.body.transfer_pin = await HashPassword.handleHash(req.body.transfer_pin);
 
-  const user = await UserRepo.createOne(req.body);
+    await pool.query(`BEGIN TRANSACTION;`);
 
-  res.status(201).json({
-    status: "success",
-    data: user,
-  });
-});
+    const user = await UserRepo.createOne(req.body);
+
+    await pool.query(`COMMIT TRANSACTION;`);
+
+    res.status(201).json({
+      status: "success",
+      data: user,
+    });
+  },
+  async () => {
+    await pool.query(`ROLLBACK TRANSACTION;`);
+  }
+);
 
 export const sendEmailVerification = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
   await handleInputValidate(req.body, next, {

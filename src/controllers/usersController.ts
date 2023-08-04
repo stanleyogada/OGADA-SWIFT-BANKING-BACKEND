@@ -8,6 +8,7 @@ import handleInputValidate from "../utils/handleInputValidate";
 import handleTryCatch from "../utils/handleTryCatch";
 import APIError from "../utils/APIError";
 import { TRequestUser } from "../types/api";
+import pool from "../utils/pool";
 export const getAllUsers = handleTryCatch(async (_, res: Response) => {
   const users = await UserRepo.findManyBy();
 
@@ -31,7 +32,7 @@ export const getOneUser = handleTryCatch(async (req: Request, res: Response, nex
   });
 });
 
-export const getCurrentUser = handleTryCatch(async (req: TRequestUser, res: Response, next: NextFunction) => {
+export const getCurrentUser = handleTryCatch(async (req: TRequestUser, res: Response) => {
   const user = await UserRepo.findOneBy({ id: +req.user.id });
 
   res.status(200).json({
@@ -40,7 +41,7 @@ export const getCurrentUser = handleTryCatch(async (req: TRequestUser, res: Resp
   });
 });
 
-export const getAllAccounts = handleTryCatch(async (req: TRequestUser, res: Response, next: NextFunction) => {
+export const getAllAccounts = handleTryCatch(async (req: TRequestUser, res: Response) => {
   const accounts = await UserRepo.findAllAccountsByUserId(+req.user.id);
 
   res.status(200).json({

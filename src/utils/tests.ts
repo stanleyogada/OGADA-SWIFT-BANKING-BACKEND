@@ -11,7 +11,11 @@ const getEndpoint = (endpoint: string, params?: string) => {
   return `${ROUTE_PREFIX}${endpoint}${params ? params : ""}`;
 };
 
-const handleSignupUser = async (statusCode: number, n: number = 1, payload: TBody = {}): Promise<Response> => {
+const handleSignupUser = async (
+  statusCode: number,
+  n: number = 1,
+  payload: Partial<TBody & { not_allowed: string }> = {}
+): Promise<Response> => {
   const body: TBody = {
     first_name: "Test" + n,
     last_name: "Last" + n,
