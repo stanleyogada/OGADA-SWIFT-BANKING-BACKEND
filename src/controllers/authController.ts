@@ -176,7 +176,7 @@ export const signup = handleTryCatch(
 
     res.status(201).json({
       status: "success",
-      data: user,
+      data: handleDeleteReturnCols<TUser>(user, ["login_passcode", "transfer_pin"]),
     });
   },
   async () => {
