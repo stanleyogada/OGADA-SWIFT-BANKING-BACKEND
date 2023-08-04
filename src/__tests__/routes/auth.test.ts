@@ -242,7 +242,7 @@ describe("Auth", () => {
   test("Have signup flow completed without errors", async () => {
     const { adminToken } = await handleSigninAdminUser();
 
-    const userId = "1";
+    const userId = 1;
     const user = {
       first_name: "first_name",
       last_name: "last_name",
@@ -266,7 +266,7 @@ describe("Auth", () => {
       })
       .expect(400);
 
-    await handleSignupUser(201, 1, user);
+    await handleSignupUser(201, userId, user);
 
     // await request(app()).post(getEndpoint("/auth/signup")).send(user).expect(201);
 
@@ -280,15 +280,18 @@ describe("Auth", () => {
       .expect(403);
 
     const {
-      body: {
-        data: { phone, email },
-      },
+      body: { data },
     } = await request(app())
       .get(getEndpoint(`/users/${userId}`))
       .set("Authorization", `Bearer ${adminToken}`)
       .expect(200);
 
+    const { phone, email, transfer_pin } = data;
+
+    console.log("data", data);
+
     expect(phone).toEqual(user.phone);
     expect(email).toEqual(user.email);
+    await handleExpectPasscodeHashing(user.transfer_pin, transfer_pin);
   });
 });

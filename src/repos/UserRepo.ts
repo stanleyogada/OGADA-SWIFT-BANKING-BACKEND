@@ -15,6 +15,7 @@ const repo = new Repo<TUser>(REPO_RESOURCES.users, [
   "phone",
   { env: ["test"], value: "one_time_password" },
   { env: ["test"], value: "login_passcode" },
+  { env: ["test"], value: "transfer_pin" },
 ]);
 
 class UserRepo {
