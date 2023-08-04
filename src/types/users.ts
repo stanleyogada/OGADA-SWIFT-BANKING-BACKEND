@@ -1,3 +1,5 @@
+import type { EAccountType } from "./accounts";
+
 type TUser = {
   id: number;
   created_at: Date;
@@ -29,7 +31,7 @@ type TUserAccount = {
   account_number: string;
   account_id: number;
   balance: number;
-  type: string;
+  type: EAccountType;
 };
 
 export type { TUser, TAdminUser, TUserAccount };

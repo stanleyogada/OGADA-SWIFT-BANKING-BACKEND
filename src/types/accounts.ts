@@ -2,6 +2,10 @@ enum EOtherAccountType {
   CASHBACK = "CASHBACK",
   OWEALTH = "OWEALTH",
 }
+enum EAccountType {
+  NORMAL = "NORMAL",
+  CASHBACK = "CASHBACK",
+}
 
 type TAccount = {
   id: number;
@@ -19,3 +23,4 @@ type TOtherAccount = {
 };
 
 export type { TAccount, TOtherAccount, EOtherAccountType };
+export { EAccountType };

@@ -2,9 +2,10 @@ import request from "supertest";
 import jwt from "jsonwebtoken";
 
 import app from "../../app";
-import { TUser } from "../../types/users";
+import { TUser, TUserAccount } from "../../types/users";
 import HashPassword from "../../utils/HashPassword";
 import { getEndpoint, handleSigninAdminUser, handleSigninUser, handleSignupUser } from "../../utils/tests";
+import { EAccountType } from "../../types/accounts";
 
 describe("Auth", () => {
   const handleExpectPasscodeHashing = async (loginPasscode: string, hashedLoginPasscode: string) => {
@@ -240,8 +241,6 @@ describe("Auth", () => {
   });
 
   test("Have signup flow completed without errors", async () => {
-    const { adminToken } = await handleSigninAdminUser();
-
     const userId = 1;
     const user = {
       first_name: "first_name",
@@ -272,22 +271,26 @@ describe("Auth", () => {
       phone: user.phone,
       login_passcode: user.login_passcode,
     });
-    await request(app())
-      .get(getEndpoint(`/users/${userId}`))
-      .set("Authorization", `Bearer ${token}`)
-      .expect(403);
 
     const {
-      body: { data },
-    } = await request(app())
-      .get(getEndpoint(`/users/${userId}`))
-      .set("Authorization", `Bearer ${adminToken}`)
-      .expect(200);
+      body: { data: meData },
+    } = await request(app()).get(getEndpoint(`/users/me`)).set("Authorization", `Bearer ${token}`).expect(200);
+    const {
+      body: { data: allMyAccountsData },
+    }: {
+      body: { data: TUserAccount[] };
+    } = await request(app()).get(getEndpoint(`/users/me/accounts`)).set("Authorization", `Bearer ${token}`).expect(200);
 
-    const { phone, email, transfer_pin } = data;
+    expect(meData.phone).toEqual(user.phone);
+    expect(meData.email).toEqual(user.email);
+    await handleExpectPasscodeHashing(user.transfer_pin, meData.transfer_pin);
 
-    expect(phone).toEqual(user.phone);
-    expect(email).toEqual(user.email);
-    await handleExpectPasscodeHashing(user.transfer_pin, transfer_pin);
+    expect(allMyAccountsData.length).toBe(2);
+    expect(allMyAccountsData[0].user_id).toBe(userId);
+    expect(allMyAccountsData[1].user_id).toBe(userId);
+    expect(allMyAccountsData[0].type).toBe(EAccountType.NORMAL);
+    expect(allMyAccountsData[1].type).toBe(EAccountType.CASHBACK);
+    expect(allMyAccountsData[0].balance).toBe(0.0);
+    expect(allMyAccountsData[1].balance).toBe(800);
   });
 });
