@@ -7,7 +7,9 @@ import { INPUT_SCHEMA_EMAIL_ALLOW_TLDS } from "../constants";
 import handleInputValidate from "../utils/handleInputValidate";
 import handleTryCatch from "../utils/handleTryCatch";
 import APIError from "../utils/APIError";
-import { TRequestUser } from "../types/api";
+
+import type { TRequestUser } from "../types/api";
+
 export const getAllUsers = handleTryCatch(async (_, res: Response) => {
   const users = await UserRepo.findManyBy();
 
