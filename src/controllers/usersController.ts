@@ -8,7 +8,6 @@ import handleInputValidate from "../utils/handleInputValidate";
 import handleTryCatch from "../utils/handleTryCatch";
 import APIError from "../utils/APIError";
 import { TRequestUser } from "../types/api";
-import pool from "../utils/pool";
 export const getAllUsers = handleTryCatch(async (_, res: Response) => {
   const users = await UserRepo.findManyBy();
 

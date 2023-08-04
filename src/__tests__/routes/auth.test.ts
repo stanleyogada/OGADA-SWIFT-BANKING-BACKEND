@@ -264,6 +264,10 @@ describe("Auth", () => {
       not_allowed: "not_allowed",
     });
     await handleSignupUser(201, userId, user);
+    await handleSignupUser(400, userId, user);
+    await handleSignupUser(400, 100, {
+      first_name: "random_user",
+    });
 
     const { token } = await handleSigninUser(200, {
       phone: user.phone,
