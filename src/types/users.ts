@@ -23,4 +23,13 @@ type TAdminUser = {
   login_passcode: string;
 };
 
-export type { TUser, TAdminUser };
+type TUserAccount = {
+  user_id: number;
+  email: string;
+  account_number: string;
+  account_id: number;
+  balance: number;
+  type: string;
+};
+
+export type { TUser, TAdminUser, TUserAccount };

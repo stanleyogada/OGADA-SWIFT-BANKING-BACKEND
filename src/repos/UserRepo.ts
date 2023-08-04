@@ -1,5 +1,5 @@
 import { REPO_RESOURCES } from "../constants";
-import { TUser } from "../types/users";
+import { TUser, TUserAccount } from "../types/users";
 import Repo from "./Repo";
 
 const repo = new Repo<TUser>(REPO_RESOURCES.users, [
@@ -16,6 +16,15 @@ const repo = new Repo<TUser>(REPO_RESOURCES.users, [
   { env: ["test"], value: "one_time_password" },
   { env: ["test"], value: "login_passcode" },
   { env: ["test"], value: "transfer_pin" },
+]);
+
+const userAccountRepo = new Repo<TUserAccount>(REPO_RESOURCES.usersAccounts, [
+  "user_id",
+  "email",
+  "account_number",
+  "account_id",
+  "balance",
+  "type",
 ]);
 
 class UserRepo {
@@ -55,6 +64,11 @@ class UserRepo {
 
   static async count() {
     return await repo.count();
+  }
+
+  static async findAccountByUserId(user_id: number) {
+    const rows = await userAccountRepo.findManyBy({ user_id });
+    return rows;
   }
 }
 
