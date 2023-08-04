@@ -6,7 +6,8 @@ TABLE admin_users {
   is_admin_user BOOLEAN [note: 'DEFAULT TRUE']
   phone VARCHAR(10) [NOT NULL, UNIQUE]
   login_passcode VARCHAR(100) [NOT NULL]
-} 
+}
+
 
 TABLE users {
   id SERIAL [PK]
@@ -20,6 +21,8 @@ TABLE users {
   phone VARCHAR(10) [NOT NULL, UNIQUE]
   email VARCHAR(50) [NOT NULL, UNIQUE]
   login_passcode VARCHAR(100) [NOT NULL]
+  transfer_pin VARCHAR(100) [NOT NULL]
+  kyc KYC_TYPE
   email_is_verified BOOLEAN [note: 'DEFAULT FALSE']
   one_time_password VARCHAR(20)
 } 
@@ -28,25 +31,15 @@ TABLE accounts {
   id SERIAL [PK]
 
   balance DECIMAL(15, 2) [NOT NULL, note: 'DEFAULT 0.00']
-  account_number VARCHAR(10) [NOT NULL, UNIQUE]
-  transfer_pin VARCHAR(100) [NOT NULL]
-  kyc KYC_TYPE
+  type ACCOUNT_TYPE [NOT NULL]
 
   user_id INTEGER [ref: > users.id, UNIQUE, NOT NULL, note: 'ON DELETE CASCADE']
-}
-
-TABLE other_accounts {
-  id SERIAL [PK]
-
-  type OTHER_ACCOUNT_TYPE [NOT NULL]
-  balance DECIMAL(15, 2) [NOT NULL, note: 'DEFAULT 0.00']
-
-  account_id INTEGER [ref: > accounts.id, NOT NULL, note: 'ON DELETE CASCADE']
-
-   note: '
-    UNIQUE (type, account_id)
+  
+  note: '
+    UNIQUE (type, user_id)
   '
 }
+
 
 TABLE kyc_1 { 
   id SERIAL [PK]
@@ -56,7 +49,7 @@ TABLE kyc_1 {
   local_bank_account_number VARCHAR(10) [NOT NULL]
   local_bank_atm_card_last_six_digits VARCHAR(6) [NOT NULL]
 
-  account_id INTEGER [ref: > accounts.id, NOT NULL, UNIQUE, note: 'ON DELETE CASCADE']
+  user_id INTEGER [ref: > users.id, UNIQUE, NOT NULL, note: 'ON DELETE CASCADE']
 }
 
 TABLE kyc_2 {
@@ -66,7 +59,7 @@ TABLE kyc_2 {
   address VARCHAR(200) [NOT NULL]
   avatar_image VARCHAR(200) [NOT NULL]
 
-  account_id INTEGER [ref: > accounts.id, NOT NULL, UNIQUE, note: 'ON DELETE CASCADE']
+  user_id INTEGER [ref: > users.id, UNIQUE, NOT NULL, note: 'ON DELETE CASCADE']
 }
 
 TABLE kyc_3 {
@@ -76,8 +69,9 @@ TABLE kyc_3 {
   utility_bill_image VARCHAR(200) [NOT NULL]
   identity_card_image VARCHAR(200) [NOT NULL]
   
- account_id INTEGER [ref: > accounts.id, NOT NULL, UNIQUE, note: 'ON DELETE CASCADE']
+  user_id INTEGER [ref: > users.id, UNIQUE, NOT NULL, note: 'ON DELETE CASCADE']
 }
+
 
 TABLE transactions {
   id SERIAL [PK]
@@ -85,23 +79,12 @@ TABLE transactions {
 
   transactions_number VARCHAR(50) [NOT NULL, UNIQUE]
   is_deposit BOOLEAN
-  type OTHER_ACCOUNT_TYPE [NOT NULL]
+  type ACCOUNT_TYPE [NOT NULL]
   is_success BOOLEAN
   amount DECIMAL(15, 2) [NOT NULL]
   charge DECIMAL(15, 2) [NOT NULL]
 
-  account_id INTEGER [ref: > accounts.id, UNIQUE, note: 'ON DELETE CASCADE']
-  other_account_id INTEGER [ref: > accounts.id, UNIQUE, note: 'ON DELETE CASCADE']
-
-   note: '
--- either for accounts or other_accounts
-    CHECK(
-      COALESCE((account_id)::BOOLEAN::INTEGER, 0)
-      +
-      COALESCE((other_account_id)::BOOLEAN::INTEGER, 0)
-      = 1
-    )
-  '
+  account_id INTEGER [ref: > accounts.id, NOT NULL, UNIQUE, note: 'ON DELETE CASCADE']
 }
 
 TABLE transactions_banks {
@@ -127,15 +110,14 @@ TABLE transactions_in_house {
 
    note: '
   -- either for receiver_account_number or sender_account_number
-    CHECK(
-      COALESCE((sender_account_number)::BOOLEAN::INTEGER, 0)
-      +
-      COALESCE((receiver_account_number)::BOOLEAN::INTEGER, 0) 
-      = 1
-    )
-  '
+      CHECK(
+        COALESCE((sender_account_number)::BOOLEAN::INTEGER, 0)
+        +
+        COALESCE((receiver_account_number)::BOOLEAN::INTEGER, 0)
+        = 1
+      )
+    '
 }
-
 
 TABLE transactions_rewards {
   id SERIAL [PK]
@@ -145,7 +127,6 @@ TABLE transactions_rewards {
 
   transaction_id INTEGER [ref: > transactions.id, NOT NULL, UNIQUE, note: 'ON DELETE CASCADE']
 }
-
 
 TABLE transactions_mobile {
   id SERIAL [PK]
@@ -157,13 +138,15 @@ TABLE transactions_mobile {
   transaction_id INTEGER [ref: > transactions.id, NOT NULL, UNIQUE, note: 'ON DELETE CASCADE']
 }
 
-// Types
-ENUM OTHER_ACCOUNT_TYPE {
+
+// Types 
+ ENUM ACCOUNT_TYPE {
+  NORMAL
   CASHBACK
-}
+ }
 
 ENUM KYC_TYPE {
   BASIC
   PRO
   VIP
-}
+ }
