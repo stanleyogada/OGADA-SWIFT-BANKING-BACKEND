@@ -17,6 +17,7 @@ import generateOneTimePassword from "../utils/generateOneTimePassword";
 import { TAdminUser, TUser } from "../types/users";
 import AdminUserRepo from "../repos/AdminUserRepo";
 import pool from "../utils/pool";
+import { AccountRepo } from "../repos/AccountRepo";
 
 const signJwt = promisify(jwt.sign);
 
@@ -171,6 +172,8 @@ export const signup = handleTryCatch(
     await pool.query(`BEGIN TRANSACTION;`);
 
     const user = await UserRepo.createOne(req.body);
+
+    await AccountRepo.createAccounts(user.id);
 
     await pool.query(`COMMIT TRANSACTION;`);
 

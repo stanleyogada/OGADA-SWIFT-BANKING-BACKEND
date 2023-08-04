@@ -1,28 +1,26 @@
 import { REPO_RESOURCES } from "../constants";
 import Repo from "./Repo";
 
-import type { TAccount, TOtherAccount } from "../types/accounts";
-const account = new Repo<TAccount>(REPO_RESOURCES.accounts, [
-  "id",
-  "balance",
-  "account_number",
-  "transfer_pin",
-  "user_id",
-]);
+import { EAccountType, type TAccount } from "../types/accounts";
 
-const otherAccount = new Repo<TOtherAccount>(REPO_RESOURCES.otherAccounts, ["id", "type", "balance", "account_id"]);
+const repo = new Repo<TAccount>(REPO_RESOURCES.accounts, ["id", "balance", "type", "user_id"]);
 
-const NEW_ACCOUNT_BALANCE = 100000.0;
+const NEW_ACCOUNT_BALANCE = 0.0; // TODO: remove this: add as default value in db
+const NEW_CASHBACK_ACCOUNT_BALANCE = 800.0; // TODO: remove this: add as default value in db
 
 class AccountRepo {
-  static async create(payload: Omit<TAccount, "id" | "balance">): Promise<TAccount> {
-    const row = await account.createOne({ ...payload, balance: NEW_ACCOUNT_BALANCE });
-    return row;
-  }
+  static async createAccounts(userId: number) {
+    await repo.createOne({
+      balance: NEW_ACCOUNT_BALANCE,
+      type: EAccountType.NORMAL,
+      user_id: userId,
+    });
 
-  static async findOneBy(payload?: Partial<TAccount>, returnCols?: Repo<TAccount>["cols"]) {
-    const rows = await account.findManyBy(payload, returnCols);
-    return rows[0];
+    await repo.createOne({
+      balance: NEW_CASHBACK_ACCOUNT_BALANCE,
+      type: EAccountType.CASHBACK,
+      user_id: userId,
+    });
   }
 
   // TODO: Implement this inside a transactions repo
@@ -41,16 +39,4 @@ class AccountRepo {
   // }
 }
 
-class OtherAccountRepo {
-  static async create(payload: Omit<TOtherAccount, "id" | "balance">): Promise<TOtherAccount> {
-    const row = await otherAccount.createOne(payload);
-    return row;
-  }
-
-  static async findOneBy(payload?: Partial<TAccount>, returnCols?: Repo<TAccount>["cols"]) {
-    const rows = await otherAccount.findManyBy(payload, returnCols);
-    return rows[0];
-  }
-}
-
-export { AccountRepo, OtherAccountRepo };
+export { AccountRepo };
