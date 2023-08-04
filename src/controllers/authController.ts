@@ -163,8 +163,8 @@ export const signup = handleTryCatch(async (req: Request, res: Response, next: N
       .required(),
   });
 
-  const hash = await HashPassword.handleHash(req.body.login_passcode);
-  req.body.login_passcode = hash;
+  req.body.login_passcode = await HashPassword.handleHash(req.body.login_passcode);
+  req.body.transfer_pin = await HashPassword.handleHash(req.body.transfer_pin);
 
   const user = await UserRepo.createOne(req.body);
 
