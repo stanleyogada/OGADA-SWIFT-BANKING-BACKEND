@@ -61,9 +61,11 @@ class Repo<T> implements IRepo<T> {
     this.setSelectListQuery(returnCols);
     const where = this.handleWhereListQuery(payload);
 
+    const selectList = `${this.selectListQuery}${this.selectListQueryReturnColsQuery}`;
+
     const { rows } = await pool.query(
       `
-      SELECT ${this.selectListQuery}${this.selectListQueryReturnColsQuery}
+      SELECT ${selectList}
       FROM ${this.resource}
       ${payload ? `WHERE ${where?.query}` : ""}
       ;
@@ -78,12 +80,14 @@ class Repo<T> implements IRepo<T> {
     this.setSelectListQuery(returnCols);
     const { queryDependencies, whereQuery, setQuery } = handlePatchSetQuery(findPayload, updatePayload);
 
+    const selectList = `${this.selectListQuery}${this.selectListQueryReturnColsQuery}`;
+
     const { rows } = await pool.query(
       `
         UPDATE users
         SET ${setQuery}
         WHERE ${whereQuery}
-        RETURNING ${this.selectListQuery}${this.selectListQueryReturnColsQuery}
+        RETURNING ${selectList}
         ;
       `,
       queryDependencies
@@ -96,11 +100,13 @@ class Repo<T> implements IRepo<T> {
     this.setSelectListQuery(returnCols);
     const where = this.handleWhereListQuery(payload);
 
+    const selectList = `${this.selectListQuery}${this.selectListQueryReturnColsQuery}`;
+
     const { rows } = await pool.query(
       `
       DELETE FROM ${this.resource}
       WHERE ${where.query}
-      RETURNING ${this.selectListQuery}${this.selectListQueryReturnColsQuery}
+      RETURNING ${selectList}
       ;
     `,
       where.queryDependencies
@@ -113,11 +119,13 @@ class Repo<T> implements IRepo<T> {
     this.setSelectListQuery(returnCols);
     const insert = handleInsertQuery(payload);
 
+    const selectList = `${this.selectListQuery}${this.selectListQueryReturnColsQuery}`;
+
     const { rows } = await pool.query(
       `
       INSERT INTO ${this.resource} 
       ${insert.query}
-      RETURNING ${this.selectListQuery}${this.selectListQueryReturnColsQuery}
+      RETURNING ${selectList}
       ;
     `,
       insert.queryDependencies
