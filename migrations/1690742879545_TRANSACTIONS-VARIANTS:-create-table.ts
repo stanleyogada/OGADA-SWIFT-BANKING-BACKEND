@@ -5,7 +5,7 @@ export const shorthands: ColumnDefinitions | undefined = undefined;
 
 export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.sql(`
-    CREATE TABLE IF NOT EXISTS transactions_banks (
+    CREATE TABLE transactions_banks (
       id SERIAL PRIMARY KEY,
 
       session_id VARCHAR(100) NOT NULL UNIQUE,
@@ -18,7 +18,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     );
 
 
-    CREATE TABLE IF NOT EXISTS transactions_in_house (
+    CREATE TABLE transactions_in_house (
       id SERIAL PRIMARY KEY,
 
       remark VARCHAR(50),
@@ -36,17 +36,17 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     );
 
 
-    CREATE TABLE IF NOT EXISTS transactions_rewards (
+    CREATE TABLE transactions_rewards (
       id SERIAL PRIMARY KEY,
 
-      type OTHER_ACCOUNT_TYPE NOT NULL,
+      type ACCOUNT_TYPE NOT NULL,
       note VARCHAR(50) NOT NULL,
 
       transaction_id INTEGER NOT NULL UNIQUE REFERENCES transactions(id) ON DELETE CASCADE
     );
 
 
-    CREATE TABLE IF NOT EXISTS transactions_mobile (
+    CREATE TABLE transactions_mobile (
       id SERIAL PRIMARY KEY,
 
       operator VARCHAR(50) NOT NULL,

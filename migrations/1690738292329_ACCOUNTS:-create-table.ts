@@ -14,7 +14,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       balance DECIMAL(15, 2) NOT NULL DEFAULT 0.00,
       type ACCOUNT_TYPE NOT NULL,
 
-      user_id INTEGER NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE
+      user_id INTEGER NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
 
       UNIQUE (type, user_id)
     );

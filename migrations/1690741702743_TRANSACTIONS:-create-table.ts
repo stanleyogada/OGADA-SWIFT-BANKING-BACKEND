@@ -5,7 +5,7 @@ export const shorthands: ColumnDefinitions | undefined = undefined;
 
 export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.sql(`
-    CREATE TABLE IF NOT EXISTS transactions (
+    CREATE TABLE transactions (
       id SERIAL PRIMARY KEY,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
 
@@ -16,7 +16,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       amount DECIMAL(15, 2) NOT NULL,
       charge DECIMAL(15, 2) NOT NULL,
 
-      account_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+      account_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE
     );
   `);
 }
