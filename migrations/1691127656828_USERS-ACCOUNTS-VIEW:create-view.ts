@@ -19,7 +19,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       "users"
     LEFT JOIN 
       "accounts" ON accounts.user_id = users.id
-    ORDER BY users.created_at DESC;
+    ORDER BY user_id ASC, created_at DESC, type ASC;
   `);
 }
 

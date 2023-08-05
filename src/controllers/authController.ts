@@ -180,7 +180,6 @@ export const signup = handleTryCatch(
     });
   },
   async () => {
-    // TODO: only rollback if transaction is active
     await pool.query(`ROLLBACK TRANSACTION;`); // TODO: test this (make an error creating an account and user then check if it's rolled back)
   }
 );

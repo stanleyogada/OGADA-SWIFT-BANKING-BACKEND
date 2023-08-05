@@ -18,7 +18,7 @@ const REPO_RESOURCES = {
 };
 
 const ACCOUNT_DEFAULT_BALANCE = {
-  [EAccountType.NORMAL]: "0.00",
+  [EAccountType.NORMAL]: "500.00",
   [EAccountType.CASHBACK]: "900.00",
 };
 

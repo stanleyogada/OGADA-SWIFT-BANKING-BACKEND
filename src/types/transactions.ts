@@ -29,7 +29,7 @@ type TTransactionBank = {
 type TTransactionInHouse = {
   id: number;
 
-  remark: string;
+  remark?: string;
   receiver_account_number: string;
   sender_account_number: string;
 

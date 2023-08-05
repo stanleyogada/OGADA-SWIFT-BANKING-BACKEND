@@ -1,7 +1,7 @@
 import Joi from "joi";
 
 import type { PartialSchemaMap } from "joi";
-import type { NextFunction, Request } from "express";
+import type { Request } from "express";
 
 const handleInputValidate = async (reqBody: Request["body"], schemaObject: PartialSchemaMap<unknown>) => {
   const schema = Joi.object(schemaObject);
