@@ -1,16 +1,5 @@
-import request from "supertest";
-
-import app from "../../app";
-import {
-  getEndpoint,
-  handleAssertSendMoney,
-  handleSigninUser,
-  handleSignupManyAccountUsers,
-  handleSignupUser,
-} from "../../utils/tests";
-import { ACCOUNT_DEFAULT_BALANCE } from "../../constants";
+import { handleAssertSendMoney, handleSignupManyAccountUsers } from "../../utils/tests";
 import { EAccountType } from "../../types/accounts";
-import { TUserAccount } from "../../types/users";
 
 test("Have POST /transactions/in-house/send-money", async () => {
   const users = await handleSignupManyAccountUsers();
