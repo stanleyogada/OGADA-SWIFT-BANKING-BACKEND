@@ -12,14 +12,6 @@ import { ACCOUNT_DEFAULT_BALANCE } from "../../constants";
 import { EAccountType } from "../../types/accounts";
 import { TUserAccount } from "../../types/users";
 
-type TUser = {
-  id: number;
-  token: string;
-  accounts: (TUserAccount & {
-    currentBalance: number;
-  })[];
-};
-
 test("Have POST /transactions/in-house/send-money", async () => {
   const users = await handleSignupManyAccountUsers();
   const [userOne, userTwo] = users;
