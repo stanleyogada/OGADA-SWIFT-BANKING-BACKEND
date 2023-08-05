@@ -4,10 +4,19 @@ import app from "../../app";
 import { getEndpoint, handleSigninUser, handleSignupUser } from "../../utils/tests";
 import { ACCOUNT_DEFAULT_BALANCE } from "../../constants";
 import { EAccountType } from "../../types/accounts";
+import { TUserAccount } from "../../types/users";
+
+type TUser = {
+  id: number;
+  token: string;
+  accounts: (TUserAccount & {
+    currentBalance: number;
+  })[];
+};
 
 const handleAssertSendMoney = async (
-  senderUser,
-  receiverUser,
+  senderUser: TUser,
+  receiverUser: TUser,
   opts: {
     type: EAccountType;
     amount: number;
@@ -38,6 +47,10 @@ const handleAssertSendMoney = async (
       body: {
         data: [normalAccount],
       },
+    }: {
+      body: {
+        data: TUserAccount[];
+      };
     } = await request(app())
       .get(getEndpoint(`/users/me/accounts`))
       .set("Authorization", `Bearer ${user.token}`)
@@ -53,7 +66,7 @@ const handleAssertSendMoney = async (
 };
 
 test("Have POST /transactions/in-house/send-money", async () => {
-  const users = [
+  const users: TUser[] = [
     {
       id: 1,
       token: "",
@@ -74,6 +87,8 @@ test("Have POST /transactions/in-house/send-money", async () => {
     });
     const {
       body: { data: userAccounts },
+    }: {
+      body: { data: TUserAccount[] };
     } = await request(app())
       .get(getEndpoint(`/users/me/accounts`))
       .set("Authorization", `Bearer ${userToken}`)
