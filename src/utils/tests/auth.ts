@@ -1,9 +1,9 @@
 import request from "supertest";
 import type { Response } from "supertest";
 
-import app from "../app";
-import { TAdminUser, TUser } from "../types/users";
-import { ADMIN_USER_SIGNIN_CREDENTIALS, ROUTE_PREFIX } from "../constants";
+import app from "../../app";
+import { TAdminUser, TUser } from "../../types/users";
+import { ADMIN_USER_SIGNIN_CREDENTIALS, ROUTE_PREFIX } from "../../constants";
 
 type TBody = Omit<Partial<TUser & TAdminUser & { not_allowed: string }>, "nickname" | "id">;
 type TSigninPayload = Pick<TBody, "phone" | "login_passcode"> & { not_allowed?: string };
