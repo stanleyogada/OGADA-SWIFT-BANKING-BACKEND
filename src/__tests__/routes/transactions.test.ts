@@ -13,15 +13,12 @@ const handleAssertSendMoney = async (
     amount: number;
   }
 ) => {
-  const handleFindAccount = (user) => {
-    return user.accounts.find((account) => account.type === opts.type);
-  };
+  // const handleFindAccount = (user) => {
+  //   return user.accounts.find((account) => account.type === opts.type);
+  // };
 
-  const senderAccount = handleFindAccount(senderUser);
-  const receiverAccount = handleFindAccount(receiverUser);
-
-  // console.log("senderAccount", senderAccount);
-  // console.log("receiverAccount", receiverAccount);
+  // const senderAccount = handleFindAccount(senderUser);
+  // const receiverAccount = handleFindAccount(receiverUser);
 
   await request(app())
     .post(getEndpoint(`/transactions/in-house/send-money`))
@@ -35,9 +32,6 @@ const handleAssertSendMoney = async (
     .expect(200);
   senderUser.accounts.find((account) => account.type === opts.type).currentBalance -= opts.amount;
   receiverUser.accounts.find((account) => account.type === opts.type).currentBalance += opts.amount;
-
-  // console.log("senderAccount", senderAccount, opts.amount);
-  // console.log("receiverAccount", receiverAccount, opts.amount);
 
   for (const user of [senderUser, receiverUser]) {
     const {
@@ -90,94 +84,17 @@ test("Have POST /transactions/in-house/send-money", async () => {
       ...account,
       currentBalance: +ACCOUNT_DEFAULT_BALANCE[account.type],
     }));
-
-    // expect(userAccounts[0].balance).toBe(ACCOUNT_DEFAULT_BALANCE.NORMAL);
   }
 
   const [userOne, userTwo] = users;
 
-  // const currentBalance = {
-  //   userOne: +ACCOUNT_DEFAULT_BALANCE.NORMAL,
-  //   userTwo: +ACCOUNT_DEFAULT_BALANCE.NORMAL,
-  // };
-
-  // await request(app())
-  //   .post(getEndpoint(`/transactions/in-house/send-money`))
-  //   .set("Authorization", `Bearer ${userOne.token}`)
-  //   .send({
-  //     type: userOne.accounts[0].type,
-  //     receiver_account_number: userTwo.accounts[0].account_number,
-  //     amount: 100,
-  //     remark: "Happy birthday!",
-  //   })
-  //   .expect(200);
-  // currentBalance.userOne -= 100;
-  // currentBalance.userTwo += 100;
-
-  // for (const user of users) {
-  //   const {
-  //     body: {
-  //       data: [normalAccount],
-  //     },
-  //   } = await request(app())
-  //     .get(getEndpoint(`/users/me/accounts`))
-  //     .set("Authorization", `Bearer ${user.token}`)
-  //     .expect(200);
-
-  //   if (user.id === userOne.id) {
-  //     expect(normalAccount.balance).toBe(currentBalance.userOne.toFixed(2));
-  //   }
-  //   if (user.id === userTwo.id) {
-  //     expect(normalAccount.balance).toBe(currentBalance.userTwo.toFixed(2));
-  //   }
-  // }
-
   await handleAssertSendMoney(userOne, userTwo, {
-    // currentBalance: {
-    //   senderUser: currentBalance.userOne,
-    //   receiverUser: currentBalance.userTwo,
-    // },
     amount: 100,
     type: EAccountType.NORMAL,
   });
 
   await handleAssertSendMoney(userTwo, userOne, {
-    // currentBalance: {
-    //   senderUser: currentBalance.userTwo,
-    //   receiverUser: currentBalance.userOne,
-    // },
     amount: 50,
     type: EAccountType.NORMAL,
   });
-  // await handleAssertSendMoney(userOne, userTwo, { amount: 55.5 });
-
-  // await request(app())
-  //   .post(getEndpoint(`/transactions/in-house/send-money`))
-  //   .set("Authorization", `Bearer ${userTwo.token}`)
-  //   .send({
-  //     type: userTwo.accounts[0].type,
-  //     receiver_account_number: userOne.accounts[0].account_number,
-  //     amount: 50,
-  //   })
-  //   .expect(200);
-  // currentBalance.userOne += 50;
-  // currentBalance.userTwo -= 50;
-
-  // for (const user of users) {
-  //   const {
-  //     body: {
-  //       data: [normalAccount],
-  //     },
-  //   } = await request(app())
-  //     .get(getEndpoint(`/users/me/accounts`))
-  //     .set("Authorization", `Bearer ${user.token}`)
-  //     .expect(200);
-
-  //   if (user.id === userOne.id) {
-  //     expect(normalAccount.balance).toBe(currentBalance.userOne.toFixed(2));
-  //   }
-  //   if (user.id === userTwo.id) {
-  //     expect(normalAccount.balance).toBe(currentBalance.userTwo.toFixed(2));
-  //   }
-  // }
 });
