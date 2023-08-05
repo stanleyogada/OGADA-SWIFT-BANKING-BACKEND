@@ -65,7 +65,7 @@ const handleAssertSendMoney = async (
   }
 };
 
-const handleSignupUsers = async (nUsers: number = 2) => {
+const handleSignupManyAccountUsers = async (nUsers: number = 2) => {
   const users: TUser[] = Array.from({ length: nUsers }, (_, i) => ({
     id: i + 1,
     token: "",
@@ -98,7 +98,7 @@ const handleSignupUsers = async (nUsers: number = 2) => {
 };
 
 test("Have POST /transactions/in-house/send-money", async () => {
-  const users = await handleSignupUsers();
+  const users = await handleSignupManyAccountUsers();
   const [userOne, userTwo] = users;
 
   expect(userOne.accounts[0].currentBalance).toBe(+ACCOUNT_DEFAULT_BALANCE[EAccountType.NORMAL]);
