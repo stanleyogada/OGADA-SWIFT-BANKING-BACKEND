@@ -18,16 +18,17 @@ export const sendMoneyInHouse = handleTryCatch(
     handleInputValidate(
       {
         ...reqBody,
-        type: reqBody.type.toUpperCase(),
+        sender_account_type: reqBody.sender_account_type?.toUpperCase(),
       },
       {
         sender_account_number: Joi.string().min(10).max(10).required(),
         receiver_account_number: Joi.string().min(10).max(10).required(),
         amount: Joi.number().min(2).required(),
         remark: Joi.string().min(3).max(100),
-        type: Joi.string()
+        sender_account_type: Joi.string()
           .valid(
-            EAccountType.NORMAL
+            EAccountType.NORMAL,
+            EAccountType.CASHBACK
             // EAccountType.OWEALTH, // TODO: add when Owealth is implemented
           )
           .required(),
@@ -38,7 +39,8 @@ export const sendMoneyInHouse = handleTryCatch(
       sender_account_number: reqBody.sender_account_number,
       receiver_account_number: reqBody.receiver_account_number,
       amount: reqBody.amount,
-      type: reqBody.type,
+      sender_account_type: reqBody.sender_account_type,
+      receiver_account_type: EAccountType.NORMAL,
     });
 
     res.status(200).json({

@@ -27,7 +27,8 @@ class AccountRepo {
     sender_account_number: string;
     receiver_account_number: string;
     amount: number;
-    type: EAccountType;
+    sender_account_type: EAccountType;
+    receiver_account_type: EAccountType;
     // remark?: string;
   }) {
     const getShouldMakeADBMistake = () => {
@@ -65,7 +66,7 @@ class AccountRepo {
         
       ) AND accounts.type = $3;
     `,
-      [`${payload.amount}`, payload.sender_account_number, payload.type]
+      [`${payload.amount}`, payload.sender_account_number, payload.sender_account_type]
     );
 
     await pool.query(
@@ -83,7 +84,7 @@ class AccountRepo {
         
       ) AND accounts.type = $3;
     `,
-      [`${payload.amount}`, payload.receiver_account_number, payload.type]
+      [`${payload.amount}`, payload.receiver_account_number, payload.receiver_account_type]
     );
 
     await pool.query("COMMIT TRANSACTION;");

@@ -15,9 +15,10 @@ type TUser = {
 };
 
 const handleAssertSendMoney = async (
-  senderUser: TUser,
-  receiverUser: TUser,
+  endpoint: string,
   opts: {
+    senderUser: TUser;
+    receiverUser: TUser;
     accountsTypes: {
       sender: EAccountType;
       receiver: EAccountType;
@@ -25,6 +26,8 @@ const handleAssertSendMoney = async (
     amount: number;
   }
 ) => {
+  const { senderUser, receiverUser } = opts;
+
   const handleFindAccount = (user: TUser) => {
     return user.accounts.find(
       (account) => account.type === opts.accountsTypes[user.id === senderUser.id ? "sender" : "receiver"]
@@ -35,37 +38,45 @@ const handleAssertSendMoney = async (
   const receiverAccount = handleFindAccount(receiverUser);
 
   await request(app())
-    .post(getEndpoint(`/transactions/in-house/send-money`))
+    .post(getEndpoint(endpoint))
     .set("Authorization", `Bearer ${senderUser.token}`)
     .send({
-      type: opts.accountsTypes.sender,
-      receiver_account_number: receiverUser.accounts[0].account_number,
+      sender_account_type: opts.accountsTypes.sender,
+      receiver_account_number: receiverAccount.account_number,
       amount: opts.amount,
       remark: "Happy birthday!",
     })
     .expect(200);
+
   senderAccount.currentBalance -= opts.amount;
   receiverAccount.currentBalance += opts.amount;
 
   for (const user of [senderUser, receiverUser]) {
     const {
-      body: {
-        data: [normalAccount],
-      },
+      body: { data },
     }: {
       body: {
-        data: TUserAccount[];
+        data: (TUserAccount & {
+          currentBalance: number;
+        })[];
       };
     } = await request(app())
       .get(getEndpoint(`/users/me/accounts`))
       .set("Authorization", `Bearer ${user.token}`)
       .expect(200);
 
+    const newUser: TUser = {
+      id: user.id,
+      token: user.token,
+      accounts: data,
+    };
+    const account = handleFindAccount(newUser);
+
     if (user.id === senderUser.id) {
-      expect(normalAccount.balance).toBe(senderUser.accounts[0].currentBalance.toFixed(2));
+      expect(account.balance).toBe(senderAccount.currentBalance.toFixed(2));
     }
     if (user.id === receiverUser.id) {
-      expect(normalAccount.balance).toBe(receiverUser.accounts[0].currentBalance.toFixed(2));
+      expect(account.balance).toBe(receiverAccount.currentBalance.toFixed(2));
     }
   }
 };
@@ -106,10 +117,9 @@ test("Have POST /transactions/in-house/send-money", async () => {
   const users = await handleSignupManyAccountUsers();
   const [userOne, userTwo] = users;
 
-  expect(userOne.accounts[0].currentBalance).toBe(+ACCOUNT_DEFAULT_BALANCE[EAccountType.NORMAL]);
-  expect(userTwo.accounts[0].currentBalance).toBe(+ACCOUNT_DEFAULT_BALANCE[EAccountType.NORMAL]);
-
-  await handleAssertSendMoney(userOne, userTwo, {
+  await handleAssertSendMoney("/transactions/in-house/send-money", {
+    senderUser: userOne,
+    receiverUser: userTwo,
     amount: 100,
     accountsTypes: {
       sender: EAccountType.NORMAL,
@@ -117,17 +127,13 @@ test("Have POST /transactions/in-house/send-money", async () => {
     },
   });
 
-  expect(userOne.accounts[0].currentBalance).toBe(+ACCOUNT_DEFAULT_BALANCE[EAccountType.NORMAL] - 100);
-  expect(userTwo.accounts[0].currentBalance).toBe(+ACCOUNT_DEFAULT_BALANCE[EAccountType.NORMAL] + 100);
-
-  await handleAssertSendMoney(userTwo, userOne, {
+  await handleAssertSendMoney("/transactions/in-house/send-money", {
+    senderUser: userTwo,
+    receiverUser: userOne,
     amount: 50,
     accountsTypes: {
       sender: EAccountType.NORMAL,
       receiver: EAccountType.NORMAL,
     },
   });
-
-  expect(userOne.accounts[0].currentBalance).toBe(+ACCOUNT_DEFAULT_BALANCE[EAccountType.NORMAL] - 50);
-  expect(userTwo.accounts[0].currentBalance).toBe(+ACCOUNT_DEFAULT_BALANCE[EAccountType.NORMAL] + 50);
 });
