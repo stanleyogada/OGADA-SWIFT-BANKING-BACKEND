@@ -53,7 +53,7 @@ export const getAllAccounts = handleTryCatch(async (req: TRequestUser, res: Resp
 });
 
 export const updateOneUser = handleTryCatch(async (req: TRequestUser, res: Response, next: NextFunction) => {
-  await handleInputValidate(req.body, next, {
+  await handleInputValidate(req.body, {
     nickname: Joi.string().min(3).max(30),
     email: Joi.string().email({
       minDomainSegments: 2,
@@ -81,7 +81,7 @@ export const deleteOneUser = handleTryCatch(async (req: Request, res: Response, 
 });
 
 export const updateLoginPasscode = handleTryCatch(async (req: TRequestUser, res: Response, next: NextFunction) => {
-  await handleInputValidate(req.body, next, {
+  await handleInputValidate(req.body, {
     old_login_passcode: Joi.string()
       .pattern(new RegExp("^[0-9]{6,6}$"))
       .message('"old_login_passcode" must be six digits')

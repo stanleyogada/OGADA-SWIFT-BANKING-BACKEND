@@ -22,7 +22,7 @@ import { AccountRepo } from "../repos/AccountRepo";
 const signJwt = promisify(jwt.sign);
 
 export const forgetLoginPasscode = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
-  await handleInputValidate(req.body, next, {
+  await handleInputValidate(req.body, {
     phone: Joi.string().min(10).max(10).required(),
     email: Joi.string()
       .email({
@@ -65,7 +65,7 @@ export const forgetLoginPasscode = handleTryCatch(async (req: Request, res: Resp
 });
 
 export const resetLoginPasscode = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
-  await handleInputValidate(req.body, next, {
+  await handleInputValidate(req.body, {
     new_login_passcode: Joi.string()
       .pattern(new RegExp("^[0-9]{6,6}$"))
       .message('"new_login_passcode" must be six digits')
@@ -97,7 +97,7 @@ export const resetLoginPasscode = handleTryCatch(async (req: Request, res: Respo
 });
 
 export const signin = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
-  await handleInputValidate(req.body, next, {
+  await handleInputValidate(req.body, {
     phone: Joi.string().min(10).max(10).required(),
     login_passcode: Joi.string()
       .pattern(new RegExp("^[0-9]{6,6}$"))
@@ -145,7 +145,7 @@ export const signout = handleTryCatch(async (_req: Request, res: Response) => {
 
 export const signup = handleTryCatch(
   async (req: Request, res: Response, next: NextFunction) => {
-    await handleInputValidate(req.body, next, {
+    await handleInputValidate(req.body, {
       first_name: Joi.string().min(2).max(30).required(),
       last_name: Joi.string().min(2).max(30).required(),
       middle_name: Joi.string().min(2).max(30),
@@ -186,7 +186,7 @@ export const signup = handleTryCatch(
 );
 
 export const sendEmailVerification = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
-  await handleInputValidate(req.body, next, {
+  await handleInputValidate(req.body, {
     email: Joi.string()
       .email({
         minDomainSegments: 2,
@@ -228,12 +228,15 @@ export const sendEmailVerification = handleTryCatch(async (req: Request, res: Re
 });
 
 export const confirmEmailVerification = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
-  await handleInputValidate({ one_time_password: req.params.otp }, next, {
-    one_time_password: Joi.string()
-      .pattern(new RegExp("^[0-9a-z]{20,20}$", "i"))
-      .message('"one_time_password" must be valid')
-      .required(),
-  });
+  await handleInputValidate(
+    { one_time_password: req.params.otp },
+    {
+      one_time_password: Joi.string()
+        .pattern(new RegExp("^[0-9a-z]{20,20}$", "i"))
+        .message('"one_time_password" must be valid')
+        .required(),
+    }
+  );
 
   const user = await UserRepo.findOneBy({ one_time_password: req.params.otp });
   if (!user) {
@@ -255,7 +258,7 @@ export const confirmEmailVerification = handleTryCatch(async (req: Request, res:
 });
 
 export const signinAdmin = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
-  await handleInputValidate(req.body, next, {
+  await handleInputValidate(req.body, {
     phone: Joi.string().min(10).max(10).required(),
     login_passcode: Joi.string()
       .pattern(new RegExp("^[0-9]{6,6}$"))
