@@ -24,4 +24,18 @@ test("Have POST /transactions/in-house/send-money", async () => {
       receiver: EAccountType.NORMAL,
     },
   });
+
+  await handleAssertSendMoney(
+    "/transactions/in-house/send-money",
+    {
+      senderUser: userTwo,
+      receiverUser: userOne,
+      amount: 55.5, // TODO: make this a constant
+      accountsTypes: {
+        sender: EAccountType.NORMAL,
+        receiver: EAccountType.NORMAL,
+      },
+    },
+    500
+  );
 });

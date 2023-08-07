@@ -24,9 +24,12 @@ const handleAssertSendMoney = async (
       receiver: EAccountType;
     };
     amount: number;
-  }
+  },
+  statusCode: number = 200
 ) => {
   const { senderUser, receiverUser } = opts;
+
+  senderUser.accounts;
 
   const handleFindAccount = (user: TUser) => {
     return user.accounts.find(
@@ -46,10 +49,12 @@ const handleAssertSendMoney = async (
       amount: opts.amount,
       remark: "Happy birthday!",
     })
-    .expect(200);
+    .expect(statusCode);
 
-  senderAccount.currentBalance -= opts.amount;
-  receiverAccount.currentBalance += opts.amount;
+  if (statusCode === 200) {
+    senderAccount.currentBalance -= opts.amount;
+    receiverAccount.currentBalance += opts.amount;
+  }
 
   for (const user of [senderUser, receiverUser]) {
     const {
