@@ -77,7 +77,7 @@ TABLE transactions {
   id SERIAL [PK]
   created_at TIMESTAMP [note: 'WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP']
 
-  transaction_number VARCHAR(50) [NOT NULL]
+  transaction_number VARCHAR(50) [NOT NULL, UNIQUE]
   is_deposit BOOLEAN
   type ACCOUNT_TYPE [NOT NULL]
   is_success BOOLEAN
@@ -85,10 +85,6 @@ TABLE transactions {
   charge DECIMAL(15, 2)
 
   account_id INTEGER [ref: > accounts.id, NOT NULL, UNIQUE, note: 'ON DELETE CASCADE']
-
-  note: '
-    UNIQUE (transaction_number, account_id)
-  '
 }
 
 TABLE transactions_banks {
@@ -113,7 +109,7 @@ TABLE transactions_in_house {
   transaction_id INTEGER [ref: > transactions.id, NOT NULL, UNIQUE, note: 'ON DELETE CASCADE']
 
    note: '
-    -- either for receiver_account_number or sender_account_number (DO THIS ACTUALLY IN THE SERVER SIDE)
+  -- either for receiver_account_number or sender_account_number (DO THIS ACTUALLY IN THE SERVER SIDE)
       CHECK(
         COALESCE((sender_account_number)::BOOLEAN::INTEGER, 0)
         +
