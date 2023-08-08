@@ -13,8 +13,12 @@ const REPO_RESOURCES = {
   users: "users",
   adminUsers: "admin_users",
   accounts: "accounts",
-  otherAccounts: "other_accounts",
   usersAccounts: "users_accounts",
+  transactions: "transactions",
+  transactionsBank: "transactions_bank",
+  transactionsInHouse: "transactions_in_house",
+  transactionsReward: "transactions_reward",
+  transactionsMobile: "transactions_mobile",
 };
 
 const ACCOUNT_DEFAULT_BALANCE = {

@@ -4,7 +4,7 @@ type TTransaction = {
   id: number;
   created_at: Date;
 
-  transactions_number: string;
+  transaction_number: string;
   is_deposit: boolean;
   is_success: boolean;
   type: EAccountType;

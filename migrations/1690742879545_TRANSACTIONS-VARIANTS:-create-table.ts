@@ -25,14 +25,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       receiver_account_number VARCHAR(10),
       sender_account_number VARCHAR(10),
 
-      transaction_id INTEGER NOT NULL UNIQUE REFERENCES transactions(id) ON DELETE CASCADE,
-
-      CHECK(
-        COALESCE((sender_account_number)::BOOLEAN::INTEGER, 0)
-        +
-        COALESCE((receiver_account_number)::BOOLEAN::INTEGER, 0)
-        = 1
-      )
+      transaction_id INTEGER NOT NULL UNIQUE REFERENCES transactions(id) ON DELETE CASCADE
     );
 
 
@@ -60,9 +53,9 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 
 export async function down(pgm: MigrationBuilder): Promise<void> {
   pgm.sql(`
-    DROP TABLE transactions_banks;
-    DROP TABLE transactions_in_house;
-    DROP TABLE transactions_rewards;
-    DROP TABLE transactions_mobile;
+    DROP TABLE transactions_banks CASCADE;
+    DROP TABLE transactions_in_house CASCADE;
+    DROP TABLE transactions_rewards CASCADE;
+    DROP TABLE transactions_mobile CASCADE;
   `);
 }

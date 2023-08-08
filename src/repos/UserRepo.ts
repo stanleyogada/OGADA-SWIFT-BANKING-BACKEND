@@ -20,13 +20,14 @@ const repo = new Repo<TUser>(REPO_RESOURCES.users, [
 ]);
 
 const userAccountRepo = new Repo<TUserAccount>(REPO_RESOURCES.usersAccounts, [
-  "created_at",
   "user_id",
+  "created_at",
   "email",
   "account_number",
   "account_id",
   "balance",
   "type",
+  "full_name",
 ]);
 
 class UserRepo {

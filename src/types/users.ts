@@ -26,10 +26,11 @@ type TAdminUser = {
 };
 
 type TUserAccount = {
-  created_at: Date;
   user_id: number;
+  created_at: Date;
   email: string;
   account_number: string;
+  full_name: string;
   account_id: number;
   balance: number;
   type: EAccountType;

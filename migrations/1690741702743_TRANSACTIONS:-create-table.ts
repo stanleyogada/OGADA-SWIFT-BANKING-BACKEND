@@ -9,12 +9,12 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       id SERIAL PRIMARY KEY,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
 
-      transactions_number VARCHAR(50) NOT NULL UNIQUE,
+      transaction_number VARCHAR(50) NOT NULL UNIQUE,
       is_deposit BOOLEAN NOT NULL,
       is_success BOOLEAN NOT NULL,
       type ACCOUNT_TYPE NOT NULL,
       amount DECIMAL(15, 2) NOT NULL,
-      charge DECIMAL(15, 2) NOT NULL,
+      charge DECIMAL(15, 2),
 
       account_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE
     );
