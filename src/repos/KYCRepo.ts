@@ -10,7 +10,7 @@ class KYC {
           bvn,
           local_bank_account_number,
           local_bank_atm_card_last_six_digits,
-          account_id
+          user_id
         )
       VALUES ($1, $2, $3, $4);
       RETURNING *
@@ -19,7 +19,7 @@ class KYC {
         payload.bvn,
         payload.local_bank_account_number,
         payload.local_bank_atm_card_last_six_digits,
-        `${payload.account_id}`,
+        `${payload.user_id}`,
       ]
     );
 
@@ -33,12 +33,12 @@ class KYC {
         (
           address,
           avatar_image,
-          account_id
+          user_id
         )
       VALUES ($1, $2, $3);
       RETURNING *
     `,
-      [payload.address, payload.avatar_image, `${payload.account_id}`]
+      [payload.address, payload.avatar_image, `${payload.user_id}`]
     );
 
     return rows[0] as TKYC2;
@@ -51,12 +51,12 @@ class KYC {
         (
           utility_bill_image,
           identity_card_image,
-          account_id
+          user_id
         )
       VALUES ($1, $2, $3);
       RETURNING *
     `,
-      [payload.utility_bill_image, payload.identity_card_image, `${payload.account_id}`]
+      [payload.utility_bill_image, payload.identity_card_image, `${payload.user_id}`]
     );
 
     return rows[0] as TKYC3;
