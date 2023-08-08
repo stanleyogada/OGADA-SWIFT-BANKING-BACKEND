@@ -53,9 +53,9 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 
 export async function down(pgm: MigrationBuilder): Promise<void> {
   pgm.sql(`
-    DROP TABLE transactions_banks CASCADE;
-    DROP TABLE transactions_in_house CASCADE;
-    DROP TABLE transactions_rewards CASCADE;
-    DROP TABLE transactions_mobile CASCADE;
+    DROP TABLE transactions_banks;
+    DROP TABLE transactions_in_house;
+    DROP TABLE transactions_rewards;
+    DROP TABLE transactions_mobile;
   `);
 }
