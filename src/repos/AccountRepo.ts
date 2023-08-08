@@ -1,4 +1,4 @@
-import { ACCOUNT_DEFAULT_BALANCE, REPO_RESOURCES } from "../constants";
+import { ACCOUNT_DEFAULT_BALANCE, REPO_RESOURCES, SEND_MONEY_MAGIC_FAIL_AMOUNT } from "../constants";
 import Repo from "./Repo";
 
 import { EAccountType, type TAccount } from "../types/accounts";
@@ -35,7 +35,7 @@ class AccountRepo {
       if (process.env.NODE_ENV !== "test") {
         return false;
       }
-      if (payload.amount === 55.5) {
+      if (payload.amount === SEND_MONEY_MAGIC_FAIL_AMOUNT) {
         return true;
       }
 

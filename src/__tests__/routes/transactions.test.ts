@@ -3,6 +3,7 @@ import { EAccountType } from "../../types/accounts";
 import request from "supertest";
 import app from "../../app";
 import { TTransactionTransactionInHouse } from "../../types/transactions";
+import { SEND_MONEY_MAGIC_FAIL_AMOUNT } from "../../constants";
 
 type TResponse<T> = {
   body: {
@@ -53,7 +54,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
     {
       senderUser: userTwo,
       receiverUser: userOne,
-      amount: 55.5, // TODO: make this a constant
+      amount: SEND_MONEY_MAGIC_FAIL_AMOUNT,
       accountsTypes: {
         sender: EAccountType.NORMAL,
         receiver: EAccountType.NORMAL,
