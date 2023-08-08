@@ -14,12 +14,6 @@ test("Have POST /transactions/in-house/send-money", async () => {
   const users = await handleSignupManyAccountUsers(3);
   const [userOne, userTwo, userThree] = users;
 
-  const amounts = [
-    100,
-    50,
-    55.5, // TODO: make this a constant
-  ];
-
   for (const user of users) {
     const {
       body: { data: transactions },
@@ -35,7 +29,7 @@ test("Have POST /transactions/in-house/send-money", async () => {
   await handleAssertSendMoney("/transactions/in-house/send-money", {
     senderUser: userOne,
     receiverUser: userTwo,
-    amount: amounts[0],
+    amount: 100,
     accountsTypes: {
       sender: EAccountType.NORMAL,
       receiver: EAccountType.NORMAL,
@@ -45,7 +39,7 @@ test("Have POST /transactions/in-house/send-money", async () => {
   await handleAssertSendMoney("/transactions/in-house/send-money", {
     senderUser: userTwo,
     receiverUser: userOne,
-    amount: amounts[1],
+    amount: 50,
     accountsTypes: {
       sender: EAccountType.NORMAL,
       receiver: EAccountType.NORMAL,
@@ -57,7 +51,7 @@ test("Have POST /transactions/in-house/send-money", async () => {
     {
       senderUser: userTwo,
       receiverUser: userOne,
-      amount: amounts[2],
+      amount: 55.5, // TODO: make this a constant
       accountsTypes: {
         sender: EAccountType.NORMAL,
         receiver: EAccountType.NORMAL,
