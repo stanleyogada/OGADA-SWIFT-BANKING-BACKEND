@@ -85,7 +85,11 @@ class Repo<T> implements IRepo<T> {
     return rows as T[];
   }
 
-  async findManyByAndUpdate(findPayload: Partial<T>, updatePayload: Partial<T>, returnCols?: Repo<T>["cols"]) {
+  async findManyByAndUpdate(
+    findPayload: TFindByManyPayload<T>,
+    updatePayload: Partial<T>,
+    returnCols?: Repo<T>["cols"]
+  ) {
     this.setSelectListQuery(returnCols);
     const { queryDependencies, whereQuery, setQuery } = handlePatchSetQuery(findPayload, updatePayload);
 
@@ -105,7 +109,7 @@ class Repo<T> implements IRepo<T> {
     return rows as T[];
   }
 
-  async deleteManyBy(payload: Partial<T>, returnCols?: Repo<T>["cols"]) {
+  async deleteManyBy(payload: TFindByManyPayload<T>, returnCols?: Repo<T>["cols"]) {
     this.setSelectListQuery(returnCols);
     const where = this.handleWhereListQuery(payload);
 
