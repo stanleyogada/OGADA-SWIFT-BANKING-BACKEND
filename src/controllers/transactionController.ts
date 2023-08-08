@@ -6,6 +6,10 @@ import pool from "../utils/pool";
 import { EAccountType } from "../types/accounts";
 import { AccountRepo } from "../repos/AccountRepo";
 import TransactionRepo from "../repos/TransactionRepo";
+import { TTransaction, TTransactionInHouse } from "../types/transactions";
+import UserRepo from "../repos/UserRepo";
+
+let createTransactionInHousePayload: Omit<TTransaction & TTransactionInHouse, "id" | "transaction_id" | "created_at">;
 
 export const sendMoneyInHouse = handleTryCatch(
   async (req: TRequestUser, res) => {
@@ -36,6 +40,23 @@ export const sendMoneyInHouse = handleTryCatch(
       }
     );
 
+    const senderAccount = await UserRepo.findAllAccountsByUserId(user.id).then((accounts) =>
+      accounts.find((account) => account.type === reqBody.sender_account_type)
+    );
+
+    createTransactionInHousePayload = {
+      transaction_number: TransactionRepo.generateTransactionNumber(),
+      is_deposit: false,
+      is_success: true,
+      type: reqBody.sender_account_type,
+      amount: reqBody.amount,
+      charge: 0,
+      account_id: senderAccount.account_id,
+      remark: reqBody.remark,
+      receiver_account_number: reqBody.receiver_account_number,
+      sender_account_number: reqBody.sender_account_number,
+    };
+
     await AccountRepo.sendMoneyInHouse({
       sender_account_number: reqBody.sender_account_number,
       receiver_account_number: reqBody.receiver_account_number,
@@ -44,15 +65,18 @@ export const sendMoneyInHouse = handleTryCatch(
       receiver_account_type: EAccountType.NORMAL,
     });
 
+    await TransactionRepo.createTransactionInHouse(createTransactionInHousePayload);
+
     res.status(200).json({
       status: "success",
       message: "Send money successfully!",
     });
   },
   async () => {
-    console.log("ROLLBACK TRANSACTION");
-
     await pool.query("ROLLBACK TRANSACTION;");
+
+    createTransactionInHousePayload.is_success = false;
+    await TransactionRepo.createTransactionInHouse(createTransactionInHousePayload);
   }
 );
 
@@ -60,7 +84,7 @@ export const getTransactionsInHouse = handleTryCatch(async (req: TRequestUser, r
   const { user } = req;
 
   const transactions = await TransactionRepo.findManyTransactionsInHouseBy({
-    sender_account_number: user.phone,
+    account_number: user.phone,
   });
 
   res.status(200).json({

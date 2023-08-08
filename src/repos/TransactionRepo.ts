@@ -41,7 +41,9 @@ class TransactionRepo {
     return transactionNumber;
   }
 
-  static async createTransactionInHouse(payload: Omit<TTransaction & TTransactionInHouse, "id" | "created_at">) {
+  static async createTransactionInHouse(
+    payload: Omit<TTransaction & TTransactionInHouse, "id" | "transaction_id" | "created_at">
+  ) {
     const row = await transactionRepo.createOne({
       transaction_number: payload.transaction_number,
       is_deposit: payload.is_deposit,
@@ -60,7 +62,7 @@ class TransactionRepo {
     });
   }
 
-  static async findManyTransactionsInHouseBy(payload: Partial<TTransactionTransactionInHouse>) {
+  static async findManyTransactionsInHouseBy(payload: { account_number: string }) {
     const repo = new Repo<TTransactionTransactionInHouse>(REPO_RESOURCES.transactionsTransactionsInHouse, [
       "transaction_id",
       "created_at",
@@ -77,7 +79,14 @@ class TransactionRepo {
       "recipient",
     ]);
 
-    const rows = await repo.findManyBy(payload);
+    const _payload = {
+      $or: {
+        sender_account_number: payload.account_number,
+        receiver_account_number: payload.account_number,
+      },
+    };
+
+    const rows = await repo.findManyBy(_payload);
     return rows;
   }
 }

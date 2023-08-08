@@ -51,7 +51,7 @@ class AccountRepo {
 
     await pool.query("BEGIN TRANSACTION;");
 
-    await pool.query(
+    const senderAccount = await pool.query(
       `
       UPDATE "accounts"
       SET balance = balance - $1
@@ -64,12 +64,14 @@ class AccountRepo {
           "account_number" = $2
           AND "type" = $3
         
-      ) AND accounts.type = $3;
+      ) AND accounts.type = $3
+      
+      RETURNING id, balance, type, user_id;
     `,
       [`${payload.amount}`, payload.sender_account_number, payload.sender_account_type]
     );
 
-    await pool.query(
+    const receiverAccount = await pool.query(
       `
       UPDATE "accounts"
       SET ${balanceLiteral} = balance + $1
@@ -82,12 +84,18 @@ class AccountRepo {
           "account_number" = $2
           AND "type" = $3
         
-      ) AND accounts.type = $3;
+      ) AND accounts.type = $3
+      RETURNING id, balance, type, user_id;
     `,
       [`${payload.amount}`, payload.receiver_account_number, payload.receiver_account_type]
     );
 
     await pool.query("COMMIT TRANSACTION;");
+
+    return {
+      senderAccount: senderAccount.rows[0] as TAccount,
+      receiverAccount: receiverAccount.rows[0] as TAccount,
+    };
   }
 }
 

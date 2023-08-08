@@ -1,4 +1,11 @@
 const handleWhereQuery = (payload: Record<string, unknown>, payloadCols: string[]) => {
+  const logicalOperator = payload.$or ? "OR" : "AND";
+
+  if (payload.$or) {
+    payloadCols = Object.keys(payload.$or);
+    payload = payload.$or as Record<string, unknown>;
+  }
+
   payloadCols = payloadCols.filter((col) => payload[col] || payload[col] === null);
   if (!payloadCols.length) throw new Error("`req.body` cannot by empty!");
 
@@ -10,7 +17,7 @@ const handleWhereQuery = (payload: Record<string, unknown>, payloadCols: string[
 
     const isLastCol = i + 1 === payloadCols.length;
     let q = `${col} = ${`$${i + 1}`}`;
-    q += `${!isLastCol ? "AND " : ""}`;
+    q += `${!isLastCol ? `${logicalOperator} ` : ""}`;
 
     mappedPayloadCols.push({
       col,

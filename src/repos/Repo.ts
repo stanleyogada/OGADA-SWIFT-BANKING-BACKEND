@@ -2,6 +2,8 @@ import app from "../app";
 import { handleWhereQuery, handlePatchSetQuery, handleInsertQuery } from "../utils/handleQueryFormat";
 import pool from "../utils/pool";
 
+type TFindByManyPayload<T> = Partial<T> | { $or: Partial<T> };
+
 type TEnv = "test" | "development" | "production";
 type TCol<T> = keyof T | { env: TEnv[]; value: keyof T };
 type TResource = string; // TODO: add more as migration tables are added ...
@@ -39,7 +41,7 @@ class Repo<T> implements IRepo<T> {
     }
   };
 
-  private handleWhereListQuery = (payload: Partial<T>) => {
+  private handleWhereListQuery = (payload: TFindByManyPayload<T>) => {
     if (!payload) return;
 
     const cols = this.cols.reduce((acc, col) => {
@@ -64,7 +66,7 @@ class Repo<T> implements IRepo<T> {
     this.resource = resource;
   }
 
-  async findManyBy(payload?: Partial<T>, returnCols?: Repo<T>["cols"]) {
+  async findManyBy(payload?: TFindByManyPayload<T>, returnCols?: Repo<T>["cols"]) {
     this.setSelectListQuery(returnCols);
     const where = this.handleWhereListQuery(payload);
 
