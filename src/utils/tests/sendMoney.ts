@@ -47,7 +47,7 @@ const handleAssertSendMoney = async (
       sender_account_type: opts.accountsTypes.sender,
       receiver_account_number: receiverAccount.account_number,
       amount: opts.amount,
-      remark: "Happy birthday!",
+      remark: `Send money from ${senderAccount.account_number} to ${receiverAccount.account_number}`,
     })
     .expect(statusCode);
 
