@@ -55,4 +55,22 @@ type TTransactionMobile = {
   transaction_id: number;
 };
 
-export type { TTransaction, TTransactionBank, TTransactionInHouse, TTransactionReward, TTransactionMobile };
+//
+//
+
+type TTransactionTransactionInHouse = TTransaction &
+  TTransactionInHouse & {
+    recipient: string;
+  };
+
+//
+//
+
+export type {
+  TTransaction,
+  TTransactionBank,
+  TTransactionInHouse,
+  TTransactionReward,
+  TTransactionMobile,
+  TTransactionTransactionInHouse,
+};
