@@ -1,5 +1,5 @@
 import { REPO_RESOURCES } from "../constants";
-import { TTransaction, TTransactionInHouse } from "../types/transactions";
+import { TTransaction, TTransactionInHouse, TTransactionTransactionInHouse } from "../types/transactions";
 import Repo from "./Repo";
 
 const transactionRepo = new Repo<TTransaction>(REPO_RESOURCES.transactions, [
@@ -40,6 +40,27 @@ class TransactionRepo {
       sender_account_number: payload.sender_account_number,
       transaction_id: row.id,
     });
+  }
+
+  static async findManyTransactionsInHouseBy(payload: Partial<TTransactionTransactionInHouse>) {
+    const repo = new Repo<TTransactionTransactionInHouse>(REPO_RESOURCES.transactionsTransactionsInHouse, [
+      "transaction_id",
+      "created_at",
+      "transaction_number",
+      "is_success",
+      "type",
+      "amount",
+      "charge",
+      "account_id",
+      "transactions_in_house_id",
+      "remark",
+      "receiver_account_number",
+      "sender_account_number",
+      "recipient",
+    ]);
+
+    const rows = await repo.findManyBy(payload);
+    return rows;
   }
 }
 

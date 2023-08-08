@@ -58,10 +58,14 @@ type TTransactionMobile = {
 //
 //
 
-type TTransactionTransactionInHouse = TTransaction &
-  TTransactionInHouse & {
-    recipient: string;
-  };
+type TTransactionTransactionInHouse = Omit<
+  TTransaction &
+    TTransactionInHouse & {
+      recipient: string;
+      transactions_in_house_id: number;
+    },
+  "id" | "is_deposit"
+>;
 
 //
 //

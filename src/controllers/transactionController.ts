@@ -5,6 +5,7 @@ import handleTryCatch from "../utils/handleTryCatch";
 import pool from "../utils/pool";
 import { EAccountType } from "../types/accounts";
 import { AccountRepo } from "../repos/AccountRepo";
+import TransactionRepo from "../repos/TransactionRepo";
 
 export const sendMoneyInHouse = handleTryCatch(
   async (req: TRequestUser, res) => {
@@ -54,3 +55,17 @@ export const sendMoneyInHouse = handleTryCatch(
     await pool.query("ROLLBACK TRANSACTION;");
   }
 );
+
+export const getTransactionsInHouse = handleTryCatch(async (req: TRequestUser, res) => {
+  const { user } = req;
+
+  const transactions = await TransactionRepo.findManyTransactionsInHouseBy({
+    sender_account_number: user.phone,
+  });
+
+  res.status(200).json({
+    status: "success",
+    data: transactions,
+    count: transactions.length,
+  });
+});

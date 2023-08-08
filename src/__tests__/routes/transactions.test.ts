@@ -1,4 +1,4 @@
-import { handleAssertSendMoney, handleSignupManyAccountUsers } from "../../utils/tests";
+import { getEndpoint, handleAssertSendMoney, handleSignupManyAccountUsers } from "../../utils/tests";
 import { EAccountType } from "../../types/accounts";
 import request from "supertest";
 import app from "../../app";
@@ -19,13 +19,13 @@ test("Have POST /transactions/in-house/send-money", async () => {
   };
 
   transactionsRes = await request(app())
-    .get("/transactions/in-house")
+    .get(getEndpoint("/transactions/in-house"))
     .set("Authorization", `Bearer ${userOne.token}`)
     .expect(200);
   expect(transactionsRes.body.data.length).toBe(0);
 
   transactionsRes = await request(app())
-    .get("/transactions/in-house")
+    .get(getEndpoint("/transactions/in-house"))
     .set("Authorization", `Bearer ${userTwo.token}`)
     .expect(200);
   expect(transactionsRes.body.data.length).toBe(0);
@@ -65,9 +65,11 @@ test("Have POST /transactions/in-house/send-money", async () => {
   );
 
   transactionsRes = await request(app())
-    .get("/transactions/in-house")
+    .get(getEndpoint("/transactions/in-house"))
     .set("Authorization", `Bearer ${userOne.token}`)
     .expect(200);
+
+  // console.log(transactionsRes.body.data);
 
   expect(transactionsRes.body.data.length).toBe(3);
   transactionsRes.body.data.forEach((transaction, i) => {
@@ -82,7 +84,7 @@ test("Have POST /transactions/in-house/send-money", async () => {
   //
 
   transactionsRes = await request(app())
-    .get("/transactions/in-house")
+    .get(getEndpoint("/transactions/in-house"))
     .set("Authorization", `Bearer ${userTwo.token}`)
     .expect(200);
 

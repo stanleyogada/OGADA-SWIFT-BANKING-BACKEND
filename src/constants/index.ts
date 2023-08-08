@@ -19,6 +19,7 @@ const REPO_RESOURCES = {
   transactionsInHouse: "transactions_in_house",
   transactionsReward: "transactions_reward",
   transactionsMobile: "transactions_mobile",
+  transactionsTransactionsInHouse: "transactions_transactions_in_house",
 };
 
 const ACCOUNT_DEFAULT_BALANCE = {
