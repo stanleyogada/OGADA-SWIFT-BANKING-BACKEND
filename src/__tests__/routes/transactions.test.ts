@@ -10,8 +10,9 @@ type TResponse<T> = {
   };
 };
 
-test("Have POST /transactions/in-house/send-money", async () => {
-  const users = await handleSignupManyAccountUsers(3);
+test("Ensures money can be sent in-house and transactions are recorded", async () => {
+  const createUserCount = 3;
+  const users = await handleSignupManyAccountUsers(createUserCount);
   const [userOne, userTwo, userThree] = users;
 
   for (const user of users) {
@@ -46,6 +47,7 @@ test("Have POST /transactions/in-house/send-money", async () => {
     },
   });
 
+  const errorStatusCode = 500;
   await handleAssertSendMoney(
     "/transactions/in-house/send-money",
     {
@@ -57,7 +59,7 @@ test("Have POST /transactions/in-house/send-money", async () => {
         receiver: EAccountType.NORMAL,
       },
     },
-    500
+    errorStatusCode
   );
 
   for (const user of users) {
@@ -68,7 +70,11 @@ test("Have POST /transactions/in-house/send-money", async () => {
       .set("Authorization", `Bearer ${user.token}`)
       .expect(200);
 
-    const transactionsCount = user.id === userThree.id ? 0 : 3;
+    const transactionsCount = (() => {
+      if (user.id === userOne.id) return 3;
+      if (user.id === userTwo.id) return 3;
+      if (user.id === userThree.id) return 0;
+    })();
     expect(transactions.length).toBe(transactionsCount);
 
     if (user.id === userThree.id) {
