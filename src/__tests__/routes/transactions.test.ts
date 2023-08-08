@@ -1,6 +1,6 @@
 import { getEndpoint, handleAssertSendMoney, handleSignupManyAccountUsers } from "../../utils/tests";
 import { EAccountType } from "../../types/accounts";
-import request, { SuperTest } from "supertest";
+import request from "supertest";
 import app from "../../app";
 import { TTransactionTransactionInHouse } from "../../types/transactions";
 
