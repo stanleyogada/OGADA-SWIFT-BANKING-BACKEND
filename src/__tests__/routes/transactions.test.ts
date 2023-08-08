@@ -72,7 +72,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
       .expect(200);
 
     const transactionsCount = (() => {
-      if (user.id === userOne.id) return 3;
+      if (user.id === userOne.id) return 2;
       if (user.id === userTwo.id) return 3;
       if (user.id === userThree.id) return 0;
     })();
@@ -82,13 +82,23 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
       continue;
     }
 
-    expect(transactions[0].is_success).toBe(false);
-    expect(transactions[0].recipient).toBe(userOne.accounts[0].full_name);
+    if (user.id === userOne.id) {
+      expect(transactions[0].is_success).toBe(true);
+      expect(transactions[0].recipient).toBe(userOne.accounts[0].full_name);
 
-    expect(transactions[1].is_success).toBe(true);
-    expect(transactions[1].recipient).toBe(userOne.accounts[0].full_name);
+      expect(transactions[1].is_success).toBe(true);
+      expect(transactions[1].recipient).toBe(userTwo.accounts[0].full_name);
+    }
 
-    expect(transactions[2].is_success).toBe(true);
-    expect(transactions[2].recipient).toBe(userTwo.accounts[0].full_name);
+    if (user.id === userTwo.id) {
+      expect(transactions[0].is_success).toBe(false);
+      expect(transactions[0].recipient).toBe(userOne.accounts[0].full_name);
+
+      expect(transactions[1].is_success).toBe(true);
+      expect(transactions[1].recipient).toBe(userOne.accounts[0].full_name);
+
+      expect(transactions[2].is_success).toBe(true);
+      expect(transactions[2].recipient).toBe(userTwo.accounts[0].full_name);
+    }
   }
 });

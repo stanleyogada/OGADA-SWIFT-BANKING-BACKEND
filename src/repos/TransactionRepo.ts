@@ -1,5 +1,6 @@
 import { REPO_RESOURCES } from "../constants";
 import { TTransaction, TTransactionInHouse, TTransactionTransactionInHouse } from "../types/transactions";
+import pool from "../utils/pool";
 import Repo from "./Repo";
 
 const transactionRepo = new Repo<TTransaction>(REPO_RESOURCES.transactions, [
@@ -63,30 +64,31 @@ class TransactionRepo {
   }
 
   static async findManyTransactionsInHouseBy(payload: { account_number: string }) {
-    const repo = new Repo<TTransactionTransactionInHouse>(REPO_RESOURCES.transactionsTransactionsInHouse, [
-      "transaction_id",
-      "created_at",
-      "transaction_number",
-      "is_success",
-      "type",
-      "amount",
-      "charge",
-      "account_id",
-      "transactions_in_house_id",
-      "remark",
-      "receiver_account_number",
-      "sender_account_number",
-      "recipient",
-    ]);
+    const { rows } = await pool.query(
+      `
+      SELECT
+        transaction_id,
+        created_at,
+        transaction_number,
+        is_success,
+        type,
+        amount,
+        charge,
+        account_id,
+        transactions_in_house_id,
+        remark,
+        receiver_account_number,
+        sender_account_number,
+        recipient
+      FROM transactions_transactions_in_house
+      WHERE
+        sender_account_number = $1
+        OR receiver_account_number = $1 
+        AND is_success = TRUE;
+    `,
+      [payload.account_number]
+    );
 
-    const _payload = {
-      $or: {
-        sender_account_number: payload.account_number,
-        receiver_account_number: payload.account_number,
-      },
-    };
-
-    const rows = await repo.findManyBy(_payload);
     return rows;
   }
 }
