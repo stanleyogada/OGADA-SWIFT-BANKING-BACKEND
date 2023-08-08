@@ -23,6 +23,24 @@ const transactionInHouseRepo = new Repo<TTransactionInHouse>(REPO_RESOURCES.tran
 ]);
 
 class TransactionRepo {
+  static generateTransactionNumber() {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const dayOfMonth = date.getDate();
+
+    const hour = date.getHours();
+    const minute = date.getMinutes();
+    const second = date.getSeconds();
+
+    const random = Math.floor(Math.random() * 1000);
+    const time = date.getTime();
+
+    const transactionNumber = `TRX-${year}${month}${dayOfMonth}${hour}${minute}${second}-${random}-${time}`;
+
+    return transactionNumber;
+  }
+
   static async createTransactionInHouse(payload: Omit<TTransaction & TTransactionInHouse, "id" | "created_at">) {
     const row = await transactionRepo.createOne({
       transaction_number: payload.transaction_number,
