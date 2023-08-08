@@ -11,8 +11,8 @@ type TResponse<T> = {
 };
 
 test("Have POST /transactions/in-house/send-money", async () => {
-  const users = await handleSignupManyAccountUsers();
-  const [userOne, userTwo] = users;
+  const users = await handleSignupManyAccountUsers(3);
+  const [userOne, userTwo, userThree] = users;
 
   const amounts = [
     100,
@@ -20,21 +20,17 @@ test("Have POST /transactions/in-house/send-money", async () => {
     55.5, // TODO: make this a constant
   ];
 
-  let transactionsRes: {
-    body: { data: TTransactionTransactionInHouse[] };
-  };
+  for (const user of users) {
+    const {
+      body: { data: transactions },
+    }: TResponse<TTransactionTransactionInHouse[]> = await request(app())
+      .get(getEndpoint("/transactions/in-house"))
+      .set("Authorization", `Bearer ${user.token}`)
+      .expect(200);
 
-  transactionsRes = await request(app())
-    .get(getEndpoint("/transactions/in-house"))
-    .set("Authorization", `Bearer ${userOne.token}`)
-    .expect(200);
-  expect(transactionsRes.body.data.length).toBe(0);
-
-  transactionsRes = await request(app())
-    .get(getEndpoint("/transactions/in-house"))
-    .set("Authorization", `Bearer ${userTwo.token}`)
-    .expect(200);
-  expect(transactionsRes.body.data.length).toBe(0);
+    const transactionsCount = 0;
+    expect(transactions.length).toBe(transactionsCount);
+  }
 
   await handleAssertSendMoney("/transactions/in-house/send-money", {
     senderUser: userOne,
@@ -70,40 +66,26 @@ test("Have POST /transactions/in-house/send-money", async () => {
     500
   );
 
-  const userOneTransactionsRes: TResponse<TTransactionTransactionInHouse[]> = await request(app())
-    .get(getEndpoint("/transactions/in-house"))
-    .set("Authorization", `Bearer ${userOne.token}`)
-    .expect(200);
+  for (const user of users) {
+    const {
+      body: { data: transactions },
+    }: TResponse<TTransactionTransactionInHouse[]> = await request(app())
+      .get(getEndpoint("/transactions/in-house"))
+      .set("Authorization", `Bearer ${user.token}`)
+      .expect(200);
 
-  expect(userOneTransactionsRes.body.data.length).toBe(3);
+    const transactionsCount = user.id === userThree.id ? 0 : 3;
+    expect(transactions.length).toBe(transactionsCount);
 
-  // console.log(transactionsRes.body.data);
+    if (user.id === userThree.id) {
+      continue;
+    }
 
-  // expect(transactionsRes.body.data.length).toBe(3);
-  // transactionsRes.body.data.forEach((transaction, i) => {
-  //   console.log(transaction);
-
-  //   expect(transaction.sender_account_number).toBe(userOne.accounts[0].account_number);
-  //   expect(transaction.recipient).toBe(userTwo.accounts[0].full_name);
-  //   // expect(transaction.amount).toBe(amounts[i]);
-  //   // expect(transaction.is_success).toBe(i === 2 ? false : true);
-  //   expect(transaction.type).toBe(EAccountType.NORMAL);
-  // });
-
-  //
-  //
-
-  // transactionsRes = await request(app())
-  //   .get(getEndpoint("/transactions/in-house"))
-  //   .set("Authorization", `Bearer ${userTwo.token}`)
-  //   .expect(200);
-
-  // expect(transactionsRes.body.data.length).toBe(3);
-  // transactionsRes.body.data.forEach((transaction, i) => {
-  //   expect(transaction.sender_account_number).toBe(userOne.accounts[0].account_number);
-  //   expect(transaction.recipient).toBe(userTwo.accounts[0].full_name);
-  //   expect(transaction.amount).toBe(amounts[i]);
-  //   expect(transaction.is_success).toBe(i === 2 ? false : true);
-  //   expect(transaction.type).toBe(EAccountType.NORMAL);
-  // });
+    expect(transactions[0].is_success).toBe(false);
+    expect(transactions[1].is_success).toBe(true);
+    expect(transactions[2].is_success).toBe(true);
+    expect(transactions[0].recipient).toBe(userOne.accounts[0].full_name);
+    expect(transactions[1].recipient).toBe(userOne.accounts[0].full_name);
+    expect(transactions[2].recipient).toBe(userTwo.accounts[0].full_name);
+  }
 });
