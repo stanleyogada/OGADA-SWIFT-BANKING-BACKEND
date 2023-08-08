@@ -82,10 +82,12 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
     }
 
     expect(transactions[0].is_success).toBe(false);
-    expect(transactions[1].is_success).toBe(true);
-    expect(transactions[2].is_success).toBe(true);
     expect(transactions[0].recipient).toBe(userOne.accounts[0].full_name);
+
+    expect(transactions[1].is_success).toBe(true);
     expect(transactions[1].recipient).toBe(userOne.accounts[0].full_name);
+
+    expect(transactions[2].is_success).toBe(true);
     expect(transactions[2].recipient).toBe(userTwo.accounts[0].full_name);
   }
 });
