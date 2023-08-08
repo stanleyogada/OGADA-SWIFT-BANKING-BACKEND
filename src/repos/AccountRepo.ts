@@ -10,26 +10,24 @@ class AccountRepo {
   static async createAccounts(userId: number) {
     // TODO: implement createMany inside Repo (insert multiple values at once)
     await repo.createOne({
-      balance: +ACCOUNT_DEFAULT_BALANCE[EAccountType.NORMAL], // TODO: remove this: add as default value in db
+      balance: +ACCOUNT_DEFAULT_BALANCE[EAccountType.NORMAL],
       type: EAccountType.NORMAL,
       user_id: userId,
     });
 
     await repo.createOne({
-      balance: +ACCOUNT_DEFAULT_BALANCE[EAccountType.CASHBACK], // TODO: remove this: add as default value in db
+      balance: +ACCOUNT_DEFAULT_BALANCE[EAccountType.CASHBACK],
       type: EAccountType.CASHBACK,
       user_id: userId,
     });
   }
 
-  // TODO: Implement this inside a transactions repo
   static async sendMoneyInHouse(payload: {
     sender_account_number: string;
     receiver_account_number: string;
     amount: number;
     sender_account_type: EAccountType;
     receiver_account_type: EAccountType;
-    // remark?: string;
   }) {
     const getShouldMakeADBMistake = () => {
       if (process.env.NODE_ENV !== "test") {
