@@ -20,7 +20,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
     const {
       body: { data: transactions },
     }: TResponse<TTransactionTransactionInHouse[]> = await request(app())
-      .get(getEndpoint("/transactions/in-house"))
+      .get(getEndpoint("/transactions/in-houses"))
       .set("Authorization", `Bearer ${user.token}`)
       .expect(200);
 
@@ -28,7 +28,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
     expect(transactions.length).toBe(transactionsCount);
   }
 
-  await handleAssertSendMoney("/transactions/in-house/send-money", {
+  await handleAssertSendMoney("/transactions/in-houses/send-money", {
     senderUser: userOne,
     receiverUser: userTwo,
     amount: 100,
@@ -38,7 +38,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
     },
   });
 
-  await handleAssertSendMoney("/transactions/in-house/send-money", {
+  await handleAssertSendMoney("/transactions/in-houses/send-money", {
     senderUser: userTwo,
     receiverUser: userOne,
     amount: 50,
@@ -50,7 +50,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
 
   const errorStatusCode = 500;
   await handleAssertSendMoney(
-    "/transactions/in-house/send-money",
+    "/transactions/in-houses/send-money",
     {
       senderUser: userTwo,
       receiverUser: userOne,
@@ -67,7 +67,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
     const {
       body: { data: transactions },
     }: TResponse<TTransactionTransactionInHouse[]> = await request(app())
-      .get(getEndpoint("/transactions/in-house"))
+      .get(getEndpoint("/transactions/in-houses"))
       .set("Authorization", `Bearer ${user.token}`)
       .expect(200);
 
@@ -100,5 +100,23 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
       expect(transactions[2].is_success).toBe(true);
       expect(transactions[2].recipient).toBe(userTwo.accounts[0].full_name);
     }
+  }
+});
+
+test("Ensures money can be sent to bank and transactions are recorded", async () => {
+  const createUserCount = 3;
+  const users = await handleSignupManyAccountUsers(createUserCount);
+  const [userOne, userTwo, userThree] = users;
+
+  for (const user of users) {
+    const {
+      body: { data: transactions },
+    }: TResponse<TTransactionTransactionInHouse[]> = await request(app())
+      .get(getEndpoint("/transactions/banks"))
+      .set("Authorization", `Bearer ${user.token}`)
+      .expect(200);
+
+    const transactionsCount = 0;
+    expect(transactions.length).toBe(transactionsCount);
   }
 });
