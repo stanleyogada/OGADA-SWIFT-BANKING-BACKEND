@@ -14,6 +14,69 @@ type TUser = {
   })[];
 };
 
+type TBankDetails = {
+  bank_name: string;
+  bank_account_full_name: string;
+  bank_account_number: string;
+};
+
+const handleAssertSendMoneyToBank = async (
+  endpoint: string,
+  opts: {
+    senderUser: TUser;
+    bankDetails: TBankDetails;
+    senderUserAccountsType: EAccountType;
+    amount: number;
+  },
+  statusCode: number = 200
+) => {
+  const { senderUser, bankDetails, senderUserAccountsType, amount } = opts;
+
+  const handleFindAccount = (user: TUser) => {
+    return user.accounts.find((account) => account.type === opts.senderUserAccountsType);
+  };
+
+  const senderAccount = handleFindAccount(senderUser);
+
+  await request(app())
+    .post(getEndpoint(endpoint))
+    .set("Authorization", `Bearer ${senderUser.token}`)
+    .send({
+      sender_account_type: senderUserAccountsType,
+      bank_name: bankDetails.bank_name,
+      bank_account_full_name: bankDetails.bank_account_full_name,
+      bank_account_number: bankDetails.bank_account_number,
+      amount: amount,
+      remark: `Send money from ${senderAccount.account_number} to bank`,
+    })
+    .expect(statusCode);
+
+  if (statusCode === 200) {
+    senderAccount.currentBalance -= amount;
+  }
+
+  const {
+    body: { data },
+  }: {
+    body: {
+      data: (TUserAccount & {
+        currentBalance: number;
+      })[];
+    };
+  } = await request(app())
+    .get(getEndpoint(`/users/me/accounts`))
+    .set("Authorization", `Bearer ${senderUser.token}`)
+    .expect(200);
+
+  const newUser: TUser = {
+    id: senderUser.id,
+    token: senderUser.token,
+    accounts: data,
+  };
+  const account = handleFindAccount(newUser);
+  expect(account.balance).toBe(senderAccount.currentBalance.toFixed(2));
+};
+
 const handleAssertSendMoney = async (
   endpoint: string,
   opts: {
@@ -28,8 +91,6 @@ const handleAssertSendMoney = async (
   statusCode: number = 200
 ) => {
   const { senderUser, receiverUser } = opts;
-
-  senderUser.accounts;
 
   const handleFindAccount = (user: TUser) => {
     return user.accounts.find(
@@ -118,4 +179,4 @@ const handleSignupManyAccountUsers = async (nUsers: number = 2) => {
   return users;
 };
 
-export { handleAssertSendMoney, handleSignupManyAccountUsers };
+export { handleAssertSendMoney, handleSignupManyAccountUsers, handleAssertSendMoneyToBank };

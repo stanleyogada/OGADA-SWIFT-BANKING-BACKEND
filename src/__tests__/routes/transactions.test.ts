@@ -1,9 +1,15 @@
-import { getEndpoint, handleAssertSendMoney, handleSignupManyAccountUsers } from "../../utils/tests";
+import {
+  getEndpoint,
+  handleAssertSendMoney,
+  handleAssertSendMoneyToBank,
+  handleSignupManyAccountUsers,
+} from "../../utils/tests";
 import { EAccountType } from "../../types/accounts";
 import request from "supertest";
 import app from "../../app";
 import { TTransactionTransactionInHouse } from "../../types/transactions";
 import { SEND_MONEY_MAGIC_FAIL_AMOUNT } from "../../constants";
+import { TRANSACTIONS_ROUTES } from "../../constants/routes";
 
 type TResponse<T> = {
   body: {
@@ -20,7 +26,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
     const {
       body: { data: transactions },
     }: TResponse<TTransactionTransactionInHouse[]> = await request(app())
-      .get(getEndpoint("/transactions/in-houses"))
+      .get(getEndpoint(`/transactions/${TRANSACTIONS_ROUTES.inHouses}`))
       .set("Authorization", `Bearer ${user.token}`)
       .expect(200);
 
@@ -28,7 +34,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
     expect(transactions.length).toBe(transactionsCount);
   }
 
-  await handleAssertSendMoney("/transactions/in-houses/send-money", {
+  await handleAssertSendMoney(`/transactions/${TRANSACTIONS_ROUTES.inHousesSendMoney}`, {
     senderUser: userOne,
     receiverUser: userTwo,
     amount: 100,
@@ -38,7 +44,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
     },
   });
 
-  await handleAssertSendMoney("/transactions/in-houses/send-money", {
+  await handleAssertSendMoney(`/transactions/${TRANSACTIONS_ROUTES.inHousesSendMoney}`, {
     senderUser: userTwo,
     receiverUser: userOne,
     amount: 50,
@@ -50,7 +56,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
 
   const errorStatusCode = 500;
   await handleAssertSendMoney(
-    "/transactions/in-houses/send-money",
+    `/transactions/${TRANSACTIONS_ROUTES.inHousesSendMoney}`,
     {
       senderUser: userTwo,
       receiverUser: userOne,
@@ -67,7 +73,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
     const {
       body: { data: transactions },
     }: TResponse<TTransactionTransactionInHouse[]> = await request(app())
-      .get(getEndpoint("/transactions/in-houses"))
+      .get(getEndpoint(`/transactions/${TRANSACTIONS_ROUTES.inHouses}`))
       .set("Authorization", `Bearer ${user.token}`)
       .expect(200);
 
@@ -112,11 +118,27 @@ test("Ensures money can be sent to bank and transactions are recorded", async ()
     const {
       body: { data: transactions },
     }: TResponse<TTransactionTransactionInHouse[]> = await request(app())
-      .get(getEndpoint("/transactions/banks"))
+      .get(getEndpoint(`/transactions/${TRANSACTIONS_ROUTES.banks}`))
       .set("Authorization", `Bearer ${user.token}`)
       .expect(200);
 
     const transactionsCount = 0;
     expect(transactions.length).toBe(transactionsCount);
   }
+
+  const fakeBankDetails = {
+    bank_name: "BANK_NAME",
+    bank_account_full_name: "BANK_ACCOUNT_FULL_NAME",
+    bank_account_number: "BANK_ACCOUNT_NUMBER",
+  };
+
+  console.log("userOne", userOne);
+  console.log("userTwo", userTwo);
+
+  await handleAssertSendMoneyToBank(`/transactions/${TRANSACTIONS_ROUTES.banksSendMoney}`, {
+    senderUser: userOne,
+    bankDetails: fakeBankDetails,
+    amount: 100,
+    senderUserAccountsType: EAccountType.NORMAL,
+  });
 });

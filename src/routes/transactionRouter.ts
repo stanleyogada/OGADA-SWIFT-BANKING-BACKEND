@@ -2,6 +2,7 @@ import { Router } from "express";
 
 import { getTransactionsInHouse, sendMoneyInHouse } from "../controllers/transactionController";
 import handleAuthGuardRoute from "../middleware/handleAuthGuardRoute";
+import { TRANSACTIONS_ROUTES } from "../constants/routes";
 
 const router = Router();
 
@@ -10,7 +11,7 @@ const router = Router();
 // router.get("/reward", (req, res) => {});
 // router.get("/mobile", (req, res) => {});
 
-router.get("/banks", (req, res) => {
+router.get(TRANSACTIONS_ROUTES.banks, (req, res) => {
   res.status(200).json({
     status: "success",
     data: [],
@@ -18,8 +19,7 @@ router.get("/banks", (req, res) => {
   });
 });
 
-// router.post("/send-money", (req, res) => { });
-router.get("/in-houses", handleAuthGuardRoute, getTransactionsInHouse);
-router.post("/in-houses/send-money", handleAuthGuardRoute, sendMoneyInHouse);
+router.get(TRANSACTIONS_ROUTES.inHouses, handleAuthGuardRoute, getTransactionsInHouse);
+router.post(TRANSACTIONS_ROUTES.inHousesSendMoney, handleAuthGuardRoute, sendMoneyInHouse);
 
 export default router;
