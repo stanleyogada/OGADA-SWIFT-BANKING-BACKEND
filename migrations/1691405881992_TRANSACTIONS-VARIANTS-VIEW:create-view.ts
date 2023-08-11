@@ -21,11 +21,18 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
         transactions_in_house.receiver_account_number,
         transactions_in_house.sender_account_number,
     
-        users_accounts.full_name AS "recipient"
+        users_accounts.full_name AS "recipient",
+
+        CASE
+          WHEN transactions_in_house.sender_account_number = $1 
+            THEN FALSE
+          ELSE TRUE
+        END AS "is_deposit"
       FROM "transactions"
       INNER JOIN "transactions_in_house" ON transactions_in_house.transaction_id = transactions.id
       INNER JOIN "users_accounts" ON users_accounts.account_number = transactions_in_house.receiver_account_number
       ORDER BY "created_at" DESC;
+
 
       CREATE VIEW "transactions_transactions_banks" AS
         SELECT DISTINCT
@@ -46,10 +53,59 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
           transactions_banks.bank_account_number,
 
           users_accounts.full_name AS "sender_account_full_name",
-          users_accounts.account_number AS "sender_account_number"
+          users_accounts.account_number AS "sender_account_number",
+
+          FALSE AS "is_deposit",
         FROM "transactions"
         INNER JOIN "transactions_banks" ON transactions_banks.transaction_id = transactions.id
         INNER JOIN "users_accounts" ON users_accounts.account_id = transactions.account_id
+        ORDER BY "created_at" DESC;
+
+
+      CREATE VIEW "transactions_transactions_mobile" AS
+        SELECT DISTINCT
+          transactions.id AS "transaction_id", 
+          transactions.created_at,
+          transactions.transaction_number,
+          transactions.is_success,
+          transactions.type,
+          transactions.amount,
+          transactions.charge,
+          transactions.account_id,
+
+          transactions_mobile.id AS "transactions_mobile_id",
+          transactions_mobile.operator,
+          transactions_mobile.phone_number,
+          transactions_mobile.is_airtime
+
+          users_accounts.account_number AS "sender_account_number",
+
+          FALSE AS "is_deposit"
+        FROM "transactions"
+        INNER JOIN "transactions_mobile" ON transactions_mobile.transaction_id = transactions.id
+        INNER JOIN "users_accounts" ON users_accounts.account_id = transactions.account_id
+        ORDER BY "created_at" DESC;
+
+
+      CREATE VIEW "transactions_transactions_rewards" AS
+        SELECT DISTINCT
+          transactions.id AS "transaction_id", 
+          transactions.created_at,
+          transactions.transaction_number,
+          transactions.is_success,
+          transactions.type,
+          transactions.amount,
+          transactions.charge,
+          transactions.account_id,
+
+          transactions_rewards.id AS "transactions_rewards_id",
+          transactions_rewards.receiver_account_number,
+          transactions_rewards.note,
+
+          TRUE AS "is_deposit"
+        FROM "transactions"
+        INNER JOIN "transactions_rewards" ON transactions_rewards.transaction_id = transactions.id
+        INNER JOIN "users_accounts" ON users_accounts.account_number = transactions_rewards.receiver_account_number
         ORDER BY "created_at" DESC;
   `);
 }

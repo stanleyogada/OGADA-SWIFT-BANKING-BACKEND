@@ -122,7 +122,7 @@ TABLE transactions_in_house {
 TABLE transactions_rewards {
   id SERIAL [PK]
 
-  type OTHER_ACCOUNT_TYPE [NOT NULL]
+  receiver_account_number VARCHAR(10) [NOT NULL]
   note VARCHAR(50) [NOT NULL]
 
   transaction_id INTEGER [ref: > transactions.id, NOT NULL, UNIQUE, note: 'ON DELETE CASCADE']

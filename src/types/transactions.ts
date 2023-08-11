@@ -39,7 +39,7 @@ type TTransactionInHouse = {
 type TTransactionReward = {
   id: number;
 
-  type: EAccountType;
+  receiver_account_number: string;
   note: string;
 
   transaction_id: number;
