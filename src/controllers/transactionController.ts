@@ -12,6 +12,20 @@ import { Response } from "express";
 
 let createTransactionInHousePayload: Omit<TTransaction & TTransactionInHouse, "id" | "transaction_id" | "created_at">;
 
+export const getTransactionsInHouse = handleTryCatch(async (req: TRequestUser, res: Response) => {
+  const { user } = req;
+
+  const transactions = await TransactionRepo.findManyTransactionsInHouseBy({
+    account_number: user.phone,
+  });
+
+  res.status(200).json({
+    status: "success",
+    data: transactions,
+    count: transactions.length,
+  });
+});
+
 export const sendMoneyInHouse = handleTryCatch(
   async (req: TRequestUser, res) => {
     const { user } = req;
@@ -81,10 +95,10 @@ export const sendMoneyInHouse = handleTryCatch(
   }
 );
 
-export const getTransactionsInHouse = handleTryCatch(async (req: TRequestUser, res: Response) => {
+export const getTransactionsBank = handleTryCatch(async (req: TRequestUser, res: Response) => {
   const { user } = req;
 
-  const transactions = await TransactionRepo.findManyTransactionsInHouseBy({
+  const transactions = await TransactionRepo.findManyTransactionsBankBy({
     account_number: user.phone,
   });
 

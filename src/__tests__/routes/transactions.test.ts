@@ -141,4 +141,57 @@ test("Ensures money can be sent to bank and transactions are recorded", async ()
     amount: 100,
     senderUserAccountsType: EAccountType.NORMAL,
   });
+  await handleAssertSendMoneyToBank(`/transactions/${TRANSACTIONS_ROUTES.banksSendMoney}`, {
+    senderUser: userOne,
+    bankDetails: fakeBankDetails,
+    amount: 10,
+    senderUserAccountsType: EAccountType.NORMAL,
+  });
+  await handleAssertSendMoneyToBank(`/transactions/${TRANSACTIONS_ROUTES.banksSendMoney}`, {
+    senderUser: userOne,
+    bankDetails: fakeBankDetails,
+    amount: 50,
+    senderUserAccountsType: EAccountType.NORMAL,
+  });
+  await handleAssertSendMoneyToBank(`/transactions/${TRANSACTIONS_ROUTES.banksSendMoney}`, {
+    senderUser: userThree,
+    bankDetails: fakeBankDetails,
+    amount: 100,
+    senderUserAccountsType: EAccountType.NORMAL,
+  });
+
+  const largeAmount = 50000;
+  const expectedErrorStatusCode = 400;
+  await handleAssertSendMoneyToBank(
+    `/transactions/${TRANSACTIONS_ROUTES.banksSendMoney}`,
+    {
+      senderUser: userTwo,
+      bankDetails: fakeBankDetails,
+      amount: largeAmount,
+      senderUserAccountsType: EAccountType.NORMAL,
+    },
+    expectedErrorStatusCode
+  );
+
+  for (const user of users) {
+    const {
+      body: { data: transactions },
+    }: TResponse<TTransactionTransactionInHouse[]> = await request(app())
+      .get(getEndpoint(`/transactions/${TRANSACTIONS_ROUTES.banks}`))
+      .set("Authorization", `Bearer ${user.token}`)
+      .expect(200);
+
+    const transactionsCount = (() => {
+      if (user.id === userOne.id) return 3;
+      if (user.id === userTwo.id) return 0;
+      if (user.id === userThree.id) return 1;
+    })();
+    expect(transactions.length).toBe(transactionsCount);
+
+    if (user.id === userTwo.id) {
+      continue;
+    }
+
+    expect(transactions[0].is_success).toBe(true);
+  }
 });

@@ -46,6 +46,12 @@ const ErrorHandler = (err: APIError, _: Request, res: Response, _next: NextFunct
     err.message = "User already exists! Please verify your email address or log in instead";
   }
 
+  // if (err.message.includes("not_enough_balance")) {
+  //   err.statusCode = 400;
+  //   err.status = "fail";
+  //   err.message = "Insufficient balance! Input is greater than current balance";
+  // }
+
   if (app().get("env") === "development") {
     sendDev(err, res);
   } else {

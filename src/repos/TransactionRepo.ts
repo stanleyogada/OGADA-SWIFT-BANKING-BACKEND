@@ -148,11 +148,10 @@ class TransactionRepo {
         session_id,
         remark,
         sender_account_full_name,
-        sender_account_number,
+        sender_account_number
       FROM ${REPO_RESOURCES.transactionsTransactionsBanks}
       WHERE
-        bank_account_number = $1
-        AND is_success = TRUE;
+        sender_account_number = $1;
     `,
       [payload.account_number]
     );
