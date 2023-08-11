@@ -87,7 +87,12 @@ export const sendMoneyInHouse = handleTryCatch(
       message: "Send money successfully!",
     });
   },
-  async () => {
+  async (err: Error) => {
+    const isDBError = err.stack.includes("pg");
+    if (!isDBError) {
+      return;
+    }
+
     await pool.query("ROLLBACK TRANSACTION;");
 
     createTransactionInHousePayload.is_success = false;

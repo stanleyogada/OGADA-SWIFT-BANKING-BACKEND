@@ -30,6 +30,20 @@ class AccountRepo {
     sender_account_type: EAccountType;
     receiver_account_type: EAccountType;
   }) {
+    const { rows } = await pool.query(
+      `
+      SELECT "balance"
+      FROM "users_accounts"
+      WHERE "account_number" = $1
+        AND "type" = $2;
+    `,
+      [payload.sender_account_number, payload.sender_account_type]
+    );
+
+    if (rows[0].balance < payload.amount) {
+      throw new APIError("Insufficient funds", 400);
+    }
+
     const getShouldMakeADBMistake = () => {
       if (process.env.NODE_ENV !== "test") {
         return false;

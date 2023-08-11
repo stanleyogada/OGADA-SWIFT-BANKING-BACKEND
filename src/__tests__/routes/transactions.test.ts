@@ -54,13 +54,28 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
     },
   });
 
-  const errorStatusCode = 500;
+  let errorStatusCode = 500;
   await handleAssertSendMoney(
     `/transactions/${TRANSACTIONS_ROUTES.inHousesSendMoney}`,
     {
       senderUser: userTwo,
       receiverUser: userOne,
       amount: SEND_MONEY_MAGIC_FAIL_AMOUNT,
+      accountsTypes: {
+        sender: EAccountType.NORMAL,
+        receiver: EAccountType.NORMAL,
+      },
+    },
+    errorStatusCode
+  );
+  errorStatusCode = 400;
+  const largeAmount = 1000;
+  await handleAssertSendMoney(
+    `/transactions/${TRANSACTIONS_ROUTES.inHousesSendMoney}`,
+    {
+      senderUser: userTwo,
+      receiverUser: userOne,
+      amount: largeAmount,
       accountsTypes: {
         sender: EAccountType.NORMAL,
         receiver: EAccountType.NORMAL,
