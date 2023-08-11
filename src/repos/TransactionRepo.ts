@@ -100,9 +100,8 @@ class TransactionRepo {
     });
   }
 
-  static async findManyTransactionsInHouseBy(payload: { account_number: string }) {
-    const { rows } = await pool.query(
-      `
+  static handleSelectTransaction = () => {
+    return `
       SELECT
         transaction_id,
         created_at,
@@ -112,11 +111,20 @@ class TransactionRepo {
         amount,
         charge,
         account_id,
+        `;
+  };
+
+  static async findManyTransactionsInHouseBy(payload: { account_number: string }) {
+    const { rows } = await pool.query(
+      `
+      ${TransactionRepo.handleSelectTransaction()}
+
         transactions_in_house_id,
         remark,
         receiver_account_number,
         sender_account_number,
         recipient,
+
         CASE
           WHEN sender_account_number = $1 THEN false
           ELSE true
@@ -136,16 +144,8 @@ class TransactionRepo {
   static async findManyTransactionsBankBy(payload: { account_number: string }) {
     const { rows } = await pool.query(
       `
-      SELECT
-        transaction_id,
-        created_at,
-        transaction_number,
-        is_success,
-        false AS is_deposit,
-        type,
-        amount,
-        charge,
-        account_id,
+      ${TransactionRepo.handleSelectTransaction()}
+
         transactions_banks_id,
         bank_account_full_name,
         bank_account_number,
@@ -153,7 +153,9 @@ class TransactionRepo {
         session_id,
         remark,
         sender_account_full_name,
-        sender_account_number
+        sender_account_number,
+
+        false AS is_deposit
       FROM ${REPO_RESOURCES.transactionsTransactionsBanks}
       WHERE
         sender_account_number = $1;

@@ -80,7 +80,7 @@ const handleAssertSendMoneyToBank = async (
   expect(account.balance).toBe(senderAccount.currentBalance.toFixed(2));
 };
 
-const handleAssertSendMoney = async (
+const handleAssertSendMoneyInHouse = async (
   endpoint: string,
   opts: {
     senderUser: TUser;
@@ -185,4 +185,4 @@ const handleSignupManyAccountUsers = async (nUsers: number = 2) => {
   return users;
 };
 
-export { handleAssertSendMoney, handleSignupManyAccountUsers, handleAssertSendMoneyToBank };
+export { handleAssertSendMoneyInHouse, handleSignupManyAccountUsers, handleAssertSendMoneyToBank };

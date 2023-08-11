@@ -1,6 +1,6 @@
 import {
   getEndpoint,
-  handleAssertSendMoney,
+  handleAssertSendMoneyInHouse,
   handleAssertSendMoneyToBank,
   handleSignupManyAccountUsers,
 } from "../../utils/tests";
@@ -34,7 +34,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
     expect(transactions.length).toBe(transactionsCount);
   }
 
-  await handleAssertSendMoney(`/transactions/${TRANSACTIONS_ROUTES.inHousesSendMoney}`, {
+  await handleAssertSendMoneyInHouse(`/transactions/${TRANSACTIONS_ROUTES.inHousesSendMoney}`, {
     senderUser: userOne,
     receiverUser: userTwo,
     amount: 100,
@@ -44,7 +44,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
     },
   });
 
-  await handleAssertSendMoney(`/transactions/${TRANSACTIONS_ROUTES.inHousesSendMoney}`, {
+  await handleAssertSendMoneyInHouse(`/transactions/${TRANSACTIONS_ROUTES.inHousesSendMoney}`, {
     senderUser: userTwo,
     receiverUser: userOne,
     amount: 50,
@@ -55,7 +55,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
   });
 
   let errorStatusCode = 500;
-  await handleAssertSendMoney(
+  await handleAssertSendMoneyInHouse(
     `/transactions/${TRANSACTIONS_ROUTES.inHousesSendMoney}`,
     {
       senderUser: userTwo,
@@ -72,7 +72,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
   errorStatusCode = 400;
   const largeAmount = 1000;
   // This doesn't create a transaction because it's a insufficient funds ClientError
-  await handleAssertSendMoney(
+  await handleAssertSendMoneyInHouse(
     `/transactions/${TRANSACTIONS_ROUTES.inHousesSendMoney}`,
     {
       senderUser: userTwo,
@@ -88,7 +88,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
 
   const incorrectTransferPin = "1992";
   // This doesn't create a transaction because it's a insufficient funds ClientError
-  await handleAssertSendMoney(
+  await handleAssertSendMoneyInHouse(
     `/transactions/${TRANSACTIONS_ROUTES.inHousesSendMoney}`,
     {
       senderUser: {
