@@ -64,7 +64,7 @@ type TTransactionTransactionInHouse = Omit<
       recipient: string;
       transactions_in_house_id: number;
     },
-  "id" | "is_deposit"
+  "id"
 >;
 
 type TTransactionTransactionBank = Omit<
@@ -73,12 +73,12 @@ type TTransactionTransactionBank = Omit<
       sender_account_full_name: string;
       sender_account_number: string;
     },
-  "id" | "is_deposit"
+  "id"
 >;
 
-type TTransactionTransactionReward = Omit<TTransaction & TTransactionReward, "id" | "is_deposit">;
+type TTransactionTransactionReward = Omit<TTransaction & TTransactionReward, "id">;
 
-type TTransactionTransactionMobile = Omit<TTransaction & TTransactionMobile, "id" | "is_deposit">;
+type TTransactionTransactionMobile = Omit<TTransaction & TTransactionMobile, "id">;
 
 //
 //

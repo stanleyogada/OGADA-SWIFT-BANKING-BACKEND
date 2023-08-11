@@ -116,7 +116,11 @@ class TransactionRepo {
         remark,
         receiver_account_number,
         sender_account_number,
-        recipient
+        recipient,
+        CASE
+          WHEN sender_account_number = $1 THEN false
+          ELSE true
+        END AS is_deposit
       FROM ${REPO_RESOURCES.transactionsTransactionsInHouse}
       WHERE
         sender_account_number = $1
@@ -137,6 +141,7 @@ class TransactionRepo {
         created_at,
         transaction_number,
         is_success,
+        false AS is_deposit,
         type,
         amount,
         charge,

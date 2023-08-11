@@ -68,8 +68,10 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
     },
     errorStatusCode
   );
+
   errorStatusCode = 400;
   const largeAmount = 1000;
+  // This doesn't create a transaction because it's a insufficient funds ClientError
   await handleAssertSendMoney(
     `/transactions/${TRANSACTIONS_ROUTES.inHousesSendMoney}`,
     {
@@ -104,22 +106,27 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
     }
 
     if (user.id === userOne.id) {
-      expect(transactions[0].is_success).toBe(true);
-      expect(transactions[0].recipient).toBe(userOne.accounts[0].full_name);
-
       expect(transactions[1].is_success).toBe(true);
       expect(transactions[1].recipient).toBe(userTwo.accounts[0].full_name);
+      expect(transactions[1].is_deposit).toBe(false);
+
+      expect(transactions[0].is_success).toBe(true);
+      expect(transactions[0].recipient).toBe(userOne.accounts[0].full_name);
+      expect(transactions[0].is_deposit).toBe(true);
     }
 
     if (user.id === userTwo.id) {
-      expect(transactions[0].is_success).toBe(false);
-      expect(transactions[0].recipient).toBe(userOne.accounts[0].full_name);
+      expect(transactions[2].is_success).toBe(true);
+      expect(transactions[2].recipient).toBe(userTwo.accounts[0].full_name);
+      expect(transactions[2].is_deposit).toBe(true);
 
       expect(transactions[1].is_success).toBe(true);
       expect(transactions[1].recipient).toBe(userOne.accounts[0].full_name);
+      expect(transactions[1].is_deposit).toBe(false);
 
-      expect(transactions[2].is_success).toBe(true);
-      expect(transactions[2].recipient).toBe(userTwo.accounts[0].full_name);
+      expect(transactions[0].is_success).toBe(false);
+      expect(transactions[0].recipient).toBe(userOne.accounts[0].full_name);
+      expect(transactions[0].is_deposit).toBe(false);
     }
   }
 });
@@ -177,6 +184,7 @@ test("Ensures money can be sent to bank and transactions are recorded", async ()
 
   const largeAmount = 50000;
   const expectedErrorStatusCode = 400;
+  // This doesn't create a transaction because it's a insufficient funds ClientError
   await handleAssertSendMoneyToBank(
     `/transactions/${TRANSACTIONS_ROUTES.banksSendMoney}`,
     {
@@ -208,5 +216,6 @@ test("Ensures money can be sent to bank and transactions are recorded", async ()
     }
 
     expect(transactions[0].is_success).toBe(true);
+    expect(transactions[0].is_deposit).toBe(false);
   }
 });
