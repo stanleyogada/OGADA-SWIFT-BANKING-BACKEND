@@ -129,11 +129,11 @@ test("Ensures money can be sent to bank and transactions are recorded", async ()
   const fakeBankDetails = {
     bank_name: "BANK_NAME",
     bank_account_full_name: "BANK_ACCOUNT_FULL_NAME",
-    bank_account_number: "BANK_ACCOUNT_NUMBER",
+    bank_account_number: "1234567890",
   };
 
-  console.log("userOne", userOne);
-  console.log("userTwo", userTwo);
+  // console.log("userOne", userOne);
+  // console.log("userTwo", userTwo);
 
   await handleAssertSendMoneyToBank(`/transactions/${TRANSACTIONS_ROUTES.banksSendMoney}`, {
     senderUser: userOne,

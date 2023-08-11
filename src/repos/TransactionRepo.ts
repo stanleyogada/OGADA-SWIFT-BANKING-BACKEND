@@ -1,5 +1,10 @@
 import { REPO_RESOURCES } from "../constants";
-import { TTransaction, TTransactionInHouse, TTransactionTransactionInHouse } from "../types/transactions";
+import {
+  TTransaction,
+  TTransactionBank,
+  TTransactionInHouse,
+  TTransactionTransactionInHouse,
+} from "../types/transactions";
 import pool from "../utils/pool";
 import Repo from "./Repo";
 
@@ -23,8 +28,18 @@ const transactionInHouseRepo = new Repo<TTransactionInHouse>(REPO_RESOURCES.tran
   "transaction_id",
 ]);
 
+const transactionBankRepo = new Repo<TTransactionBank>(REPO_RESOURCES.transactionsBanks, [
+  "id",
+  "bank_account_full_name",
+  "bank_account_number",
+  "bank_name",
+  "session_id",
+  "transaction_id",
+  "remark",
+]);
+
 class TransactionRepo {
-  static generateTransactionNumber() {
+  static generateTransactionNumber(prefix: "TRX" | "SES" = "TRX") {
     const date = new Date();
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
@@ -37,7 +52,7 @@ class TransactionRepo {
     const random = Math.floor(Math.random() * 1000);
     const time = date.getTime();
 
-    const transactionNumber = `TRX-${year}${month}${dayOfMonth}${hour}${minute}${second}-${random}-${time}`;
+    const transactionNumber = `${prefix}-${year}${month}${dayOfMonth}${hour}${minute}${second}-${random}-${time}`;
 
     return transactionNumber;
   }
@@ -62,6 +77,28 @@ class TransactionRepo {
       transaction_id: row.id,
     });
   }
+  static async createTransactionBank(
+    payload: Omit<TTransaction & TTransactionBank, "id" | "transaction_id" | "created_at">
+  ) {
+    const row = await transactionRepo.createOne({
+      transaction_number: payload.transaction_number,
+      is_deposit: payload.is_deposit,
+      is_success: payload.is_success,
+      type: payload.type,
+      amount: payload.amount,
+      charge: payload.charge,
+      account_id: payload.account_id,
+    });
+
+    await transactionBankRepo.createOne({
+      bank_account_full_name: payload.bank_account_full_name,
+      bank_account_number: payload.bank_account_number,
+      bank_name: payload.bank_name,
+      session_id: payload.session_id,
+      transaction_id: row.id,
+      remark: payload.remark,
+    });
+  }
 
   static async findManyTransactionsInHouseBy(payload: { account_number: string }) {
     const { rows } = await pool.query(
@@ -80,7 +117,7 @@ class TransactionRepo {
         receiver_account_number,
         sender_account_number,
         recipient
-      FROM transactions_transactions_in_house
+      FROM ${REPO_RESOURCES.transactionsTransactionsInHouse}
       WHERE
         sender_account_number = $1
         OR receiver_account_number = $1 
@@ -89,7 +126,38 @@ class TransactionRepo {
       [payload.account_number]
     );
 
-    return rows;
+    return rows as TTransactionTransactionInHouse[];
+  }
+
+  static async findManyTransactionsBankBy(payload: { account_number: string }) {
+    const { rows } = await pool.query(
+      `
+      SELECT
+        transaction_id,
+        created_at,
+        transaction_number,
+        is_success,
+        type,
+        amount,
+        charge,
+        account_id,
+        transactions_banks_id,
+        bank_account_full_name,
+        bank_account_number,
+        bank_name,
+        session_id,
+        remark,
+        sender_account_full_name,
+        sender_account_number,
+      FROM ${REPO_RESOURCES.transactionsTransactionsBanks}
+      WHERE
+        bank_account_number = $1
+        AND is_success = TRUE;
+    `,
+      [payload.account_number]
+    );
+
+    return rows as TTransactionTransactionInHouse[];
   }
 }
 

@@ -67,6 +67,19 @@ type TTransactionTransactionInHouse = Omit<
   "id" | "is_deposit"
 >;
 
+type TTransactionTransactionBank = Omit<
+  TTransaction &
+    TTransactionBank & {
+      sender_account_full_name: string;
+      sender_account_number: string;
+    },
+  "id" | "is_deposit"
+>;
+
+type TTransactionTransactionReward = Omit<TTransaction & TTransactionReward, "id" | "is_deposit">;
+
+type TTransactionTransactionMobile = Omit<TTransaction & TTransactionMobile, "id" | "is_deposit">;
+
 //
 //
 
@@ -77,4 +90,7 @@ export type {
   TTransactionReward,
   TTransactionMobile,
   TTransactionTransactionInHouse,
+  TTransactionTransactionBank,
+  TTransactionTransactionReward,
+  TTransactionTransactionMobile,
 };

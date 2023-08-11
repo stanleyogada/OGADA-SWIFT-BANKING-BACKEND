@@ -15,11 +15,14 @@ const REPO_RESOURCES = {
   accounts: "accounts",
   usersAccounts: "users_accounts",
   transactions: "transactions",
-  transactionsBank: "transactions_bank",
+  transactionsBanks: "transactions_banks",
   transactionsInHouse: "transactions_in_house",
   transactionsReward: "transactions_reward",
   transactionsMobile: "transactions_mobile",
   transactionsTransactionsInHouse: "transactions_transactions_in_house",
+  transactionsTransactionsBanks: "transactions_transactions_banks",
+  transactionsTransactionsReward: "transactions_transactions_reward",
+  transactionsTransactionsMobile: "transactions_transactions_mobile",
 };
 
 const ACCOUNT_DEFAULT_BALANCE = {

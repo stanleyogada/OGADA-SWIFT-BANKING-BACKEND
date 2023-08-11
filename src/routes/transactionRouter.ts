@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { getTransactionsInHouse, sendMoneyInHouse } from "../controllers/transactionController";
+import { getTransactionsInHouse, sendMoneyBank, sendMoneyInHouse } from "../controllers/transactionController";
 import handleAuthGuardRoute from "../middleware/handleAuthGuardRoute";
 import { TRANSACTIONS_ROUTES } from "../constants/routes";
 
@@ -18,6 +18,8 @@ router.get(TRANSACTIONS_ROUTES.banks, (req, res) => {
     count: 0,
   });
 });
+
+router.post(TRANSACTIONS_ROUTES.banksSendMoney, handleAuthGuardRoute, sendMoneyBank);
 
 router.get(TRANSACTIONS_ROUTES.inHouses, handleAuthGuardRoute, getTransactionsInHouse);
 router.post(TRANSACTIONS_ROUTES.inHousesSendMoney, handleAuthGuardRoute, sendMoneyInHouse);

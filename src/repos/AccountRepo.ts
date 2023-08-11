@@ -95,6 +95,36 @@ class AccountRepo {
       receiverAccount: receiverAccount.rows[0] as TAccount,
     };
   }
+
+  static async sendMoneyBank(payload: {
+    sender_account_number: string;
+    amount: number;
+    sender_account_type: EAccountType;
+  }) {
+    const senderAccount = await pool.query(
+      `
+      UPDATE "accounts"
+      SET balance = balance - $1
+      WHERE accounts.user_id = (
+        SELECT 
+          "user_id"
+        FROM 
+          "users_accounts"
+        WHERE 
+          "account_number" = $2
+          AND "type" = $3
+        
+      ) AND accounts.type = $3
+      
+      RETURNING id, balance, type, user_id;
+    `,
+      [`${payload.amount}`, payload.sender_account_number, payload.sender_account_type]
+    );
+
+    return {
+      senderAccount: senderAccount.rows[0] as TAccount,
+    };
+  }
 }
 
 export { AccountRepo };
