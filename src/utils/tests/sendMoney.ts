@@ -9,6 +9,7 @@ import { TUserAccount } from "../../types/users";
 type TUser = {
   id: number;
   token: string;
+  transferPin: string;
   accounts: (TUserAccount & {
     currentBalance: number;
   })[];
@@ -42,6 +43,7 @@ const handleAssertSendMoneyToBank = async (
     .post(getEndpoint(endpoint))
     .set("Authorization", `Bearer ${senderUser.token}`)
     .send({
+      transfer_pin: senderUser.transferPin,
       sender_account_type: senderUserAccountsType,
       bank_name: bankDetails.bank_name,
       bank_account_full_name: bankDetails.bank_account_full_name,
@@ -71,6 +73,7 @@ const handleAssertSendMoneyToBank = async (
   const newUser: TUser = {
     id: senderUser.id,
     token: senderUser.token,
+    transferPin: senderUser.transferPin,
     accounts: data,
   };
   const account = handleFindAccount(newUser);
@@ -105,6 +108,7 @@ const handleAssertSendMoney = async (
     .post(getEndpoint(endpoint))
     .set("Authorization", `Bearer ${senderUser.token}`)
     .send({
+      transfer_pin: senderUser.transferPin,
       sender_account_type: opts.accountsTypes.sender,
       receiver_account_number: receiverAccount.account_number,
       amount: opts.amount,
@@ -134,6 +138,7 @@ const handleAssertSendMoney = async (
     const newUser: TUser = {
       id: user.id,
       token: user.token,
+      transferPin: user.transferPin,
       accounts: data,
     };
     const account = handleFindAccount(newUser);
@@ -151,6 +156,7 @@ const handleSignupManyAccountUsers = async (nUsers: number = 2) => {
   const users: TUser[] = Array.from({ length: nUsers }, (_, i) => ({
     id: i + 1,
     token: "",
+    transferPin: "4321",
     accounts: [],
   }));
 

@@ -161,6 +161,8 @@ class TransactionRepo {
       [payload.account_number]
     );
 
+    // console.log(rows);
+
     return rows as TTransactionTransactionInHouse[];
   }
 }

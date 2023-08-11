@@ -86,6 +86,25 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
     errorStatusCode
   );
 
+  const incorrectTransferPin = "1992";
+  // This doesn't create a transaction because it's a insufficient funds ClientError
+  await handleAssertSendMoney(
+    `/transactions/${TRANSACTIONS_ROUTES.inHousesSendMoney}`,
+    {
+      senderUser: {
+        ...userTwo,
+        transferPin: incorrectTransferPin,
+      },
+      receiverUser: userOne,
+      amount: largeAmount,
+      accountsTypes: {
+        sender: EAccountType.NORMAL,
+        receiver: EAccountType.NORMAL,
+      },
+    },
+    errorStatusCode
+  );
+
   for (const user of users) {
     const {
       body: { data: transactions },
