@@ -21,13 +21,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
         transactions_in_house.receiver_account_number,
         transactions_in_house.sender_account_number,
     
-        users_accounts.full_name AS "recipient",
-
-        CASE
-          WHEN transactions_in_house.sender_account_number = $1 
-            THEN FALSE
-          ELSE TRUE
-        END AS "is_deposit"
+        users_accounts.full_name AS "recipient"
       FROM "transactions"
       INNER JOIN "transactions_in_house" ON transactions_in_house.transaction_id = transactions.id
       INNER JOIN "users_accounts" ON users_accounts.account_number = transactions_in_house.receiver_account_number
@@ -55,7 +49,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
           users_accounts.full_name AS "sender_account_full_name",
           users_accounts.account_number AS "sender_account_number",
 
-          FALSE AS "is_deposit",
+          FALSE AS "is_deposit"
         FROM "transactions"
         INNER JOIN "transactions_banks" ON transactions_banks.transaction_id = transactions.id
         INNER JOIN "users_accounts" ON users_accounts.account_id = transactions.account_id
@@ -76,7 +70,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
           transactions_mobile.id AS "transactions_mobile_id",
           transactions_mobile.operator,
           transactions_mobile.phone_number,
-          transactions_mobile.is_airtime
+          transactions_mobile.is_airtime,
 
           users_accounts.account_number AS "sender_account_number",
 
@@ -114,5 +108,7 @@ export async function down(pgm: MigrationBuilder): Promise<void> {
   pgm.sql(`
     DROP VIEW "transactions_transactions_in_house";
     DROP VIEW "transactions_transactions_banks";
+    DROP VIEW "transactions_transactions_mobile";
+    DROP VIEW "transactions_transactions_rewards";
   `);
 }

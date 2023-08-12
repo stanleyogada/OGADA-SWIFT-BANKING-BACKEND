@@ -32,6 +32,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     CREATE TABLE transactions_rewards (
       id SERIAL PRIMARY KEY,
 
+      receiver_account_number VARCHAR(10) NOT NULL,
       note VARCHAR(50) NOT NULL,
 
       transaction_id INTEGER NOT NULL UNIQUE REFERENCES transactions(id) ON DELETE CASCADE
