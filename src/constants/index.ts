@@ -17,11 +17,11 @@ const REPO_RESOURCES = {
   transactions: "transactions",
   transactionsBanks: "transactions_banks",
   transactionsInHouse: "transactions_in_house",
-  transactionsReward: "transactions_reward",
+  transactionsReward: "transactions_rewards",
   transactionsMobile: "transactions_mobile",
   transactionsTransactionsInHouse: "transactions_transactions_in_house",
   transactionsTransactionsBanks: "transactions_transactions_banks",
-  transactionsTransactionsReward: "transactions_transactions_reward",
+  transactionsTransactionsReward: "transactions_transactions_rewards",
   transactionsTransactionsMobile: "transactions_transactions_mobile",
 };
 

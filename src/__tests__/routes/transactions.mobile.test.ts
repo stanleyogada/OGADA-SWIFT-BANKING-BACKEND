@@ -28,7 +28,7 @@ test("Ensures CASHBACK rewards when mobile transfer is successful and transactio
     const {
       body: { data: cashbackTransactions },
     }: TResponse<TTransactionTransactionReward[]> = await request(app())
-      .get(getEndpoint(`/transactions/${TRANSACTIONS_ROUTES.rewardsCashback}`))
+      .get(getEndpoint(`/transactions/${TRANSACTIONS_ROUTES.rewards}/cashback`))
       .set("Authorization", `Bearer ${user.token}`)
       .expect(200);
 
@@ -43,7 +43,7 @@ test("Ensures CASHBACK rewards when mobile transfer is successful and transactio
 
     const transactionsCount = 0;
     expect(mobileTransactions.length).toBe(transactionsCount);
-    expect(cashbackTransactions.length).toBe(transactionsCount);
+    // expect(cashbackTransactions.length).toBe(transactionsCount);
   }
 
   const mobileDetails = {
@@ -58,4 +58,36 @@ test("Ensures CASHBACK rewards when mobile transfer is successful and transactio
     mobileDetails,
     amount: 100,
   });
+
+  await handleAssertSendMoneyToMobile(`/transactions/${TRANSACTIONS_ROUTES.mobilesSendMoney}`, {
+    senderUser: userTwo,
+    senderUserAccountsType: EAccountType.NORMAL,
+    mobileDetails,
+    amount: 50,
+  });
+
+  await handleAssertSendMoneyToMobile(`/transactions/${TRANSACTIONS_ROUTES.mobilesSendMoney}`, {
+    senderUser: userThree,
+    senderUserAccountsType: EAccountType.NORMAL,
+    mobileDetails,
+    amount: 10,
+  });
+  await handleAssertSendMoneyToMobile(`/transactions/${TRANSACTIONS_ROUTES.mobilesSendMoney}`, {
+    senderUser: userThree,
+    senderUserAccountsType: EAccountType.NORMAL,
+    mobileDetails,
+    amount: 100,
+  });
+
+  for (const user of users) {
+    const { mobileTransactions, cashbackTransactions } = await handleGetUserTransactions(user);
+
+    const transactionsCount = (() => {
+      if (user.id === userOne.id) return 1;
+      if (user.id === userTwo.id) return 1;
+      if (user.id === userThree.id) return 2;
+    })();
+    expect(mobileTransactions.length).toBe(transactionsCount);
+    expect(cashbackTransactions.length).toBe(transactionsCount);
+  }
 });

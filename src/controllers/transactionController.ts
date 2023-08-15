@@ -8,7 +8,8 @@ import { AccountRepo } from "../repos/AccountRepo";
 import TransactionRepo from "../repos/TransactionRepo";
 import { TTransaction, TTransactionBank, TTransactionInHouse } from "../types/transactions";
 import UserRepo from "../repos/UserRepo";
-import { Response } from "express";
+import { NextFunction, Response } from "express";
+import APIError from "../utils/APIError";
 
 let createTransactionInHousePayload: Omit<TTransaction & TTransactionInHouse, "id" | "transaction_id" | "created_at">;
 
@@ -184,6 +185,42 @@ export const sendMoneyBank = handleTryCatch(async (req: TRequestUser, res: Respo
   });
 });
 
+export const getTransactionsMobile = handleTryCatch(async (req: TRequestUser, res: Response) => {
+  const { user } = req;
+
+  const transactions = await TransactionRepo.findManyTransactionsMobileBy({
+    account_number: user.phone,
+  });
+
+  res.status(200).json({
+    status: "success",
+    data: transactions,
+    count: transactions.length,
+  });
+});
+
+export const getTransactionsReward = handleTryCatch(async (req: TRequestUser, res: Response, next: NextFunction) => {
+  const {
+    user,
+    params: { accountType },
+  } = req;
+
+  if (!accountType) {
+    return next(new APIError("Account type is required", 400));
+  }
+
+  const transactions = await TransactionRepo.findManyTransactionsRewardBy({
+    account_number: user.phone,
+    account_type: accountType.toUpperCase() as EAccountType,
+  });
+
+  res.status(200).json({
+    status: "success",
+    data: transactions,
+    count: transactions.length,
+  });
+});
+
 export const sendMoneyMobile = handleTryCatch(async (req: TRequestUser, res: Response) => {
   const { user } = req;
   const senderAccountNumber = {
@@ -234,24 +271,20 @@ export const sendMoneyMobile = handleTryCatch(async (req: TRequestUser, res: Res
     sender_account_type: reqBody.sender_account_type,
   });
 
-  // await TransactionRepo.createTransactionMobile({
-  //   transaction_number: TransactionRepo.generateTransactionNumber(),
-  //   is_deposit: false,
-  //   is_success: true,
-  //   type: reqBody.sender_account_type,
-  //   amount: reqBody.amount,
-  //   charge: 0,
-  //   account_id: senderAccount.account_id,
-  //   is_airtime: reqBody.is_airtime,
-  //   operator: reqBody.operator,
-  //   phone_number: reqBody.phone_number,
-  //   //
-  //   created_at: new Date(),
-  //   transaction_id: 2,
-  //   //
-  //   note: `Cashback for mobile ${reqBody.is_airtime ? "airtime" : "data"} recharge`,
-  //   receiver_account_number: reqBody.phone_number,
-  // });
+  await TransactionRepo.createTransactionMobile({
+    is_deposit: false,
+    is_success: true,
+    type: reqBody.sender_account_type,
+    amount: reqBody.amount,
+    charge: 0,
+    account_id: senderAccount.account_id,
+    sender_account_number: reqBody.sender_account_number,
+    is_airtime: reqBody.is_airtime,
+    operator: reqBody.operator,
+    phone_number: reqBody.phone_number,
+    note: `Cashback for mobile ${reqBody.is_airtime ? "airtime" : "data"} recharge`,
+    receiver_account_number: reqBody.phone_number,
+  });
 
   res.status(200).json({
     status: "success",

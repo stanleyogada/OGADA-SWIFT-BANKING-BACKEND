@@ -3,6 +3,8 @@ import { Router } from "express";
 import {
   getTransactionsBank,
   getTransactionsInHouse,
+  getTransactionsMobile,
+  getTransactionsReward,
   sendMoneyBank,
   sendMoneyInHouse,
   sendMoneyMobile,
@@ -19,9 +21,9 @@ router.post(TRANSACTIONS_ROUTES.banksSendMoney, handleAuthGuardRoute, handleVali
 router.get(TRANSACTIONS_ROUTES.inHouses, handleAuthGuardRoute, getTransactionsInHouse);
 router.post(TRANSACTIONS_ROUTES.inHousesSendMoney, handleAuthGuardRoute, handleValidateTransferPin, sendMoneyInHouse);
 
-router.get(TRANSACTIONS_ROUTES.mobiles, handleAuthGuardRoute, getTransactionsInHouse);
+router.get(TRANSACTIONS_ROUTES.mobiles, handleAuthGuardRoute, getTransactionsMobile);
 router.post(TRANSACTIONS_ROUTES.mobilesSendMoney, handleAuthGuardRoute, handleValidateTransferPin, sendMoneyMobile);
-router.get(TRANSACTIONS_ROUTES.rewards, handleAuthGuardRoute, getTransactionsInHouse);
-router.get(TRANSACTIONS_ROUTES.rewardsCashback, handleAuthGuardRoute, getTransactionsInHouse);
+
+router.get(`${TRANSACTIONS_ROUTES.rewards}/:accountType`, handleAuthGuardRoute, getTransactionsReward);
 
 export default router;

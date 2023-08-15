@@ -6,6 +6,7 @@ import {
   TTransactionInHouse,
   TTransactionMobile,
   TTransactionReward,
+  TTransactionTransactionBank,
   TTransactionTransactionInHouse,
   TTransactionTransactionMobile,
   TTransactionTransactionReward,
@@ -122,10 +123,16 @@ class TransactionRepo {
   }
 
   static async createTransactionMobile(
-    payload: Omit<TTransactionTransactionMobile & TTransactionTransactionReward, "transaction_id" | "created_at">
+    payload: Omit<
+      TTransactionTransactionMobile &
+        TTransactionTransactionReward & {
+          sender_account_number: string;
+        },
+      "transaction_id" | "transaction_number" | "created_at"
+    >
   ) {
     const mobile = await transactionRepo.createOne({
-      transaction_number: payload.transaction_number,
+      transaction_number: TransactionRepo.generateTransactionNumber(),
       is_deposit: payload.is_deposit,
       is_success: payload.is_success,
       type: payload.type,
@@ -142,7 +149,7 @@ class TransactionRepo {
     });
 
     const reward = await transactionRepo.createOne({
-      transaction_number: payload.transaction_number,
+      transaction_number: TransactionRepo.generateTransactionNumber(),
       is_deposit: payload.is_deposit,
       is_success: payload.is_success,
       type: EAccountType.CASHBACK,
@@ -152,7 +159,7 @@ class TransactionRepo {
     });
 
     await transactionRewardRepo.createOne({
-      receiver_account_number: payload.receiver_account_number,
+      receiver_account_number: payload.sender_account_number,
       note: payload.note,
       transaction_id: reward.id,
     });
@@ -220,7 +227,47 @@ class TransactionRepo {
       [payload.account_number]
     );
 
-    return rows as TTransactionTransactionInHouse[];
+    return rows as TTransactionTransactionBank[];
+  }
+
+  static async findManyTransactionsMobileBy(payload: { account_number: string }) {
+    const { rows } = await pool.query(
+      `
+      ${TransactionRepo.handleSelectTransaction()}
+
+        transactions_mobile_id,
+        operator,
+        phone_number,
+        is_airtime,
+        is_deposit
+      FROM ${REPO_RESOURCES.transactionsTransactionsMobile}
+      WHERE
+        sender_account_number = $1;
+    `,
+      [payload.account_number]
+    );
+
+    return rows as TTransactionTransactionMobile[];
+  }
+
+  static async findManyTransactionsRewardBy(payload: { account_number: string; account_type: EAccountType }) {
+    const { rows } = await pool.query(
+      `
+      ${TransactionRepo.handleSelectTransaction()}
+
+        transactions_rewards_id,
+        receiver_account_number,
+        note,
+        is_deposit
+      FROM ${REPO_RESOURCES.transactionsTransactionsReward}
+      WHERE
+        receiver_account_number = $1
+        AND type = $2;
+    `,
+      [payload.account_number, payload.account_type]
+    );
+
+    return rows as TTransactionTransactionReward[];
   }
 }
 
