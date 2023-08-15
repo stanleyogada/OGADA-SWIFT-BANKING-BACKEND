@@ -23,4 +23,9 @@ router.post(TRANSACTIONS_ROUTES.banksSendMoney, handleAuthGuardRoute, handleVali
 router.get(TRANSACTIONS_ROUTES.inHouses, handleAuthGuardRoute, getTransactionsInHouse);
 router.post(TRANSACTIONS_ROUTES.inHousesSendMoney, handleAuthGuardRoute, handleValidateTransferPin, sendMoneyInHouse);
 
+router.get(TRANSACTIONS_ROUTES.mobiles, handleAuthGuardRoute, getTransactionsInHouse);
+router.post(TRANSACTIONS_ROUTES.mobilesSendMoney, handleAuthGuardRoute, handleValidateTransferPin, sendMoneyInHouse);
+router.get(TRANSACTIONS_ROUTES.rewards, handleAuthGuardRoute, getTransactionsInHouse);
+router.get(TRANSACTIONS_ROUTES.rewardsCashback, handleAuthGuardRoute, getTransactionsInHouse);
+
 export default router;
