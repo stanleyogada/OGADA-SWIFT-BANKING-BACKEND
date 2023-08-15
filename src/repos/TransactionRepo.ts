@@ -1,9 +1,14 @@
 import { REPO_RESOURCES } from "../constants";
+import { EAccountType } from "../types/accounts";
 import {
   TTransaction,
   TTransactionBank,
   TTransactionInHouse,
+  TTransactionMobile,
+  TTransactionReward,
   TTransactionTransactionInHouse,
+  TTransactionTransactionMobile,
+  TTransactionTransactionReward,
 } from "../types/transactions";
 import pool from "../utils/pool";
 import Repo from "./Repo";
@@ -36,6 +41,21 @@ const transactionBankRepo = new Repo<TTransactionBank>(REPO_RESOURCES.transactio
   "session_id",
   "transaction_id",
   "remark",
+]);
+
+const transactionMobileRepo = new Repo<TTransactionMobile>(REPO_RESOURCES.transactionsMobile, [
+  "id",
+  "operator",
+  "phone_number",
+  "is_airtime",
+  "transaction_id",
+]);
+
+const transactionRewardRepo = new Repo<TTransactionReward>(REPO_RESOURCES.transactionsReward, [
+  "id",
+  "receiver_account_number",
+  "note",
+  "transaction_id",
 ]);
 
 class TransactionRepo {
@@ -77,6 +97,7 @@ class TransactionRepo {
       transaction_id: row.id,
     });
   }
+
   static async createTransactionBank(
     payload: Omit<TTransaction & TTransactionBank, "id" | "transaction_id" | "created_at">
   ) {
@@ -97,6 +118,43 @@ class TransactionRepo {
       session_id: payload.session_id,
       transaction_id: row.id,
       remark: payload.remark,
+    });
+  }
+
+  static async createTransactionMobile(
+    payload: Omit<TTransactionTransactionMobile & TTransactionTransactionReward, "transaction_id" | "created_at">
+  ) {
+    const mobile = await transactionRepo.createOne({
+      transaction_number: payload.transaction_number,
+      is_deposit: payload.is_deposit,
+      is_success: payload.is_success,
+      type: payload.type,
+      amount: payload.amount,
+      charge: payload.charge,
+      account_id: payload.account_id,
+    });
+
+    await transactionMobileRepo.createOne({
+      operator: payload.operator,
+      phone_number: payload.phone_number,
+      is_airtime: payload.is_airtime,
+      transaction_id: mobile.id,
+    });
+
+    const reward = await transactionRepo.createOne({
+      transaction_number: payload.transaction_number,
+      is_deposit: payload.is_deposit,
+      is_success: payload.is_success,
+      type: EAccountType.CASHBACK,
+      amount: payload.amount,
+      charge: payload.charge,
+      account_id: payload.account_id,
+    });
+
+    await transactionRewardRepo.createOne({
+      receiver_account_number: payload.receiver_account_number,
+      note: payload.note,
+      transaction_id: reward.id,
     });
   }
 

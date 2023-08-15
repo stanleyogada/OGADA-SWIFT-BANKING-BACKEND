@@ -5,6 +5,7 @@ import {
   getTransactionsInHouse,
   sendMoneyBank,
   sendMoneyInHouse,
+  sendMoneyMobile,
 } from "../controllers/transactionController";
 import handleAuthGuardRoute from "../middleware/handleAuthGuardRoute";
 import handleValidateTransferPin from "../middleware/handleValidateTransferPin";
@@ -19,7 +20,7 @@ router.get(TRANSACTIONS_ROUTES.inHouses, handleAuthGuardRoute, getTransactionsIn
 router.post(TRANSACTIONS_ROUTES.inHousesSendMoney, handleAuthGuardRoute, handleValidateTransferPin, sendMoneyInHouse);
 
 router.get(TRANSACTIONS_ROUTES.mobiles, handleAuthGuardRoute, getTransactionsInHouse);
-router.post(TRANSACTIONS_ROUTES.mobilesSendMoney, handleAuthGuardRoute, handleValidateTransferPin, sendMoneyInHouse);
+router.post(TRANSACTIONS_ROUTES.mobilesSendMoney, handleAuthGuardRoute, handleValidateTransferPin, sendMoneyMobile);
 router.get(TRANSACTIONS_ROUTES.rewards, handleAuthGuardRoute, getTransactionsInHouse);
 router.get(TRANSACTIONS_ROUTES.rewardsCashback, handleAuthGuardRoute, getTransactionsInHouse);
 

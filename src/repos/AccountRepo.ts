@@ -111,7 +111,7 @@ class AccountRepo {
     };
   }
 
-  static async sendMoneyBank(payload: {
+  static async withdrawMoney(payload: {
     sender_account_number: string;
     amount: number;
     sender_account_type: EAccountType;

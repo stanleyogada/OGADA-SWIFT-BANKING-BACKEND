@@ -157,7 +157,7 @@ export const sendMoneyBank = handleTryCatch(async (req: TRequestUser, res: Respo
     accounts.find((account) => account.type === reqBody.sender_account_type)
   );
 
-  await AccountRepo.sendMoneyBank({
+  await AccountRepo.withdrawMoney({
     sender_account_number: reqBody.sender_account_number,
     amount: reqBody.amount,
     sender_account_type: reqBody.sender_account_type,
@@ -177,6 +177,81 @@ export const sendMoneyBank = handleTryCatch(async (req: TRequestUser, res: Respo
     bank_account_number: reqBody.bank_account_number,
     session_id: TransactionRepo.generateTransactionNumber("SES"),
   });
+
+  res.status(200).json({
+    status: "success",
+    message: "Send money successfully!",
+  });
+});
+
+export const sendMoneyMobile = handleTryCatch(async (req: TRequestUser, res: Response) => {
+  const { user } = req;
+  const senderAccountNumber = {
+    sender_account_number: user.phone,
+  };
+  const reqBody = (Object.assign(req.body, senderAccountNumber) || senderAccountNumber) as {
+    sender_account_number: string;
+    sender_account_type: EAccountType;
+    operator: string;
+    phone_number: string;
+    is_airtime: boolean;
+    amount: number;
+  };
+
+  handleInputValidate(
+    {
+      ...reqBody,
+      sender_account_type: reqBody.sender_account_type?.toUpperCase(),
+    },
+    {
+      sender_account_number: Joi.string().min(10).max(10).required(),
+      sender_account_type: Joi.string()
+        .valid(
+          EAccountType.NORMAL,
+          EAccountType.CASHBACK
+          // EAccountType.OWEALTH, // TODO: add when Owealth is implemented
+        )
+        .required(),
+      operator: Joi.string().min(3).max(100).required(),
+      phone_number: Joi.string()
+        .pattern(/^\d+$/)
+        .message("Bank account number must be a number")
+        .min(10)
+        .max(11)
+        .required(),
+      is_airtime: Joi.boolean().required(),
+      amount: Joi.number().min(2).required(),
+    }
+  );
+
+  const senderAccount = await UserRepo.findAllAccountsByUserId(user.id).then((accounts) =>
+    accounts.find((account) => account.type === reqBody.sender_account_type)
+  );
+
+  await AccountRepo.withdrawMoney({
+    sender_account_number: reqBody.sender_account_number,
+    amount: reqBody.amount,
+    sender_account_type: reqBody.sender_account_type,
+  });
+
+  // await TransactionRepo.createTransactionMobile({
+  //   transaction_number: TransactionRepo.generateTransactionNumber(),
+  //   is_deposit: false,
+  //   is_success: true,
+  //   type: reqBody.sender_account_type,
+  //   amount: reqBody.amount,
+  //   charge: 0,
+  //   account_id: senderAccount.account_id,
+  //   is_airtime: reqBody.is_airtime,
+  //   operator: reqBody.operator,
+  //   phone_number: reqBody.phone_number,
+  //   //
+  //   created_at: new Date(),
+  //   transaction_id: 2,
+  //   //
+  //   note: `Cashback for mobile ${reqBody.is_airtime ? "airtime" : "data"} recharge`,
+  //   receiver_account_number: reqBody.phone_number,
+  // });
 
   res.status(200).json({
     status: "success",

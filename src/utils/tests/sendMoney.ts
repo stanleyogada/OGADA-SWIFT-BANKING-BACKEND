@@ -21,17 +21,23 @@ type TBankDetails = {
   bank_account_number: string;
 };
 
-const handleAssertSendMoneyToBank = async (
+type TMobileDetails = {
+  operator: string;
+  phone_number: string;
+  is_airtime: boolean;
+};
+
+const handleAssertSendNoRealRecipient = async (
   endpoint: string,
   opts: {
     senderUser: TUser;
-    bankDetails: TBankDetails;
     senderUserAccountsType: EAccountType;
     amount: number;
   },
-  statusCode: number = 200
+  statusCode: number = 200,
+  cb: () => Promise<void>
 ) => {
-  const { senderUser, bankDetails, senderUserAccountsType, amount } = opts;
+  const { senderUser, senderUserAccountsType, amount } = opts;
 
   const handleFindAccount = (user: TUser) => {
     return user.accounts.find((account) => account.type === opts.senderUserAccountsType);
@@ -39,19 +45,7 @@ const handleAssertSendMoneyToBank = async (
 
   const senderAccount = handleFindAccount(senderUser);
 
-  await request(app())
-    .post(getEndpoint(endpoint))
-    .set("Authorization", `Bearer ${senderUser.token}`)
-    .send({
-      transfer_pin: senderUser.transferPin,
-      sender_account_type: senderUserAccountsType,
-      bank_name: bankDetails.bank_name,
-      bank_account_full_name: bankDetails.bank_account_full_name,
-      bank_account_number: bankDetails.bank_account_number,
-      amount: amount,
-      remark: `Send money from ${senderAccount.account_number} to bank`,
-    })
-    .expect(statusCode);
+  await cb();
 
   if (statusCode === 200) {
     senderAccount.currentBalance -= amount;
@@ -78,6 +72,63 @@ const handleAssertSendMoneyToBank = async (
   };
   const account = handleFindAccount(newUser);
   expect(account.balance).toBe(senderAccount.currentBalance.toFixed(2));
+};
+
+const handleAssertSendMoneyToBank = async (
+  endpoint: string,
+  opts: {
+    senderUser: TUser;
+    bankDetails: TBankDetails;
+    senderUserAccountsType: EAccountType;
+    amount: number;
+  },
+  statusCode: number = 200
+) => {
+  await handleAssertSendNoRealRecipient(endpoint, opts, statusCode, async () => {
+    const { senderUser, bankDetails, senderUserAccountsType, amount } = opts;
+
+    await request(app())
+      .post(getEndpoint(endpoint))
+      .set("Authorization", `Bearer ${senderUser.token}`)
+      .send({
+        transfer_pin: senderUser.transferPin,
+        sender_account_type: senderUserAccountsType,
+        bank_name: bankDetails.bank_name,
+        bank_account_full_name: bankDetails.bank_account_full_name,
+        bank_account_number: bankDetails.bank_account_number,
+        amount: amount,
+        remark: `Send money to bank`,
+      })
+      .expect(statusCode);
+  });
+};
+
+const handleAssertSendMoneyToMobile = async (
+  endpoint: string,
+  opts: {
+    senderUser: TUser;
+    mobileDetails: TMobileDetails;
+    senderUserAccountsType: EAccountType;
+    amount: number;
+  },
+  statusCode: number = 200
+) => {
+  await handleAssertSendNoRealRecipient(endpoint, opts, statusCode, async () => {
+    const { senderUser, mobileDetails, senderUserAccountsType, amount } = opts;
+
+    await request(app())
+      .post(getEndpoint(endpoint))
+      .set("Authorization", `Bearer ${senderUser.token}`)
+      .send({
+        transfer_pin: senderUser.transferPin,
+        sender_account_type: senderUserAccountsType,
+        operator: mobileDetails.operator,
+        phone_number: mobileDetails.phone_number,
+        is_airtime: mobileDetails.is_airtime,
+        amount: amount,
+      })
+      .expect(statusCode);
+  });
 };
 
 const handleAssertSendMoneyInHouse = async (
@@ -185,4 +236,9 @@ const handleSignupManyAccountUsers = async (nUsers: number = 2) => {
   return users;
 };
 
-export { handleAssertSendMoneyInHouse, handleSignupManyAccountUsers, handleAssertSendMoneyToBank };
+export {
+  handleAssertSendMoneyInHouse,
+  handleSignupManyAccountUsers,
+  handleAssertSendMoneyToBank,
+  handleAssertSendMoneyToMobile,
+};

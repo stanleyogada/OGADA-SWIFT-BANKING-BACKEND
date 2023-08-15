@@ -2,8 +2,9 @@ import request from "supertest";
 
 import app from "../../app";
 import { TRANSACTIONS_ROUTES } from "../../constants/routes";
-import { getEndpoint, handleSignupManyAccountUsers } from "../../utils/tests";
+import { getEndpoint, handleAssertSendMoneyToMobile, handleSignupManyAccountUsers } from "../../utils/tests";
 import { TTransactionTransactionMobile, TTransactionTransactionReward } from "../../types/transactions";
+import { EAccountType } from "../../types/accounts";
 
 type TResponse<T> = {
   body: {
@@ -44,4 +45,17 @@ test("Ensures CASHBACK rewards when mobile transfer is successful and transactio
     expect(mobileTransactions.length).toBe(transactionsCount);
     expect(cashbackTransactions.length).toBe(transactionsCount);
   }
+
+  const mobileDetails = {
+    is_airtime: false,
+    operator: "MTN",
+    phone_number: "08123456789",
+  };
+
+  await handleAssertSendMoneyToMobile(`/transactions/${TRANSACTIONS_ROUTES.mobilesSendMoney}`, {
+    senderUser: userOne,
+    senderUserAccountsType: EAccountType.NORMAL,
+    mobileDetails,
+    amount: 100,
+  });
 });
