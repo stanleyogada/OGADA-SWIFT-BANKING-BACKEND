@@ -306,8 +306,6 @@ class TransactionRepo {
       [`${payload.account_id}`, payload.sender_account_number, payload.receiver_account_number]
     );
 
-    console.log(rows);
-
     return rows;
   }
 }
