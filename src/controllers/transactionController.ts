@@ -291,3 +291,17 @@ export const sendMoneyMobile = handleTryCatch(async (req: TRequestUser, res: Res
     message: "Send money successfully!",
   });
 });
+
+export const getAllTransactions = handleTryCatch(async (req: TRequestUser, res: Response) => {
+  const { user } = req;
+
+  const [senderAccount] = await UserRepo.findAllAccountsByUserId(user.id);
+
+  const transactions = await TransactionRepo.findAllTransactionsByAccountId(senderAccount.account_id);
+
+  res.status(200).json({
+    status: "success",
+    data: transactions,
+    count: transactions.length,
+  });
+});

@@ -2,6 +2,7 @@ import { REPO_RESOURCES } from "../constants";
 import { EAccountType } from "../types/accounts";
 import {
   TTransaction,
+  TTransactionAll,
   TTransactionBank,
   TTransactionInHouse,
   TTransactionMobile,
@@ -268,6 +269,19 @@ class TransactionRepo {
     );
 
     return rows as TTransactionTransactionReward[];
+  }
+
+  static async findAllTransactionsByAccountId(account_id: number) {
+    const { rows } = await pool.query(
+      `
+      SELECT *
+      FROM ${REPO_RESOURCES.transactionsTransactionsAll}
+      WHERE account_id = $1
+    `,
+      [`${account_id}`]
+    );
+
+    return rows as TTransactionAll[];
   }
 }
 

@@ -80,6 +80,23 @@ type TTransactionTransactionReward = Omit<TTransaction & TTransactionReward, "id
 
 type TTransactionTransactionMobile = Omit<TTransaction & TTransactionMobile, "id">;
 
+enum ETransactionType {
+  REWARD = "REWARD",
+  TRANSFER_TO_BANK = "TRANSFER_TO_BANK",
+  IN_HOUSE_TRANSFER = "IN_HOUSE_TRANSFER",
+  MOBILE = "MOBILE",
+}
+
+type TTransactionAll = {
+  transaction_id: number;
+  transaction_type: ETransactionType;
+  created_at: Date;
+  amount: number;
+  is_success: boolean;
+  is_deposit: boolean;
+  account_id: number;
+};
+
 //
 //
 
@@ -93,4 +110,7 @@ export type {
   TTransactionTransactionBank,
   TTransactionTransactionReward,
   TTransactionTransactionMobile,
+  TTransactionAll,
 };
+
+export { ETransactionType };

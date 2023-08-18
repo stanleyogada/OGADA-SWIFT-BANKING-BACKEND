@@ -7,6 +7,7 @@ const TRANSACTIONS_ROUTES = {
   mobiles: "/mobiles",
   mobilesSendMoney: "/mobiles/send-money",
   rewards: "/rewards",
+  all: "/all",
 };
 
 export { TRANSACTIONS_ROUTES };

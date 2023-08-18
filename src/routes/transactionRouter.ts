@@ -1,6 +1,7 @@
 import { Router } from "express";
 
 import {
+  getAllTransactions,
   getTransactionsBank,
   getTransactionsInHouse,
   getTransactionsMobile,
@@ -14,6 +15,8 @@ import handleValidateTransferPin from "../middleware/handleValidateTransferPin";
 import { TRANSACTIONS_ROUTES } from "../constants/routes";
 
 const router = Router();
+
+router.get(TRANSACTIONS_ROUTES.all, handleAuthGuardRoute, getAllTransactions);
 
 router.get(TRANSACTIONS_ROUTES.banks, handleAuthGuardRoute, getTransactionsBank);
 router.post(TRANSACTIONS_ROUTES.banksSendMoney, handleAuthGuardRoute, handleValidateTransferPin, sendMoneyBank);

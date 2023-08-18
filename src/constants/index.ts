@@ -23,6 +23,7 @@ const REPO_RESOURCES = {
   transactionsTransactionsBanks: "transactions_transactions_banks",
   transactionsTransactionsReward: "transactions_transactions_rewards",
   transactionsTransactionsMobile: "transactions_transactions_mobile",
+  transactionsTransactionsAll: "transactions_all",
 };
 
 const ACCOUNT_DEFAULT_BALANCE = {
