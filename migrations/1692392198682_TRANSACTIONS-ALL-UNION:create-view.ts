@@ -13,6 +13,8 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
         amount,
         is_success,
         account_id,
+        sender_account_number,
+        receiver_account_number,
         FALSE AS is_deposit
       FROM transactions_transactions_in_house
     ) UNION (
@@ -23,6 +25,8 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
         amount,
         is_success,
         account_id,
+        sender_account_number,
+        'n/a' AS receiver_account_number,
         FALSE AS is_deposit
       FROM transactions_transactions_banks
     ) UNION (
@@ -33,6 +37,8 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
         amount,
         is_success,
         account_id,
+        sender_account_number,
+        'n/a' AS receiver_account_number,
         FALSE AS is_deposit
       FROM transactions_transactions_mobile
     ) UNION (
@@ -43,6 +49,8 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
         amount,
         is_success,
         account_id,
+        'n/a' AS sender_account_number,
+        'n/a' AS receiver_account_number,
         FALSE AS is_deposit
       FROM transactions_transactions_rewards
     ) ORDER BY created_at DESC;

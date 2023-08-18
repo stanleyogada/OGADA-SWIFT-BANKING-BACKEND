@@ -1,6 +1,7 @@
 import { REPO_RESOURCES } from "../constants";
 import { EAccountType } from "../types/accounts";
 import {
+  ETransactionType,
   TTransaction,
   TTransactionAll,
   TTransactionBank,
@@ -271,17 +272,43 @@ class TransactionRepo {
     return rows as TTransactionTransactionReward[];
   }
 
-  static async findAllTransactionsByAccountId(account_id: number) {
-    const { rows } = await pool.query(
+  static async findAllTransactionsForAUser(payload: {
+    account_id: number;
+    sender_account_number: string;
+    receiver_account_number: string;
+  }) {
+    const {
+      rows,
+    }: {
+      rows: TTransactionAll[];
+    } = await pool.query(
       `
-      SELECT *
-      FROM ${REPO_RESOURCES.transactionsTransactionsAll}
-      WHERE account_id = $1
+      SELECT 
+        transaction_id,
+        created_at,
+        transaction_type,
+        amount,
+        is_success,
+        account_id,
+        sender_account_number,
+        receiver_account_number,
+        CASE
+          WHEN sender_account_number = $2 THEN false
+          ELSE true
+        END AS is_deposit
+
+      FROM
+        ${REPO_RESOURCES.transactionsTransactionsAll}
+      WHERE 
+        account_id = $1
+        OR receiver_account_number = $3
     `,
-      [`${account_id}`]
+      [`${payload.account_id}`, payload.sender_account_number, payload.receiver_account_number]
     );
 
-    return rows as TTransactionAll[];
+    console.log(rows);
+
+    return rows;
   }
 }
 

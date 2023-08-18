@@ -94,7 +94,8 @@ type TTransactionAll = {
   amount: number;
   is_success: boolean;
   is_deposit: boolean;
-  account_id: number;
+  receiver_account_number: string;
+  sender_account_number: string;
 };
 
 //

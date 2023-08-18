@@ -69,6 +69,22 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
 
   for (const transaction of userOneTransactions) {
     expect(transaction.is_success).toBe(true);
-    expect(transaction.is_deposit).toBe(false);
+    if (transaction.transaction_type === ETransactionType.REWARD) {
+      expect(transaction.is_deposit).toBe(true);
+    } else {
+      expect(transaction.is_deposit).toBe(false);
+    }
   }
+
+  const {
+    body: { data: userTwoTransactions },
+  }: TResponse<TTransactionAll[]> = await request(app())
+    .get(getEndpoint(`/transactions/${TRANSACTIONS_ROUTES.all}`))
+    .set("Authorization", `Bearer ${userTwo.token}`)
+    .expect(200);
+
+  expect(userTwoTransactions.length).toBe(1);
+  expect(userTwoTransactions[0].transaction_type).toBe(ETransactionType.IN_HOUSE_TRANSFER);
+  expect(userTwoTransactions[0].is_success).toBe(true);
+  expect(userTwoTransactions[0].is_deposit).toBe(true);
 });

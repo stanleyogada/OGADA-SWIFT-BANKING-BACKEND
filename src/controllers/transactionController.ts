@@ -293,11 +293,13 @@ export const sendMoneyMobile = handleTryCatch(async (req: TRequestUser, res: Res
 });
 
 export const getAllTransactions = handleTryCatch(async (req: TRequestUser, res: Response) => {
-  const { user } = req;
+  const [userAccount] = await UserRepo.findAllAccountsByUserId(req.user.id);
 
-  const [senderAccount] = await UserRepo.findAllAccountsByUserId(user.id);
-
-  const transactions = await TransactionRepo.findAllTransactionsByAccountId(senderAccount.account_id);
+  const transactions = await TransactionRepo.findAllTransactionsForAUser({
+    account_id: userAccount.account_id,
+    sender_account_number: userAccount.account_number,
+    receiver_account_number: userAccount.account_number,
+  });
 
   res.status(200).json({
     status: "success",
