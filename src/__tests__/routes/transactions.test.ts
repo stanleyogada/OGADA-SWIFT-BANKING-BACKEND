@@ -9,7 +9,14 @@ import {
 import { EAccountType } from "../../types/accounts";
 import { TRANSACTIONS_ROUTES } from "../../constants/routes";
 import app from "../../app";
-import { ETransactionType, TTransactionAll } from "../../types/transactions";
+import {
+  ETransactionType,
+  TTransactionAll,
+  TTransactionTransactionBank,
+  TTransactionTransactionInHouse,
+  TTransactionTransactionMobile,
+  TTransactionTransactionReward,
+} from "../../types/transactions";
 
 type TResponse<T> = {
   body: {
@@ -21,7 +28,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
   const users = await handleSignupManyAccountUsers(2);
   const [userOne, userTwo] = users;
 
-  await handleAssertSendMoneyInHouse(`/transactions/${TRANSACTIONS_ROUTES.inHousesSendMoney}`, {
+  await handleAssertSendMoneyInHouse(`/transactions${TRANSACTIONS_ROUTES.inHousesSendMoney}`, {
     senderUser: userOne,
     receiverUser: userTwo,
     amount: 100,
@@ -31,7 +38,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
     },
   });
 
-  await handleAssertSendMoneyToBank(`/transactions/${TRANSACTIONS_ROUTES.banksSendMoney}`, {
+  await handleAssertSendMoneyToBank(`/transactions${TRANSACTIONS_ROUTES.banksSendMoney}`, {
     senderUser: userOne,
     bankDetails: {
       bank_name: "BANK_NAME",
@@ -42,7 +49,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
     senderUserAccountsType: EAccountType.NORMAL,
   });
 
-  await handleAssertSendMoneyToMobile(`/transactions/${TRANSACTIONS_ROUTES.mobilesSendMoney}`, {
+  await handleAssertSendMoneyToMobile(`/transactions${TRANSACTIONS_ROUTES.mobilesSendMoney}`, {
     senderUser: userOne,
     senderUserAccountsType: EAccountType.NORMAL,
     mobileDetails: {
@@ -56,7 +63,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
   const {
     body: { data: userOneTransactions },
   }: TResponse<TTransactionAll[]> = await request(app())
-    .get(getEndpoint(`/transactions/${TRANSACTIONS_ROUTES.all}`))
+    .get(getEndpoint(`/transactions${TRANSACTIONS_ROUTES.all}`))
     .set("Authorization", `Bearer ${userOne.token}`)
     .expect(200);
 
@@ -74,12 +81,36 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
     } else {
       expect(transaction.is_deposit).toBe(false);
     }
+
+    console.log(
+      `/transactions${TRANSACTIONS_ROUTES.all}/${transaction.transaction_type.toLowerCase()}/${
+        transaction.transaction_id
+      }`
+    );
+
+    // const {
+    //   body: { data: transactionData },
+    // }: TResponse<
+    //   | TTransactionTransactionInHouse
+    //   | TTransactionTransactionBank
+    //   | TTransactionTransactionReward
+    //   | TTransactionTransactionMobile
+    // > = await request(app())
+    //   .get(
+    //     getEndpoint(
+    //       `/transactions${TRANSACTIONS_ROUTES.all}/${transaction.transaction_type.toLowerCase()}/${
+    //         transaction.transaction_id
+    //       }`
+    //     )
+    //   )
+    //   .set("Authorization", `Bearer ${userOne.token}`)
+    //   .expect(200);
   }
 
   const {
     body: { data: userTwoTransactions },
   }: TResponse<TTransactionAll[]> = await request(app())
-    .get(getEndpoint(`/transactions/${TRANSACTIONS_ROUTES.all}`))
+    .get(getEndpoint(`/transactions${TRANSACTIONS_ROUTES.all}`))
     .set("Authorization", `Bearer ${userTwo.token}`)
     .expect(200);
 

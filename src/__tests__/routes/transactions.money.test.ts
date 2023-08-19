@@ -26,7 +26,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
     const {
       body: { data: transactions },
     }: TResponse<TTransactionTransactionInHouse[]> = await request(app())
-      .get(getEndpoint(`/transactions/${TRANSACTIONS_ROUTES.inHouses}`))
+      .get(getEndpoint(`/transactions${TRANSACTIONS_ROUTES.inHouses}`))
       .set("Authorization", `Bearer ${user.token}`)
       .expect(200);
 
@@ -34,7 +34,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
     expect(transactions.length).toBe(transactionsCount);
   }
 
-  await handleAssertSendMoneyInHouse(`/transactions/${TRANSACTIONS_ROUTES.inHousesSendMoney}`, {
+  await handleAssertSendMoneyInHouse(`/transactions${TRANSACTIONS_ROUTES.inHousesSendMoney}`, {
     senderUser: userOne,
     receiverUser: userTwo,
     amount: 100,
@@ -44,7 +44,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
     },
   });
 
-  await handleAssertSendMoneyInHouse(`/transactions/${TRANSACTIONS_ROUTES.inHousesSendMoney}`, {
+  await handleAssertSendMoneyInHouse(`/transactions${TRANSACTIONS_ROUTES.inHousesSendMoney}`, {
     senderUser: userTwo,
     receiverUser: userOne,
     amount: 50,
@@ -56,7 +56,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
 
   let errorStatusCode = 500;
   await handleAssertSendMoneyInHouse(
-    `/transactions/${TRANSACTIONS_ROUTES.inHousesSendMoney}`,
+    `/transactions${TRANSACTIONS_ROUTES.inHousesSendMoney}`,
     {
       senderUser: userTwo,
       receiverUser: userOne,
@@ -73,7 +73,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
   const largeAmount = 1000;
   // This doesn't create a transaction because it's a insufficient funds ClientError
   await handleAssertSendMoneyInHouse(
-    `/transactions/${TRANSACTIONS_ROUTES.inHousesSendMoney}`,
+    `/transactions${TRANSACTIONS_ROUTES.inHousesSendMoney}`,
     {
       senderUser: userTwo,
       receiverUser: userOne,
@@ -89,7 +89,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
   const incorrectTransferPin = "1992";
   // This doesn't create a transaction because it's a insufficient funds ClientError
   await handleAssertSendMoneyInHouse(
-    `/transactions/${TRANSACTIONS_ROUTES.inHousesSendMoney}`,
+    `/transactions${TRANSACTIONS_ROUTES.inHousesSendMoney}`,
     {
       senderUser: {
         ...userTwo,
@@ -109,7 +109,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
     const {
       body: { data: transactions },
     }: TResponse<TTransactionTransactionInHouse[]> = await request(app())
-      .get(getEndpoint(`/transactions/${TRANSACTIONS_ROUTES.inHouses}`))
+      .get(getEndpoint(`/transactions${TRANSACTIONS_ROUTES.inHouses}`))
       .set("Authorization", `Bearer ${user.token}`)
       .expect(200);
 
@@ -159,7 +159,7 @@ test("Ensures money can be sent to bank and transactions are recorded", async ()
     const {
       body: { data: transactions },
     }: TResponse<TTransactionTransactionInHouse[]> = await request(app())
-      .get(getEndpoint(`/transactions/${TRANSACTIONS_ROUTES.banks}`))
+      .get(getEndpoint(`/transactions${TRANSACTIONS_ROUTES.banks}`))
       .set("Authorization", `Bearer ${user.token}`)
       .expect(200);
 
@@ -176,25 +176,25 @@ test("Ensures money can be sent to bank and transactions are recorded", async ()
   // console.log("userOne", userOne);
   // console.log("userTwo", userTwo);
 
-  await handleAssertSendMoneyToBank(`/transactions/${TRANSACTIONS_ROUTES.banksSendMoney}`, {
+  await handleAssertSendMoneyToBank(`/transactions${TRANSACTIONS_ROUTES.banksSendMoney}`, {
     senderUser: userOne,
     bankDetails: fakeBankDetails,
     amount: 100,
     senderUserAccountsType: EAccountType.NORMAL,
   });
-  await handleAssertSendMoneyToBank(`/transactions/${TRANSACTIONS_ROUTES.banksSendMoney}`, {
+  await handleAssertSendMoneyToBank(`/transactions${TRANSACTIONS_ROUTES.banksSendMoney}`, {
     senderUser: userOne,
     bankDetails: fakeBankDetails,
     amount: 10,
     senderUserAccountsType: EAccountType.NORMAL,
   });
-  await handleAssertSendMoneyToBank(`/transactions/${TRANSACTIONS_ROUTES.banksSendMoney}`, {
+  await handleAssertSendMoneyToBank(`/transactions${TRANSACTIONS_ROUTES.banksSendMoney}`, {
     senderUser: userOne,
     bankDetails: fakeBankDetails,
     amount: 50,
     senderUserAccountsType: EAccountType.NORMAL,
   });
-  await handleAssertSendMoneyToBank(`/transactions/${TRANSACTIONS_ROUTES.banksSendMoney}`, {
+  await handleAssertSendMoneyToBank(`/transactions${TRANSACTIONS_ROUTES.banksSendMoney}`, {
     senderUser: userThree,
     bankDetails: fakeBankDetails,
     amount: 100,
@@ -205,7 +205,7 @@ test("Ensures money can be sent to bank and transactions are recorded", async ()
   const expectedErrorStatusCode = 400;
   // This doesn't create a transaction because it's a insufficient funds ClientError
   await handleAssertSendMoneyToBank(
-    `/transactions/${TRANSACTIONS_ROUTES.banksSendMoney}`,
+    `/transactions${TRANSACTIONS_ROUTES.banksSendMoney}`,
     {
       senderUser: userTwo,
       bankDetails: fakeBankDetails,
@@ -219,7 +219,7 @@ test("Ensures money can be sent to bank and transactions are recorded", async ()
     const {
       body: { data: transactions },
     }: TResponse<TTransactionTransactionInHouse[]> = await request(app())
-      .get(getEndpoint(`/transactions/${TRANSACTIONS_ROUTES.banks}`))
+      .get(getEndpoint(`/transactions${TRANSACTIONS_ROUTES.banks}`))
       .set("Authorization", `Bearer ${user.token}`)
       .expect(200);
 

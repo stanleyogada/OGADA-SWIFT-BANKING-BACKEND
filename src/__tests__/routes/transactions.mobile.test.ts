@@ -21,14 +21,14 @@ test("Ensures CASHBACK rewards when mobile transfer is successful and transactio
     const {
       body: { data: mobileTransactions },
     }: TResponse<TTransactionTransactionMobile[]> = await request(app())
-      .get(getEndpoint(`/transactions/${TRANSACTIONS_ROUTES.mobiles}`))
+      .get(getEndpoint(`/transactions${TRANSACTIONS_ROUTES.mobiles}`))
       .set("Authorization", `Bearer ${user.token}`)
       .expect(200);
 
     const {
       body: { data: cashbackTransactions },
     }: TResponse<TTransactionTransactionReward[]> = await request(app())
-      .get(getEndpoint(`/transactions/${TRANSACTIONS_ROUTES.rewards}/cashback`))
+      .get(getEndpoint(`/transactions${TRANSACTIONS_ROUTES.rewards}/cashback`))
       .set("Authorization", `Bearer ${user.token}`)
       .expect(200);
 
@@ -52,27 +52,27 @@ test("Ensures CASHBACK rewards when mobile transfer is successful and transactio
     phone_number: "08123456789",
   };
 
-  await handleAssertSendMoneyToMobile(`/transactions/${TRANSACTIONS_ROUTES.mobilesSendMoney}`, {
+  await handleAssertSendMoneyToMobile(`/transactions${TRANSACTIONS_ROUTES.mobilesSendMoney}`, {
     senderUser: userOne,
     senderUserAccountsType: EAccountType.NORMAL,
     mobileDetails,
     amount: 100,
   });
 
-  await handleAssertSendMoneyToMobile(`/transactions/${TRANSACTIONS_ROUTES.mobilesSendMoney}`, {
+  await handleAssertSendMoneyToMobile(`/transactions${TRANSACTIONS_ROUTES.mobilesSendMoney}`, {
     senderUser: userTwo,
     senderUserAccountsType: EAccountType.NORMAL,
     mobileDetails,
     amount: 50,
   });
 
-  await handleAssertSendMoneyToMobile(`/transactions/${TRANSACTIONS_ROUTES.mobilesSendMoney}`, {
+  await handleAssertSendMoneyToMobile(`/transactions${TRANSACTIONS_ROUTES.mobilesSendMoney}`, {
     senderUser: userThree,
     senderUserAccountsType: EAccountType.NORMAL,
     mobileDetails,
     amount: 10,
   });
-  await handleAssertSendMoneyToMobile(`/transactions/${TRANSACTIONS_ROUTES.mobilesSendMoney}`, {
+  await handleAssertSendMoneyToMobile(`/transactions${TRANSACTIONS_ROUTES.mobilesSendMoney}`, {
     senderUser: userThree,
     senderUserAccountsType: EAccountType.NORMAL,
     mobileDetails,
