@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { MigrationBuilder, ColumnDefinitions } from "node-pg-migrate";
+import { ETransactionType } from "../src/types/transactions";
 
 export const shorthands: ColumnDefinitions | undefined = undefined;
 
@@ -9,7 +10,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       SELECT
         "transaction_id", 
         created_at,
-        'IN_HOUSE_TRANSFER' AS transaction_type,
+        '${ETransactionType.IN_HOUSE_TRANSFER}' AS transaction_type,
         amount,
         is_success,
         account_id,
@@ -21,7 +22,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       SELECT
         "transaction_id", 
         created_at,
-        'TRANSFER_TO_BANK' AS transaction_type,
+        '${ETransactionType.TRANSFER_TO_BANK}' AS transaction_type,
         amount,
         is_success,
         account_id,
@@ -33,7 +34,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       SELECT
         "transaction_id", 
         created_at,
-        'MOBILE' AS transaction_type,
+        '${ETransactionType.MOBILE}' AS transaction_type,
         amount,
         is_success,
         account_id,
@@ -45,7 +46,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       SELECT
         "transaction_id", 
         created_at,
-        'REWARD' AS transaction_type,
+        '${ETransactionType.REWARD}' AS transaction_type,
         amount,
         is_success,
         account_id,

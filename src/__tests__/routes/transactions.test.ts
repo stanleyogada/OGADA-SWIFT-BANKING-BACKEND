@@ -82,29 +82,38 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
       expect(transaction.is_deposit).toBe(false);
     }
 
-    console.log(
-      `/transactions${TRANSACTIONS_ROUTES.all}/${transaction.transaction_type.toLowerCase()}/${
-        transaction.transaction_id
-      }`
-    );
+    console.log(`/transactions/${transaction.transaction_type.toLowerCase()}/${transaction.transaction_id}`);
 
-    // const {
-    //   body: { data: transactionData },
-    // }: TResponse<
-    //   | TTransactionTransactionInHouse
-    //   | TTransactionTransactionBank
-    //   | TTransactionTransactionReward
-    //   | TTransactionTransactionMobile
-    // > = await request(app())
-    //   .get(
-    //     getEndpoint(
-    //       `/transactions${TRANSACTIONS_ROUTES.all}/${transaction.transaction_type.toLowerCase()}/${
-    //         transaction.transaction_id
-    //       }`
-    //     )
-    //   )
-    //   .set("Authorization", `Bearer ${userOne.token}`)
-    //   .expect(200);
+    console.log(transaction);
+
+    // if (
+    //   transaction.transaction_type !== ETransactionType.MOBILE
+    // ) {
+    //   continue;
+    // }
+
+    const {
+      body: { data: transactionData },
+    }: TResponse<
+      | TTransactionTransactionInHouse
+      | TTransactionTransactionBank
+      | TTransactionTransactionReward
+      | TTransactionTransactionMobile
+    > = await request(app())
+      .get(getEndpoint(`/transactions/${transaction.transaction_type.toLowerCase()}/${transaction.transaction_id}`))
+      .set("Authorization", `Bearer ${userOne.token}`)
+      .expect(200);
+
+    switch (transaction.transaction_type) {
+      case ETransactionType.REWARD:
+        expect((transactionData as TTransactionTransactionReward).note).toMatch(/cashback/i);
+        break;
+      case ETransactionType.MOBILE:
+        expect((transactionData as TTransactionTransactionMobile).operator).toMatch(/mtn/i);
+        break;
+      // case ETransactionType.IN_HOUSE_TRANSFER:
+      //   expect((transactionData as TTransactionTransactionInHouse).recipient).toBe(userTwo.accounts[0].full_name);
+    }
   }
 
   const {

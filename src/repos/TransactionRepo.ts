@@ -252,7 +252,11 @@ class TransactionRepo {
     return rows as TTransactionTransactionMobile[];
   }
 
-  static async findManyTransactionsRewardBy(payload: { account_number: string; account_type: EAccountType }) {
+  static async findManyTransactionsRewardBy(payload: {
+    transaction_id?: number;
+    account_number?: string;
+    account_type?: EAccountType;
+  }) {
     const { rows } = await pool.query(
       `
       ${TransactionRepo.handleSelectTransaction()}
@@ -263,13 +267,28 @@ class TransactionRepo {
         is_deposit
       FROM ${REPO_RESOURCES.transactionsTransactionsReward}
       WHERE
-        receiver_account_number = $1
-        AND type = $2;
+      ${
+        payload?.transaction_id
+          ? `transaction_id = $1;`
+          : `receiver_account_number = $1
+        AND type = $2;`
+      }
     `,
-      [payload.account_number, payload.account_type]
+      payload?.transaction_id ? [`${payload.transaction_id}`] : [payload.account_number, payload.account_type]
     );
 
     return rows as TTransactionTransactionReward[];
+  }
+
+  static async findOneTransactionBy(payload: { resource: string; transaction_id: string }) {
+    switch (payload.resource) {
+      case REPO_RESOURCES.transactionsTransactionsReward:
+        return (
+          await TransactionRepo.findManyTransactionsRewardBy({
+            transaction_id: Number(payload.transaction_id),
+          })
+        )[0] as TTransactionTransactionReward;
+    }
   }
 
   static async findAllTransactionsForAUser(payload: {

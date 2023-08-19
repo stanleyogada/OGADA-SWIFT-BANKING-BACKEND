@@ -28,7 +28,7 @@ test("Ensures CASHBACK rewards when mobile transfer is successful and transactio
     const {
       body: { data: cashbackTransactions },
     }: TResponse<TTransactionTransactionReward[]> = await request(app())
-      .get(getEndpoint(`/transactions${TRANSACTIONS_ROUTES.rewards}/cashback`))
+      .get(getEndpoint(`/transactions${TRANSACTIONS_ROUTES.rewards}?accountType=cashback`))
       .set("Authorization", `Bearer ${user.token}`)
       .expect(200);
 

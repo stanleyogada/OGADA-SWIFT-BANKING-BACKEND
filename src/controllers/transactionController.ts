@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { TRequestUser } from "../types/api";
+import { TRequestTransaction, TRequestUser } from "../types/api";
 import handleInputValidate from "../utils/handleInputValidate";
 import handleTryCatch from "../utils/handleTryCatch";
 import pool from "../utils/pool";
@@ -202,16 +202,16 @@ export const getTransactionsMobile = handleTryCatch(async (req: TRequestUser, re
 export const getTransactionsReward = handleTryCatch(async (req: TRequestUser, res: Response, next: NextFunction) => {
   const {
     user,
-    params: { accountType },
+    query: { accountType },
   } = req;
 
   if (!accountType) {
-    return next(new APIError("Account type is required", 400));
+    return next(new APIError("`accountType` query is required", 400));
   }
 
   const transactions = await TransactionRepo.findManyTransactionsRewardBy({
     account_number: user.phone,
-    account_type: accountType.toUpperCase() as EAccountType,
+    account_type: (accountType as string).toUpperCase() as EAccountType,
   });
 
   res.status(200).json({
@@ -220,6 +220,43 @@ export const getTransactionsReward = handleTryCatch(async (req: TRequestUser, re
     count: transactions.length,
   });
 });
+
+export const getOneTransaction = handleTryCatch(async (req: TRequestTransaction, res: Response, next: NextFunction) => {
+  const { resource, transactionId } = req;
+
+  if (!transactionId) {
+    return next(new APIError("`transactionId` param is required", 400));
+  }
+
+  const transaction = await TransactionRepo.findOneTransactionBy({
+    resource,
+    transaction_id: transactionId,
+  });
+
+  res.status(200).json({
+    status: "success",
+    data: transaction,
+  });
+});
+
+// export const getOneTransactionsMobile= handleTryCatch(async (req: TRequestUser, res: Response, next: NextFunction) => {
+//   const {
+//     params: { transactionId },
+//   } = req;
+
+//   if (!transactionId) {
+//     return next(new APIError("`transactionId` param is required", 400));
+//   }
+
+//   const transaction = await TransactionRepo.findManyTransactionsRewardBy({
+//     transaction_id: +transactionId,
+//   });
+
+//   res.status(200).json({
+//     status: "success",
+//     data: transaction,
+//   });
+// });
 
 export const sendMoneyMobile = handleTryCatch(async (req: TRequestUser, res: Response) => {
   const { user } = req;

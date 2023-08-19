@@ -2,6 +2,7 @@ import { Router } from "express";
 
 import {
   getAllTransactions,
+  getOneTransaction,
   getTransactionsBank,
   getTransactionsInHouse,
   getTransactionsMobile,
@@ -13,6 +14,9 @@ import {
 import handleAuthGuardRoute from "../middleware/handleAuthGuardRoute";
 import handleValidateTransferPin from "../middleware/handleValidateTransferPin";
 import { TRANSACTIONS_ROUTES } from "../constants/routes";
+import handleTryCatch from "../utils/handleTryCatch";
+import handleAddTransactionToRequest from "../middleware/handleAddTransactionToRequest";
+import { REPO_RESOURCES } from "../constants";
 
 const router = Router();
 
@@ -26,7 +30,14 @@ router.post(TRANSACTIONS_ROUTES.inHousesSendMoney, handleAuthGuardRoute, handleV
 
 router.get(TRANSACTIONS_ROUTES.mobiles, handleAuthGuardRoute, getTransactionsMobile);
 router.post(TRANSACTIONS_ROUTES.mobilesSendMoney, handleAuthGuardRoute, handleValidateTransferPin, sendMoneyMobile);
+// router.get(`${TRANSACTIONS_ROUTES.mobiles}/:transactionId`, handleAuthGuardRoute, getOneTransactionsReward);
 
-router.get(`${TRANSACTIONS_ROUTES.rewards}/:accountType`, handleAuthGuardRoute, getTransactionsReward);
+router.get(`${TRANSACTIONS_ROUTES.rewards}`, handleAuthGuardRoute, getTransactionsReward);
+router.get(
+  `${TRANSACTIONS_ROUTES.rewards}/:transactionId`,
+  handleAuthGuardRoute,
+  handleAddTransactionToRequest(REPO_RESOURCES.transactionsTransactionsReward),
+  getOneTransaction
+);
 
 export default router;

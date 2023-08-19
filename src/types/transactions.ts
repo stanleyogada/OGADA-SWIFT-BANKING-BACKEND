@@ -81,10 +81,10 @@ type TTransactionTransactionReward = Omit<TTransaction & TTransactionReward, "id
 type TTransactionTransactionMobile = Omit<TTransaction & TTransactionMobile, "id">;
 
 enum ETransactionType {
-  REWARD = "REWARD",
-  TRANSFER_TO_BANK = "TRANSFER_TO_BANK",
-  IN_HOUSE_TRANSFER = "IN_HOUSE_TRANSFER",
-  MOBILE = "MOBILE",
+  REWARD = "rewards",
+  TRANSFER_TO_BANK = "banks",
+  IN_HOUSE_TRANSFER = "in-houses",
+  MOBILE = "mobiles",
 }
 
 type TTransactionAll = {
