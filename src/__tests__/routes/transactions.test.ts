@@ -82,16 +82,6 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
       expect(transaction.is_deposit).toBe(false);
     }
 
-    console.log(`/transactions/${transaction.transaction_type.toLowerCase()}/${transaction.transaction_id}`);
-
-    console.log(transaction);
-
-    // if (
-    //   transaction.transaction_type !== ETransactionType.MOBILE
-    // ) {
-    //   continue;
-    // }
-
     const {
       body: { data: transactionData },
     }: TResponse<
@@ -111,8 +101,12 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
       case ETransactionType.MOBILE:
         expect((transactionData as TTransactionTransactionMobile).operator).toMatch(/mtn/i);
         break;
-      // case ETransactionType.IN_HOUSE_TRANSFER:
-      //   expect((transactionData as TTransactionTransactionInHouse).recipient).toBe(userTwo.accounts[0].full_name);
+      case ETransactionType.TRANSFER_TO_BANK:
+        expect((transactionData as TTransactionTransactionBank).bank_name).toMatch(/bank_name/i);
+        break;
+      case ETransactionType.IN_HOUSE_TRANSFER:
+        expect((transactionData as TTransactionTransactionInHouse).recipient).toBe(userTwo.accounts[0].full_name);
+        break;
     }
   }
 

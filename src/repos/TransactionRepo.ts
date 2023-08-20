@@ -193,7 +193,8 @@ class TransactionRepo {
         recipient,
 
         CASE
-          WHEN sender_account_number = $1 THEN false
+          WHEN sender_account_number = ${payload?.transaction_id ? "$2" : "$1"}
+           THEN false
           ELSE true
         END AS is_deposit
       FROM ${REPO_RESOURCES.transactionsTransactionsInHouse}
@@ -208,7 +209,7 @@ class TransactionRepo {
        `
        }
     `,
-      payload?.transaction_id ? [payload.transaction_id] : [payload.account_number]
+      payload?.transaction_id ? [payload.transaction_id, payload.account_number] : [payload.account_number]
     );
 
     return rows as TTransactionTransactionInHouse[];
@@ -287,8 +288,6 @@ class TransactionRepo {
   }
 
   static async findOneTransactionBy(payload: { resource: string; transaction_id: string }) {
-    console.log("payload.transaction_id", payload.transaction_id);
-
     switch (payload.resource) {
       case REPO_RESOURCES.transactionsTransactionsReward:
         return (
@@ -303,8 +302,6 @@ class TransactionRepo {
           })
         )[0] as TTransactionTransactionMobile;
       case REPO_RESOURCES.transactionsTransactionsBanks:
-        console.log("payload.transaction_id", payload.transaction_id);
-
         return (
           await TransactionRepo.findManyTransactionsBankBy({
             transaction_id: payload.transaction_id,
