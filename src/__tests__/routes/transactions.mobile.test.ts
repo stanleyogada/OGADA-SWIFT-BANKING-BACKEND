@@ -39,11 +39,10 @@ test("Ensures CASHBACK rewards when mobile transfer is successful and transactio
   };
 
   for (const user of users) {
-    const { mobileTransactions, cashbackTransactions } = await handleGetUserTransactions(user);
+    const { mobileTransactions } = await handleGetUserTransactions(user);
 
     const transactionsCount = 0;
     expect(mobileTransactions.length).toBe(transactionsCount);
-    // expect(cashbackTransactions.length).toBe(transactionsCount);
   }
 
   const mobileDetails = {
