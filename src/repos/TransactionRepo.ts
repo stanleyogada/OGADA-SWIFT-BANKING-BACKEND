@@ -181,7 +181,7 @@ class TransactionRepo {
         `;
   };
 
-  static async findManyTransactionsInHouseBy(payload: { account_number: string }) {
+  static async findManyTransactionsInHouseBy(payload: { transaction_id?: string; account_number?: string }) {
     const { rows } = await pool.query(
       `
       ${TransactionRepo.handleSelectTransaction()}
@@ -198,17 +198,24 @@ class TransactionRepo {
         END AS is_deposit
       FROM ${REPO_RESOURCES.transactionsTransactionsInHouse}
       WHERE
+       ${
+         payload?.transaction_id
+           ? `transaction_id = $1;`
+           : `
         sender_account_number = $1
         OR receiver_account_number = $1 
         AND is_success = TRUE;
+       `
+       }
+       }
     `,
-      [payload.account_number]
+      payload?.transaction_id ? [payload.transaction_id] : [payload.account_number]
     );
 
     return rows as TTransactionTransactionInHouse[];
   }
 
-  static async findManyTransactionsBankBy(payload: { account_number: string }) {
+  static async findManyTransactionsBankBy(payload: { transaction_id?: string; account_number?: string }) {
     const { rows } = await pool.query(
       `
       ${TransactionRepo.handleSelectTransaction()}
@@ -224,15 +231,15 @@ class TransactionRepo {
         is_deposit
       FROM ${REPO_RESOURCES.transactionsTransactionsBanks}
       WHERE
-        sender_account_number = $1;
+         ${payload?.transaction_id ? `transaction_id = $1;` : `sender_account_number = $1;`}
     `,
-      [payload.account_number]
+      payload?.transaction_id ? [payload.transaction_id] : [payload.account_number]
     );
 
     return rows as TTransactionTransactionBank[];
   }
 
-  static async findManyTransactionsMobileBy(payload: { account_number: string }) {
+  static async findManyTransactionsMobileBy(payload: { transaction_id?: string; account_number?: string }) {
     const { rows } = await pool.query(
       `
       ${TransactionRepo.handleSelectTransaction()}
@@ -244,16 +251,16 @@ class TransactionRepo {
         is_deposit
       FROM ${REPO_RESOURCES.transactionsTransactionsMobile}
       WHERE
-        sender_account_number = $1;
+      ${payload?.transaction_id ? `transaction_id = $1;` : `sender_account_number = $1;`}
     `,
-      [payload.account_number]
+      payload?.transaction_id ? [payload.transaction_id] : [payload.account_number]
     );
 
     return rows as TTransactionTransactionMobile[];
   }
 
   static async findManyTransactionsRewardBy(payload: {
-    transaction_id?: number;
+    transaction_id?: string;
     account_number?: string;
     account_type?: EAccountType;
   }) {
@@ -274,7 +281,7 @@ class TransactionRepo {
         AND type = $2;`
       }
     `,
-      payload?.transaction_id ? [`${payload.transaction_id}`] : [payload.account_number, payload.account_type]
+      payload?.transaction_id ? [payload.transaction_id] : [payload.account_number, payload.account_type]
     );
 
     return rows as TTransactionTransactionReward[];
@@ -285,9 +292,29 @@ class TransactionRepo {
       case REPO_RESOURCES.transactionsTransactionsReward:
         return (
           await TransactionRepo.findManyTransactionsRewardBy({
-            transaction_id: Number(payload.transaction_id),
+            transaction_id: payload.transaction_id,
           })
         )[0] as TTransactionTransactionReward;
+      case REPO_RESOURCES.transactionsTransactionsMobile:
+        return (
+          await TransactionRepo.findManyTransactionsMobileBy({
+            transaction_id: payload.transaction_id,
+          })
+        )[0] as TTransactionTransactionMobile;
+      case REPO_RESOURCES.transactionsTransactionsBanks:
+        return (
+          await TransactionRepo.findManyTransactionsBankBy({
+            transaction_id: payload.transaction_id,
+          })
+        )[0] as TTransactionTransactionBank;
+      case REPO_RESOURCES.transactionsTransactionsInHouse:
+        return (
+          await TransactionRepo.findManyTransactionsInHouseBy({
+            transaction_id: payload.transaction_id,
+          })
+        )[0] as TTransactionTransactionInHouse;
+      default:
+        return null;
     }
   }
 

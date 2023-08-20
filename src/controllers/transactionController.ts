@@ -221,6 +221,8 @@ export const getTransactionsReward = handleTryCatch(async (req: TRequestUser, re
   });
 });
 
+// TODO: Clean up
+
 export const getOneTransaction = handleTryCatch(async (req: TRequestTransaction, res: Response, next: NextFunction) => {
   const { resource, transactionId } = req;
 
@@ -232,6 +234,10 @@ export const getOneTransaction = handleTryCatch(async (req: TRequestTransaction,
     resource,
     transaction_id: transactionId,
   });
+
+  if (!transaction) {
+    return next(new APIError("Transaction not found", 404));
+  }
 
   res.status(200).json({
     status: "success",

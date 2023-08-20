@@ -30,7 +30,12 @@ router.post(TRANSACTIONS_ROUTES.inHousesSendMoney, handleAuthGuardRoute, handleV
 
 router.get(TRANSACTIONS_ROUTES.mobiles, handleAuthGuardRoute, getTransactionsMobile);
 router.post(TRANSACTIONS_ROUTES.mobilesSendMoney, handleAuthGuardRoute, handleValidateTransferPin, sendMoneyMobile);
-// router.get(`${TRANSACTIONS_ROUTES.mobiles}/:transactionId`, handleAuthGuardRoute, getOneTransactionsReward);
+router.get(
+  `${TRANSACTIONS_ROUTES.mobiles}/:transactionId`,
+  handleAuthGuardRoute,
+  handleAddTransactionToRequest(REPO_RESOURCES.transactionsTransactionsMobile),
+  getOneTransaction
+);
 
 router.get(`${TRANSACTIONS_ROUTES.rewards}`, handleAuthGuardRoute, getTransactionsReward);
 router.get(
