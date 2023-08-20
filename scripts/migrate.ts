@@ -1,8 +1,8 @@
 require("dotenv").config();
 
 import migrate from "node-pg-migrate";
-import { TConnectOpts } from "src/types/db";
-import getDBConnection from "src/utils/getDBConnection";
+import { TConnectOpts } from "../src/types/db";
+import getDBConnection from "../src/utils/getDBConnection";
 
 const DEFAULT_USER_OPTS: TConnectOpts = getDBConnection();
 
@@ -14,7 +14,7 @@ const DEFAULT_USER_OPTS: TConnectOpts = getDBConnection();
       if (flags.includes("up")) return "up";
       if (flags.includes("down")) return "down";
 
-      throw new Error('Please specify "--up" or "--down"');
+      throw new Error('Please specify "up" or "down"');
     })();
 
     const results = await migrate({

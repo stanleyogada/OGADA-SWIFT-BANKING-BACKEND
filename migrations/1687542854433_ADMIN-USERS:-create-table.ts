@@ -28,6 +28,6 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 
 export async function down(pgm: MigrationBuilder): Promise<void> {
   pgm.sql(`
-    DROP TABLE IF EXISTS admin_users;
+    DROP TABLE admin_users;
   `);
 }

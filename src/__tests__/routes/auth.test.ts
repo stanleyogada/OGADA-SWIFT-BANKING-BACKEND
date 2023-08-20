@@ -1,10 +1,13 @@
 import request from "supertest";
 import jwt from "jsonwebtoken";
 
-import app from "src/app";
-import { TAdminUser, TUser } from "src/types/users";
-import HashPassword from "src/utils/HashPassword";
-import { getEndpoint, handleSigninAdminUser, handleSigninUser, handleSignupUser } from "src/utils/tests";
+import app from "../../app";
+import HashPassword from "../../utils/HashPassword";
+import { getEndpoint, handleSigninAdminUser, handleSigninUser, handleSignupUser } from "../../utils/tests";
+import { ACCOUNT_DEFAULT_BALANCE } from "../../constants";
+
+import type { TUser, TUserAccount } from "../../types/users";
+import { EAccountType } from "../../types/accounts";
 
 describe("Auth", () => {
   const handleExpectPasscodeHashing = async (loginPasscode: string, hashedLoginPasscode: string) => {
@@ -196,14 +199,7 @@ describe("Auth", () => {
 
     await handleSigninUser(400, { phone: "9012343203", login_passcode: user.login_passcode });
     await handleSigninUser(400, { phone: user.phone, login_passcode: "123456" });
-    await handleSigninUser(
-      400,
-
-      {
-        ...user,
-        not_allowed: "not_allowed",
-      }
-    );
+    await handleSigninUser(400, { not_allowed: "not_allowed" });
 
     const { token, headers } = await handleSigninUser(200, user);
 
@@ -240,9 +236,7 @@ describe("Auth", () => {
   });
 
   test("Have signup flow completed without errors", async () => {
-    const { adminToken } = await handleSigninAdminUser();
-
-    const userId = "1";
+    const userId = 1;
     const user = {
       first_name: "first_name",
       last_name: "last_name",
@@ -250,6 +244,7 @@ describe("Auth", () => {
       phone: "1234567891",
       email: "signup-email@gmail.com",
       login_passcode: "654321",
+      transfer_pin: "1234",
     };
 
     await handleSigninUser(400, {
@@ -257,60 +252,40 @@ describe("Auth", () => {
       login_passcode: user.login_passcode,
     });
 
-    await request(app())
-      .post(getEndpoint("/auth/signup"))
-      .send({
-        ...user,
-        not_allowed: "not_allowed",
-      })
-      .expect(400);
-
-    await request(app()).post(getEndpoint("/auth/signup")).send(user).expect(201);
+    await handleSignupUser(400, userId, {
+      ...user,
+      not_allowed: "not_allowed",
+    });
+    await handleSignupUser(201, userId, user);
+    await handleSignupUser(400, userId, user);
+    await handleSignupUser(400, 100, {
+      first_name: "random_user",
+    });
 
     const { token } = await handleSigninUser(200, {
       phone: user.phone,
       login_passcode: user.login_passcode,
     });
-    await request(app())
-      .get(getEndpoint(`/users/${userId}`))
-      .set("Authorization", `Bearer ${token}`)
-      .expect(403);
 
     const {
-      body: {
-        data: { phone, email },
-      },
-    } = await request(app())
-      .get(getEndpoint(`/users/${userId}`))
-      .set("Authorization", `Bearer ${adminToken}`)
-      .expect(200);
-
-    expect(phone).toEqual(user.phone);
-    expect(email).toEqual(user.email);
-  });
-
-  // Admin user
-  test("Have admin SIGNUP/SIGNIN flow completed without errors", async () => {
-    const user = {
-      phone: "1234567891",
-      login_passcode: "654321",
-    };
-
-    await request(app()).post(getEndpoint("/auth/signin/admin")).send(user).expect(400);
-
+      body: { data: meData },
+    } = await request(app()).get(getEndpoint(`/users/me`)).set("Authorization", `Bearer ${token}`).expect(200);
     const {
-      body: { data: adminUser },
-    } = await request(app()).post(getEndpoint("/auth/signup/admin")).send(user).expect(201); // TODO: Remove signup admin from the API (As it is not part of the documentation)
-    expect(adminUser.is_admin_user).toBe(true);
+      body: { data: allMyAccountsData },
+    }: {
+      body: { data: TUserAccount[] };
+    } = await request(app()).get(getEndpoint(`/users/me/accounts`)).set("Authorization", `Bearer ${token}`).expect(200);
 
-    const {
-      body: { token },
-    } = await request(app()).post(getEndpoint("/auth/signin/admin")).send(user).expect(200);
+    expect(meData.phone).toEqual(user.phone);
+    expect(meData.email).toEqual(user.email);
+    await handleExpectPasscodeHashing(user.transfer_pin, meData.transfer_pin);
 
-    const decodedUser = jwt.verify(token, process.env.JWT_PRIVATE_SECRET_KEY) as unknown as TAdminUser;
-
-    expect(decodedUser.is_admin_user).toBe(adminUser.is_admin_user);
-    expect(decodedUser.phone).toBe(adminUser.phone);
-    expect(decodedUser.login_passcode).toBe(adminUser.login_passcode);
+    expect(allMyAccountsData.length).toBe(2);
+    expect(allMyAccountsData[0].user_id).toBe(userId);
+    expect(allMyAccountsData[1].user_id).toBe(userId);
+    expect(allMyAccountsData[0].type).toBe(EAccountType.NORMAL);
+    expect(allMyAccountsData[1].type).toBe(EAccountType.CASHBACK);
+    expect(allMyAccountsData[0].balance).toBe(ACCOUNT_DEFAULT_BALANCE[EAccountType.NORMAL]);
+    expect(allMyAccountsData[1].balance).toBe(ACCOUNT_DEFAULT_BALANCE[EAccountType.CASHBACK]);
   });
 });

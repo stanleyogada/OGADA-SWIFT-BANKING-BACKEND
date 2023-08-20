@@ -16,11 +16,13 @@ import { getForgetLoginPasscodeEmailTemplate, getSendEmailVerificationEmailTempl
 import generateOneTimePassword from "../utils/generateOneTimePassword";
 import { TAdminUser, TUser } from "../types/users";
 import AdminUserRepo from "../repos/AdminUserRepo";
+import pool from "../utils/pool";
+import { AccountRepo } from "../repos/AccountRepo";
 
 const signJwt = promisify(jwt.sign);
 
 export const forgetLoginPasscode = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
-  await handleInputValidate(req.body, next, {
+  await handleInputValidate(req.body, {
     phone: Joi.string().min(10).max(10).required(),
     email: Joi.string()
       .email({
@@ -63,7 +65,7 @@ export const forgetLoginPasscode = handleTryCatch(async (req: Request, res: Resp
 });
 
 export const resetLoginPasscode = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
-  await handleInputValidate(req.body, next, {
+  await handleInputValidate(req.body, {
     new_login_passcode: Joi.string()
       .pattern(new RegExp("^[0-9]{6,6}$"))
       .message('"new_login_passcode" must be six digits')
@@ -95,7 +97,7 @@ export const resetLoginPasscode = handleTryCatch(async (req: Request, res: Respo
 });
 
 export const signin = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
-  await handleInputValidate(req.body, next, {
+  await handleInputValidate(req.body, {
     phone: Joi.string().min(10).max(10).required(),
     login_passcode: Joi.string()
       .pattern(new RegExp("^[0-9]{6,6}$"))
@@ -103,7 +105,7 @@ export const signin = handleTryCatch(async (req: Request, res: Response, next: N
       .required(),
   });
 
-  const returnCols: Array<keyof TUser> = ["login_passcode"];
+  const returnCols: Array<keyof TUser> = ["login_passcode", "transfer_pin"];
   const user = await UserRepo.findOneBy({ phone: req.body.phone }, returnCols);
   if (!user) {
     return next(new APIError("Invalid credentials!", 400));
@@ -141,37 +143,49 @@ export const signout = handleTryCatch(async (_req: Request, res: Response) => {
   });
 });
 
-export const signup = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
-  await handleInputValidate(req.body, next, {
-    first_name: Joi.string().min(2).max(30).required(),
-    last_name: Joi.string().min(2).max(30).required(),
-    middle_name: Joi.string().min(2).max(30),
-    phone: Joi.string().min(10).max(10).required(),
-    email: Joi.string()
-      .email({
-        minDomainSegments: 2,
-        tlds: { allow: INPUT_SCHEMA_EMAIL_ALLOW_TLDS },
-      })
-      .required(),
-    login_passcode: Joi.string()
-      .pattern(new RegExp("^[0-9]{6,6}$"))
-      .message('"login_passcode" must be six digits')
-      .required(),
-  });
+export const signup = handleTryCatch(
+  async (req: Request, res: Response, next: NextFunction) => {
+    await handleInputValidate(req.body, {
+      first_name: Joi.string().min(2).max(30).required(),
+      last_name: Joi.string().min(2).max(30).required(),
+      middle_name: Joi.string().min(2).max(30),
+      phone: Joi.string().min(10).max(10).required(),
+      email: Joi.string()
+        .email({
+          minDomainSegments: 2,
+          tlds: { allow: INPUT_SCHEMA_EMAIL_ALLOW_TLDS },
+        })
+        .required(),
+      login_passcode: Joi.string()
+        .pattern(new RegExp("^[0-9]{6,6}$"))
+        .message('"login_passcode" must be six digits')
+        .required(),
+      transfer_pin: Joi.string()
+        .pattern(new RegExp("^[0-9]{4,4}$"))
+        .message('"transfer_pin" must be 4 digits')
+        .required(),
+    });
 
-  const hash = await HashPassword.handleHash(req.body.login_passcode);
-  req.body.login_passcode = hash;
+    req.body.login_passcode = await HashPassword.handleHash(req.body.login_passcode);
+    req.body.transfer_pin = await HashPassword.handleHash(req.body.transfer_pin);
 
-  const user = await UserRepo.createOne(req.body);
+    await pool.query(`BEGIN TRANSACTION;`);
+    const user = await UserRepo.createOne(req.body);
+    await AccountRepo.createAccounts(user.id);
+    await pool.query(`COMMIT TRANSACTION;`);
 
-  res.status(201).json({
-    status: "success",
-    data: user,
-  });
-});
+    res.status(201).json({
+      status: "success",
+      data: handleDeleteReturnCols<TUser>(user, ["login_passcode", "transfer_pin"]),
+    });
+  },
+  async () => {
+    await pool.query(`ROLLBACK TRANSACTION;`); // TODO: test this (make an error creating an account and user then check if it's rolled back)
+  }
+);
 
 export const sendEmailVerification = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
-  await handleInputValidate(req.body, next, {
+  await handleInputValidate(req.body, {
     email: Joi.string()
       .email({
         minDomainSegments: 2,
@@ -213,12 +227,15 @@ export const sendEmailVerification = handleTryCatch(async (req: Request, res: Re
 });
 
 export const confirmEmailVerification = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
-  await handleInputValidate({ one_time_password: req.params.otp }, next, {
-    one_time_password: Joi.string()
-      .pattern(new RegExp("^[0-9a-z]{20,20}$", "i"))
-      .message('"one_time_password" must be valid')
-      .required(),
-  });
+  await handleInputValidate(
+    { one_time_password: req.params.otp },
+    {
+      one_time_password: Joi.string()
+        .pattern(new RegExp("^[0-9a-z]{20,20}$", "i"))
+        .message('"one_time_password" must be valid')
+        .required(),
+    }
+  );
 
   const user = await UserRepo.findOneBy({ one_time_password: req.params.otp });
   if (!user) {
@@ -239,28 +256,8 @@ export const confirmEmailVerification = handleTryCatch(async (req: Request, res:
   });
 });
 
-export const signupAdmin = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
-  await handleInputValidate(req.body, next, {
-    phone: Joi.string().min(10).max(10).required(),
-    login_passcode: Joi.string()
-      .pattern(new RegExp("^[0-9]{6,6}$"))
-      .message('"login_passcode" must be six digits')
-      .required(),
-  });
-
-  const hash = await HashPassword.handleHash(req.body.login_passcode);
-  req.body.login_passcode = hash;
-
-  const adminUser = await AdminUserRepo.createOne(req.body);
-
-  res.status(201).json({
-    status: "success",
-    data: adminUser,
-  });
-});
-
 export const signinAdmin = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
-  await handleInputValidate(req.body, next, {
+  await handleInputValidate(req.body, {
     phone: Joi.string().min(10).max(10).required(),
     login_passcode: Joi.string()
       .pattern(new RegExp("^[0-9]{6,6}$"))

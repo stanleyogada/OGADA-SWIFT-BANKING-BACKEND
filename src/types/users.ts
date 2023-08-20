@@ -1,3 +1,5 @@
+import type { EAccountType } from "./accounts";
+
 type TUser = {
   id: number;
   created_at: Date;
@@ -11,6 +13,7 @@ type TUser = {
   email_is_verified?: boolean;
   login_passcode: string;
   one_time_password?: string | null;
+  transfer_pin: string;
 };
 
 type TAdminUser = {
@@ -22,4 +25,15 @@ type TAdminUser = {
   login_passcode: string;
 };
 
-export type { TUser, TAdminUser };
+type TUserAccount = {
+  user_id: number;
+  created_at: Date;
+  email: string;
+  account_number: string;
+  full_name: string;
+  account_id: number;
+  balance: number;
+  type: EAccountType;
+};
+
+export type { TUser, TAdminUser, TUserAccount };

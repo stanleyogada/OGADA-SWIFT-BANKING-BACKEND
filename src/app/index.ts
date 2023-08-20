@@ -3,10 +3,11 @@ import helmet from "helmet";
 import cors from "cors";
 import morgan from "morgan";
 
-import usersRouter from "src/routes/usersRouter";
-import authRouter from "src/routes/authRouter";
-import ErrorHandler from "src/middleware/ErrorHandler";
-import APIError from "src/utils/APIError";
+import usersRouter from "../routes/usersRouter";
+import authRouter from "../routes/authRouter";
+import transactionRouter from "../routes/transactionRouter";
+import ErrorHandler from "../middleware/ErrorHandler";
+import APIError from "../utils/APIError";
 
 export default () => {
   const app = express();
@@ -43,6 +44,7 @@ export default () => {
   // Routes
   app.use("/api/v1/users", usersRouter);
   app.use("/api/v1/auth", authRouter);
+  app.use("/api/v1/transactions", transactionRouter);
 
   app.use("*", (req, _res, next) => {
     next(new APIError(`can't find ${req.originalUrl}, with the method:${req.method}, on this server!`));

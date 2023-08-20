@@ -1,7 +1,8 @@
-import type { TAdminUser } from "src/types/users";
+import { REPO_RESOURCES } from "../constants";
+import type { TAdminUser } from "../types/users";
 import Repo from "./Repo";
 
-const repo = new Repo<TAdminUser>("admin_users", [
+const repo = new Repo<TAdminUser>(REPO_RESOURCES.adminUsers, [
   "id",
   "created_at",
   "updated_at",

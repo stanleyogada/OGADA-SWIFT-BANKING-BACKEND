@@ -1,9 +1,9 @@
 import type { NextFunction } from "express";
 
-import handleTryCatch from "src/utils/handleTryCatch";
-import APIError from "src/utils/APIError";
-import { TRequestUser } from "src/types/api";
-import handleDeleteReturnCols from "src/utils/handleDeleteReturnCols";
+import handleTryCatch from "../utils/handleTryCatch";
+import APIError from "../utils/APIError";
+import { TRequestUser } from "../types/api";
+import handleDeleteReturnCols from "../utils/handleDeleteReturnCols";
 
 import jwt from "jsonwebtoken";
 const { promisify } = require("util");

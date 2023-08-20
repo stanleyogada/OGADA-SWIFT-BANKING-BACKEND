@@ -1,10 +1,12 @@
-import app from "src/app";
-import { handleWhereQuery, handlePatchSetQuery, handleInsertQuery } from "src/utils/handleQueryFormat";
-import pool from "src/utils/pool";
+import app from "../app";
+import { handleWhereQuery, handlePatchSetQuery, handleInsertQuery } from "../utils/handleQueryFormat";
+import pool from "../utils/pool";
+
+type TFindByManyPayload<T> = Partial<T> | { $or: Partial<T> };
 
 type TEnv = "test" | "development" | "production";
-type TCol = string | { env: TEnv[]; value: string };
-type TResource = "users" | "admin_users"; // TODO: add more as migration tables are added ...
+type TCol<T> = keyof T | { env: TEnv[]; value: keyof T };
+type TResource = string; // TODO: add more as migration tables are added ...
 interface IRepo<T> {
   findManyBy: (payload?: Partial<T>) => Promise<T[]>;
   findManyByAndUpdate: (findByPayload: Partial<T>, updatePayload: Partial<T>) => Promise<T[]>;
@@ -16,7 +18,7 @@ interface IRepo<T> {
 class Repo<T> implements IRepo<T> {
   private selectListQuery: string;
   private selectListQueryReturnColsQuery: string = "";
-  private cols: TCol[];
+  private cols: TCol<T>[];
   private resource: TResource;
 
   private setSelectListQuery = (returnCols?: Repo<T>["cols"]) => {
@@ -24,11 +26,11 @@ class Repo<T> implements IRepo<T> {
 
     for (let i = 0; i < this.cols.length; i++) {
       let col = this.cols[i];
-      if (typeof col !== "string" && col.env.includes(app().get("env") as TEnv)) {
+      if (typeof col === "object" && col.env.includes(app().get("env") as TEnv)) {
         col = col.value;
       }
 
-      if (typeof col !== "string") continue;
+      if (typeof col === "object") continue;
       cols.push(col);
     }
 
@@ -39,10 +41,17 @@ class Repo<T> implements IRepo<T> {
     }
   };
 
-  private handleWhereListQuery = (payload: Partial<T>) => {
+  private handleWhereListQuery = (payload: TFindByManyPayload<T>) => {
     if (!payload) return;
 
-    const cols = this.cols.reduce((acc, col) => [...acc, typeof col === "string" ? col : col.value], [] as string[]);
+    const cols = this.cols.reduce((acc, col) => {
+      if (typeof col === "object") {
+        col = col.value;
+      }
+
+      return [...acc, col];
+    }, []) as string[];
+
     const { q, queryDeps } = handleWhereQuery(payload, cols);
 
     return {
@@ -57,13 +66,15 @@ class Repo<T> implements IRepo<T> {
     this.resource = resource;
   }
 
-  async findManyBy(payload?: Partial<T>, returnCols?: Repo<T>["cols"]) {
+  async findManyBy(payload?: TFindByManyPayload<T>, returnCols?: Repo<T>["cols"]) {
     this.setSelectListQuery(returnCols);
     const where = this.handleWhereListQuery(payload);
 
+    const selectList = `${this.selectListQuery}${this.selectListQueryReturnColsQuery}`;
+
     const { rows } = await pool.query(
       `
-      SELECT ${this.selectListQuery}${this.selectListQueryReturnColsQuery}
+      SELECT ${selectList}
       FROM ${this.resource}
       ${payload ? `WHERE ${where?.query}` : ""}
       ;
@@ -74,16 +85,22 @@ class Repo<T> implements IRepo<T> {
     return rows as T[];
   }
 
-  async findManyByAndUpdate(findPayload: Partial<T>, updatePayload: Partial<T>, returnCols?: Repo<T>["cols"]) {
+  async findManyByAndUpdate(
+    findPayload: TFindByManyPayload<T>,
+    updatePayload: Partial<T>,
+    returnCols?: Repo<T>["cols"]
+  ) {
     this.setSelectListQuery(returnCols);
     const { queryDependencies, whereQuery, setQuery } = handlePatchSetQuery(findPayload, updatePayload);
+
+    const selectList = `${this.selectListQuery}${this.selectListQueryReturnColsQuery}`;
 
     const { rows } = await pool.query(
       `
         UPDATE users
         SET ${setQuery}
         WHERE ${whereQuery}
-        RETURNING ${this.selectListQuery}${this.selectListQueryReturnColsQuery}
+        RETURNING ${selectList}
         ;
       `,
       queryDependencies
@@ -92,15 +109,17 @@ class Repo<T> implements IRepo<T> {
     return rows as T[];
   }
 
-  async deleteManyBy(payload: Partial<T>, returnCols?: Repo<T>["cols"]) {
+  async deleteManyBy(payload: TFindByManyPayload<T>, returnCols?: Repo<T>["cols"]) {
     this.setSelectListQuery(returnCols);
     const where = this.handleWhereListQuery(payload);
+
+    const selectList = `${this.selectListQuery}${this.selectListQueryReturnColsQuery}`;
 
     const { rows } = await pool.query(
       `
       DELETE FROM ${this.resource}
       WHERE ${where.query}
-      RETURNING ${this.selectListQuery}${this.selectListQueryReturnColsQuery}
+      RETURNING ${selectList}
       ;
     `,
       where.queryDependencies
@@ -113,11 +132,13 @@ class Repo<T> implements IRepo<T> {
     this.setSelectListQuery(returnCols);
     const insert = handleInsertQuery(payload);
 
+    const selectList = `${this.selectListQuery}${this.selectListQueryReturnColsQuery}`;
+
     const { rows } = await pool.query(
       `
       INSERT INTO ${this.resource} 
       ${insert.query}
-      RETURNING ${this.selectListQuery}${this.selectListQueryReturnColsQuery}
+      RETURNING ${selectList}
       ;
     `,
       insert.queryDependencies

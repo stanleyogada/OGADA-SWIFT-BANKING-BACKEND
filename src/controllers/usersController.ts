@@ -7,9 +7,8 @@ import { INPUT_SCHEMA_EMAIL_ALLOW_TLDS } from "../constants";
 import handleInputValidate from "../utils/handleInputValidate";
 import handleTryCatch from "../utils/handleTryCatch";
 import APIError from "../utils/APIError";
-import { TRequestUser } from "../types/api";
-import handleDeleteReturnCols from "../utils/handleDeleteReturnCols";
-import { TUser } from "../types/users";
+
+import type { TRequestUser } from "../types/api";
 
 export const getAllUsers = handleTryCatch(async (_, res: Response) => {
   const users = await UserRepo.findManyBy();
@@ -34,17 +33,27 @@ export const getOneUser = handleTryCatch(async (req: Request, res: Response, nex
   });
 });
 
-export const getCurrentUser = handleTryCatch(async (req: TRequestUser, res: Response, next: NextFunction) => {
+export const getCurrentUser = handleTryCatch(async (req: TRequestUser, res: Response) => {
   const user = await UserRepo.findOneBy({ id: +req.user.id });
 
   res.status(200).json({
     status: "success",
-    data: handleDeleteReturnCols<TUser>(user, ["login_passcode"]),
+    data: user,
+  });
+});
+
+export const getAllAccounts = handleTryCatch(async (req: TRequestUser, res: Response) => {
+  const accounts = await UserRepo.findAllAccountsByUserId(+req.user.id);
+
+  res.status(200).json({
+    status: "success",
+    data: accounts,
+    count: accounts.length,
   });
 });
 
 export const updateOneUser = handleTryCatch(async (req: TRequestUser, res: Response, next: NextFunction) => {
-  await handleInputValidate(req.body, next, {
+  await handleInputValidate(req.body, {
     nickname: Joi.string().min(3).max(30),
     email: Joi.string().email({
       minDomainSegments: 2,
@@ -72,7 +81,7 @@ export const deleteOneUser = handleTryCatch(async (req: Request, res: Response, 
 });
 
 export const updateLoginPasscode = handleTryCatch(async (req: TRequestUser, res: Response, next: NextFunction) => {
-  await handleInputValidate(req.body, next, {
+  await handleInputValidate(req.body, {
     old_login_passcode: Joi.string()
       .pattern(new RegExp("^[0-9]{6,6}$"))
       .message('"old_login_passcode" must be six digits')
@@ -84,7 +93,7 @@ export const updateLoginPasscode = handleTryCatch(async (req: TRequestUser, res:
   });
 
   const { user: _user } = req;
-  const user = await UserRepo.findOneBy({ id: +_user.id }, ["login_passcode"]);
+  const user = await UserRepo.findOneBy({ id: +_user.id }, ["login_passcode", "transfer_pin"]);
 
   const isMatch = await HashPassword.handleCheck(req.body.old_login_passcode, user.login_passcode);
   if (!isMatch) {
