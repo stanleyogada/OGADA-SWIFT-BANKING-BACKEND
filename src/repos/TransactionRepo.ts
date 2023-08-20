@@ -202,11 +202,10 @@ class TransactionRepo {
          payload?.transaction_id
            ? `transaction_id = $1;`
            : `
-        sender_account_number = $1
-        OR receiver_account_number = $1 
-        AND is_success = TRUE;
+          sender_account_number = $1
+          OR receiver_account_number = $1 
+          AND is_success = TRUE;
        `
-       }
        }
     `,
       payload?.transaction_id ? [payload.transaction_id] : [payload.account_number]
@@ -288,6 +287,8 @@ class TransactionRepo {
   }
 
   static async findOneTransactionBy(payload: { resource: string; transaction_id: string }) {
+    console.log("payload.transaction_id", payload.transaction_id);
+
     switch (payload.resource) {
       case REPO_RESOURCES.transactionsTransactionsReward:
         return (
@@ -302,6 +303,8 @@ class TransactionRepo {
           })
         )[0] as TTransactionTransactionMobile;
       case REPO_RESOURCES.transactionsTransactionsBanks:
+        console.log("payload.transaction_id", payload.transaction_id);
+
         return (
           await TransactionRepo.findManyTransactionsBankBy({
             transaction_id: payload.transaction_id,

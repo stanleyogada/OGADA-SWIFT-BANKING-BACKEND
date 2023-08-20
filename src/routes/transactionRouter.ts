@@ -24,9 +24,21 @@ router.get(TRANSACTIONS_ROUTES.all, handleAuthGuardRoute, getAllTransactions);
 
 router.get(TRANSACTIONS_ROUTES.banks, handleAuthGuardRoute, getTransactionsBank);
 router.post(TRANSACTIONS_ROUTES.banksSendMoney, handleAuthGuardRoute, handleValidateTransferPin, sendMoneyBank);
+// router.get(
+//   `${TRANSACTIONS_ROUTES.banks}/:transactionId`,
+//   handleAuthGuardRoute,
+//   handleAddTransactionToRequest(REPO_RESOURCES.transactionsTransactionsBanks),
+//   getOneTransaction
+// );
 
 router.get(TRANSACTIONS_ROUTES.inHouses, handleAuthGuardRoute, getTransactionsInHouse);
 router.post(TRANSACTIONS_ROUTES.inHousesSendMoney, handleAuthGuardRoute, handleValidateTransferPin, sendMoneyInHouse);
+router.get(
+  `${TRANSACTIONS_ROUTES.inHouses}/:transactionId`,
+  handleAuthGuardRoute,
+  handleAddTransactionToRequest(REPO_RESOURCES.transactionsTransactionsInHouse),
+  getOneTransaction
+);
 
 router.get(TRANSACTIONS_ROUTES.mobiles, handleAuthGuardRoute, getTransactionsMobile);
 router.post(TRANSACTIONS_ROUTES.mobilesSendMoney, handleAuthGuardRoute, handleValidateTransferPin, sendMoneyMobile);
