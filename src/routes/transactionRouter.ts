@@ -14,7 +14,6 @@ import {
 import handleAuthGuardRoute from "../middleware/handleAuthGuardRoute";
 import handleValidateTransferPin from "../middleware/handleValidateTransferPin";
 import { TRANSACTIONS_ROUTES } from "../constants/routes";
-import handleTryCatch from "../utils/handleTryCatch";
 import handleAddTransactionToRequest from "../middleware/handleAddTransactionToRequest";
 import { REPO_RESOURCES } from "../constants";
 
