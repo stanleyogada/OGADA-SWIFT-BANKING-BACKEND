@@ -36,6 +36,10 @@ export const sendMoneyInHouse = handleTryCatch(
       sender_account_number: user.phone,
     };
 
+    if (reqBody.sender_account_number === reqBody.receiver_account_number) {
+      throw new APIError("You can't send money to yourself", 400);
+    }
+
     await handleInputValidate(
       {
         ...reqBody,
