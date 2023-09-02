@@ -6,7 +6,6 @@ export const shorthands: ColumnDefinitions | undefined = undefined;
 export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.sql(`
     CREATE TYPE KYC_TYPE AS ENUM ('BASIC', 'PRO', 'VIP');
-  
     CREATE TABLE users (
       id SERIAL PRIMARY KEY,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -30,7 +29,6 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 export async function down(pgm: MigrationBuilder): Promise<void> {
   pgm.sql(`
     DROP TABLE users;
-    
     DROP TYPE IF EXISTS KYC_TYPE;
   `);
 }
