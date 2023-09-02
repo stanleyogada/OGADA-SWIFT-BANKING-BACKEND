@@ -163,6 +163,35 @@ class AccountRepo {
       senderAccount: senderAccount.rows[0] as TAccount,
     };
   }
+
+  static async topUp(payload: {
+    receiver_account_number: string;
+    amount: number;
+    receiver_account_type: EAccountType;
+  }) {
+    const receiverAccount = await pool.query(
+      `
+      UPDATE "accounts"
+      SET balance = balance + $1
+      WHERE accounts.user_id = (
+        SELECT 
+          "user_id"
+        FROM 
+          "users_accounts"
+        WHERE 
+          "account_number" = $2
+          AND "type" = $3
+        
+      ) AND accounts.type = $3
+      RETURNING id, balance, type, user_id;
+    `,
+      [`${payload.amount}`, payload.receiver_account_number, payload.receiver_account_type]
+    );
+
+    return {
+      receiverAccount: receiverAccount.rows[0] as TAccount,
+    };
+  }
 }
 
 export { AccountRepo };

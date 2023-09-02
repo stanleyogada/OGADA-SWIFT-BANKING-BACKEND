@@ -142,7 +142,7 @@ export const sendMoneyBank = handleTryCatch(async (req: TRequestUser, res: Respo
       bank_account_full_name: Joi.string().min(3).max(100).required(),
       bank_account_number: Joi.string()
         .pattern(/^[0-9]+$/)
-        .message("Bank account number must be a number")
+        .message("Bank account number must be a valid number")
         .min(10)
         .max(10)
         .required(),
@@ -299,7 +299,7 @@ export const sendMoneyMobile = handleTryCatch(async (req: TRequestUser, res: Res
       operator: Joi.string().min(3).max(100).required(),
       phone_number: Joi.string()
         .pattern(/^\d+$/)
-        .message("Bank account number must be a number")
+        .message("`phone_number` must be a valid number")
         .min(10)
         .max(11)
         .required(),
@@ -316,6 +316,12 @@ export const sendMoneyMobile = handleTryCatch(async (req: TRequestUser, res: Res
     sender_account_number: reqBody.sender_account_number,
     amount: reqBody.amount,
     sender_account_type: reqBody.sender_account_type,
+  });
+
+  await AccountRepo.topUp({
+    receiver_account_number: reqBody.sender_account_number,
+    amount: reqBody.amount,
+    receiver_account_type: EAccountType.CASHBACK,
   });
 
   await TransactionRepo.createTransactionMobile({
