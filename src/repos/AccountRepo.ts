@@ -93,8 +93,6 @@ class AccountRepo {
       throw new APIError("Receiver account not found", 400);
     }
 
-    console.log("receiverUser", receiverUser);
-
     const receiverAccount = await pool.query(
       `
       UPDATE "accounts"
