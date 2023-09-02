@@ -29,6 +29,8 @@ export const getTransactionsInHouse = handleTryCatch(async (req: TRequestUser, r
 
 export const sendMoneyInHouse = handleTryCatch(
   async (req: TRequestUser, res) => {
+    console.log("LOL");
+
     const { user } = req;
     const reqBody = Object.assign(req.body, {
       sender_account_number: user.phone,
@@ -36,7 +38,7 @@ export const sendMoneyInHouse = handleTryCatch(
       sender_account_number: user.phone,
     };
 
-    handleInputValidate(
+    await handleInputValidate(
       {
         ...reqBody,
         sender_account_type: reqBody.sender_account_type?.toUpperCase(),
@@ -127,7 +129,7 @@ export const sendMoneyBank = handleTryCatch(async (req: TRequestUser, res: Respo
       sender_account_type: EAccountType;
     };
 
-  handleInputValidate(
+  await handleInputValidate(
     {
       ...reqBody,
       sender_account_type: reqBody.sender_account_type?.toUpperCase(),
@@ -278,7 +280,7 @@ export const sendMoneyMobile = handleTryCatch(async (req: TRequestUser, res: Res
     amount: number;
   };
 
-  handleInputValidate(
+  await handleInputValidate(
     {
       ...reqBody,
       sender_account_type: reqBody.sender_account_type?.toUpperCase(),
