@@ -10,6 +10,7 @@ import { TTransaction, TTransactionBank, TTransactionInHouse } from "../types/tr
 import UserRepo from "../repos/UserRepo";
 import { NextFunction, Response } from "express";
 import APIError from "../utils/APIError";
+import { CASHBACK_MOBILE_REWARD_PERCENTAGE } from "../constants";
 
 let createTransactionInHousePayload: Omit<TTransaction & TTransactionInHouse, "id" | "transaction_id" | "created_at">;
 
@@ -312,6 +313,8 @@ export const sendMoneyMobile = handleTryCatch(async (req: TRequestUser, res: Res
     accounts.find((account) => account.type === reqBody.sender_account_type)
   );
 
+  const cashbackAmount = (CASHBACK_MOBILE_REWARD_PERCENTAGE / 100) * reqBody.amount;
+
   await AccountRepo.withdrawMoney({
     sender_account_number: reqBody.sender_account_number,
     amount: reqBody.amount,
@@ -320,7 +323,7 @@ export const sendMoneyMobile = handleTryCatch(async (req: TRequestUser, res: Res
 
   await AccountRepo.topUp({
     receiver_account_number: reqBody.sender_account_number,
-    amount: reqBody.amount,
+    amount: cashbackAmount,
     receiver_account_type: EAccountType.CASHBACK,
   });
 
@@ -337,6 +340,7 @@ export const sendMoneyMobile = handleTryCatch(async (req: TRequestUser, res: Res
     phone_number: reqBody.phone_number,
     note: `Cashback for mobile ${reqBody.is_airtime ? "airtime" : "data"} recharge`,
     receiver_account_number: reqBody.phone_number,
+    cashbackAmount,
   });
 
   res.status(200).json({

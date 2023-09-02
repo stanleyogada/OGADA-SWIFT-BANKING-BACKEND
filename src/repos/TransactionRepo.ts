@@ -129,6 +129,7 @@ class TransactionRepo {
       TTransactionTransactionMobile &
         TTransactionTransactionReward & {
           sender_account_number: string;
+          cashbackAmount: number;
         },
       "transaction_id" | "transaction_number" | "created_at"
     >
@@ -155,7 +156,7 @@ class TransactionRepo {
       is_deposit: payload.is_deposit,
       is_success: payload.is_success,
       type: EAccountType.CASHBACK,
-      amount: payload.amount,
+      amount: payload.cashbackAmount,
       charge: payload.charge,
       account_id: payload.account_id,
     });
