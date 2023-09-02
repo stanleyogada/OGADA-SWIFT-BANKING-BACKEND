@@ -29,8 +29,6 @@ export const getTransactionsInHouse = handleTryCatch(async (req: TRequestUser, r
 
 export const sendMoneyInHouse = handleTryCatch(
   async (req: TRequestUser, res) => {
-    console.log("LOL");
-
     const { user } = req;
     const reqBody = Object.assign(req.body, {
       sender_account_number: user.phone,

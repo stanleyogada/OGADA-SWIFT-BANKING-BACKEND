@@ -4,6 +4,7 @@ import Repo from "./Repo";
 import { EAccountType, type TAccount } from "../types/accounts";
 import pool from "../utils/pool";
 import APIError from "../utils/APIError";
+import UserRepo from "./UserRepo";
 
 const repo = new Repo<TAccount>(REPO_RESOURCES.accounts, ["id", "balance", "type", "user_id"]);
 
@@ -83,6 +84,16 @@ class AccountRepo {
     `,
       [`${payload.amount}`, payload.sender_account_number, payload.sender_account_type]
     );
+
+    const receiverUser = await UserRepo.findOneBy({
+      phone: payload.receiver_account_number,
+    });
+
+    if (!receiverUser) {
+      throw new APIError("Receiver account not found", 400);
+    }
+
+    console.log("receiverUser", receiverUser);
 
     const receiverAccount = await pool.query(
       `
