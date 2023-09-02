@@ -18,7 +18,6 @@ const handleValidateTransferPin = async (req: TRequestUser, _, next: NextFunctio
     },
     ["transfer_pin"]
   );
-  console.log({ transfer_pin, user });
 
   const isTransferPinValid = await HashPassword.handleCheck(transfer_pin, user.transfer_pin);
 
