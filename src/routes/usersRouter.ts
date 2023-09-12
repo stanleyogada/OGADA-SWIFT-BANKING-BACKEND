@@ -7,6 +7,7 @@ import {
   deleteOneUser,
   updateLoginPasscode,
   getAllAccounts,
+  getOneUserByPhone,
 } from "../controllers/usersController";
 import handleAuthGuardRoute from "../middleware/handleAuthGuardRoute";
 import handleAdminProtectRoute from "../middleware/handleAdminProtectRoute";
@@ -16,6 +17,8 @@ const router = Router();
 
 router.get("/me", handleAuthGuardRoute, getCurrentUser);
 router.get("/me/accounts", handleAuthGuardRoute, getAllAccounts);
+
+router.get("/by-phone/:phone", getOneUserByPhone);
 
 router.get(
   "/default-user-login",

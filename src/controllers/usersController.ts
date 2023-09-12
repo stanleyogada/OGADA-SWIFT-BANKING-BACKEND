@@ -35,7 +35,20 @@ export const getOneUser = handleTryCatch(async (req: Request, res: Response, nex
 
   res.status(200).json({
     status: "success",
-    data: user,
+    data: showSensitiveData ? user : handleDeleteReturnCols(user, ["login_passcode", "transfer_pin"]),
+  });
+});
+
+export const getOneUserByPhone = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
+  const user = await UserRepo.findOneBy({ phone: req.params.phone });
+
+  if (!user) {
+    return next(new APIError("User not found!", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    data: handleDeleteReturnCols(user, ["login_passcode", "transfer_pin"]),
   });
 });
 

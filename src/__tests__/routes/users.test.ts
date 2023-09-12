@@ -239,6 +239,17 @@ test("Have /default-user-login working", async () => {
   expect(body.data.nickname).toBeNull();
 });
 
+test("Have /by-phone/:phone working", async () => {
+  const { body } = await request(app())
+    .get(getEndpoint(`/users/by-phone/${DEFAULT_USER_SIGNIN_CREDENTIALS.phone}`))
+    .expect(200);
+
+  expect(body.data.first_name).toEqual(DEFAULT_USER_SIGNIN_CREDENTIALS.first_name);
+  expect(body.data.email).toEqual(DEFAULT_USER_SIGNIN_CREDENTIALS.email);
+  expect(body.data.phone).toEqual(DEFAULT_USER_SIGNIN_CREDENTIALS.phone);
+  expect(body.data.nickname).toBeNull();
+});
+
 const handleComparePassword = async (new_login_passcode: string, token: string) => {
   const {
     body: { data: user },
