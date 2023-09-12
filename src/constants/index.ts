@@ -9,6 +9,18 @@ const ADMIN_USER_SIGNIN_CREDENTIALS = {
   login_passcode: "123456",
 };
 
+const DEFAULT_USER_SIGNIN_CREDENTIALS = {
+  first_name: "Default",
+  last_name: "User",
+  middle_name: "Normal",
+  phone: "4286351832",
+  email: "defaultNormalUser@email.com",
+  email_is_verified: true,
+  login_passcode: "123456",
+  transfer_pin: "1234",
+  avatar: "https://i.pravatar.cc/300",
+};
+
 const REPO_RESOURCES = {
   users: "users",
   adminUsers: "admin_users",
@@ -42,6 +54,7 @@ export {
   ROUTE_PREFIX,
   INPUT_SCHEMA_EMAIL_ALLOW_TLDS,
   ADMIN_USER_SIGNIN_CREDENTIALS,
+  DEFAULT_USER_SIGNIN_CREDENTIALS,
   REPO_RESOURCES,
   ACCOUNT_DEFAULT_BALANCE,
   CASHBACK_MOBILE_REWARD_PERCENTAGE,

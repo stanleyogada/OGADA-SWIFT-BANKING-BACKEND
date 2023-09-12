@@ -24,7 +24,8 @@ TABLE users {
   transfer_pin VARCHAR(100) [NOT NULL]
   kyc KYC_TYPE
   email_is_verified BOOLEAN [note: 'DEFAULT FALSE']
-  one_time_password VARCHAR(20)
+  one_time_password VARCHAR(20) [UNIQUE],
+  avatar VARCHAR(100)
 } 
 
 TABLE accounts {
