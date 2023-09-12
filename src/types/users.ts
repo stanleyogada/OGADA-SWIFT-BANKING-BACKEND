@@ -14,6 +14,7 @@ type TUser = {
   login_passcode: string;
   one_time_password?: string | null;
   transfer_pin: string;
+  avatar?: string;
 };
 
 type TAdminUser = {

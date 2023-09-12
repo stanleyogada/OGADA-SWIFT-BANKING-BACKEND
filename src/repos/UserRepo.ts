@@ -14,6 +14,7 @@ const repo = new Repo<TUser>(REPO_RESOURCES.users, [
   "email",
   "email_is_verified",
   "phone",
+  "avatar",
   { env: ["test"], value: "one_time_password" },
   { env: ["test"], value: "login_passcode" },
   { env: ["test"], value: "transfer_pin" },
