@@ -5,6 +5,7 @@ import UserRepo from "../../repos/UserRepo";
 import { TUser } from "../../types/users";
 import { getEndpoint, handleSigninAdminUser, handleSigninUser, handleSignupUser } from "../../utils/tests";
 import HashPassword from "../../utils/HashPassword";
+import { DEFAULT_USER_SIGNIN_CREDENTIALS } from "../../constants";
 
 describe("Users", () => {
   test("Have /Get one and all users working", async () => {
@@ -215,6 +216,27 @@ describe("Users", () => {
 
     expect(body2.data.nickname).toEqual("Nickname 1");
   });
+});
+
+test("Have /default-user-login working", async () => {
+  const {
+    body: { data: defaultUser },
+  } = await request(app()).get(getEndpoint("/users/default-user-login")).expect(200);
+
+  const { token } = await handleSigninUser(200, {
+    phone: defaultUser.phone,
+    login_passcode: defaultUser.login_passcode,
+  });
+
+  const { body } = await request(app())
+    .get(getEndpoint("/users/me"))
+    .set("Authorization", `Bearer ${token}`)
+    .expect(200);
+
+  expect(body.data.first_name).toEqual(DEFAULT_USER_SIGNIN_CREDENTIALS.first_name);
+  expect(body.data.email).toEqual(DEFAULT_USER_SIGNIN_CREDENTIALS.email);
+  expect(body.data.phone).toEqual(DEFAULT_USER_SIGNIN_CREDENTIALS.phone);
+  expect(body.data.nickname).toBeNull();
 });
 
 const handleComparePassword = async (new_login_passcode: string, token: string) => {

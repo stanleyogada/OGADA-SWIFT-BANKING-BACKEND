@@ -6,9 +6,6 @@ import { DEFAULT_USER_SIGNIN_CREDENTIALS } from "../src/constants";
 export const shorthands: ColumnDefinitions | undefined = undefined;
 
 export async function up(pgm: MigrationBuilder): Promise<void> {
-  const loginPassCodeHash = await HashPassword.handleHash(DEFAULT_USER_SIGNIN_CREDENTIALS.login_passcode);
-  const transferPinHash = await HashPassword.handleHash(DEFAULT_USER_SIGNIN_CREDENTIALS.transfer_pin);
-
   pgm.sql(`
     CREATE TYPE KYC_TYPE AS ENUM ('BASIC', 'PRO', 'VIP');
     CREATE TABLE users (
@@ -50,8 +47,8 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
         '${DEFAULT_USER_SIGNIN_CREDENTIALS.phone}', 
         '${DEFAULT_USER_SIGNIN_CREDENTIALS.email}', 
         '${DEFAULT_USER_SIGNIN_CREDENTIALS.email_is_verified}',
-        '${loginPassCodeHash}', 
-        '${transferPinHash}', 
+        '${DEFAULT_USER_SIGNIN_CREDENTIALS.login_passcode}',
+        '${DEFAULT_USER_SIGNIN_CREDENTIALS.transfer_pin}',
         '${DEFAULT_USER_SIGNIN_CREDENTIALS.avatar}'
     ) RETURNING *;
   `);
