@@ -9,6 +9,7 @@ import handleTryCatch from "../utils/handleTryCatch";
 import APIError from "../utils/APIError";
 
 import type { TRequestUser } from "../types/api";
+import handleDeleteReturnCols from "../utils/handleDeleteReturnCols";
 
 export const getAllUsers = handleTryCatch(async (_, res: Response) => {
   const users = await UserRepo.findManyBy();
@@ -38,7 +39,7 @@ export const getCurrentUser = handleTryCatch(async (req: TRequestUser, res: Resp
 
   res.status(200).json({
     status: "success",
-    data: user,
+    data: handleDeleteReturnCols(user, ["login_passcode", "transfer_pin"]),
   });
 });
 
