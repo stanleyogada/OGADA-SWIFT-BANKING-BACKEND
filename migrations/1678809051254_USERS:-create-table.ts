@@ -31,7 +31,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     );
 
     
-    INSERT INTO admin_users (
+    INSERT INTO users (
         first_name,
         last_name,
         middle_name,
