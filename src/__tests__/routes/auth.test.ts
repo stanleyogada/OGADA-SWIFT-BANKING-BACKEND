@@ -189,12 +189,29 @@ describe("Auth", () => {
       .post(getEndpoint(`/auth/confirm-email-verification/${oneTimePassword}`))
       .expect(200);
 
-    getOneRes = await request(app())
-      .get(getEndpoint(`/users/${id}`))
-      .set("Authorization", `Bearer ${adminToken}`)
+    let {
+      body: { data },
+    } = await request(app()).get(getEndpoint("/users/me")).set("Authorization", `Bearer ${token}`).expect(200);
+
+    expect(data.one_time_password).toBeNull();
+    expect(data.email_is_verified).toBe(true);
+
+    await request(app())
+      .patch(getEndpoint("/users"))
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        nickname: "Test Nickname",
+        email: "test10@gmail.com",
+      })
       .expect(200);
-    expect(getOneRes.body.data.one_time_password).toBeNull();
-    expect(getOneRes.body.data.email_is_verified).toBe(true);
+
+    let {
+      body: { data: datax },
+    } = await request(app()).get(getEndpoint("/users/me")).set("Authorization", `Bearer ${token}`).expect(200);
+
+    expect(datax.nickname).toBe("Test Nickname");
+    expect(datax.email).toBe("test10@gmail.com");
+    expect(datax.email_is_verified).toBe(false);
   });
 
   test("Have signin flow completed without errors", async () => {

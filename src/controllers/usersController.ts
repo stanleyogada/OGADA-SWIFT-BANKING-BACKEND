@@ -24,8 +24,6 @@ export const getAllUsers = handleTryCatch(async (_, res: Response) => {
 export const getOneUser = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
   const showSensitiveData = req.params.show ? true : false;
 
-  console.log("showSensitiveData", showSensitiveData);
-
   const user = await UserRepo.findOneBy(
     { id: +req.params.id },
     showSensitiveData ? ["login_passcode", "transfer_pin"] : undefined
@@ -70,7 +68,13 @@ export const updateOneUser = handleTryCatch(async (req: TRequestUser, res: Respo
   });
 
   const { user } = req;
-  await UserRepo.findOneByAndUpdate({ id: +user.id }, req.body);
+
+  const reqBody = {
+    ...req.body,
+    ...(req.body.email && { email_is_verified: false }),
+  };
+
+  await UserRepo.findOneByAndUpdate({ id: +user.id }, reqBody);
 
   res.status(200).json({
     status: "success",
