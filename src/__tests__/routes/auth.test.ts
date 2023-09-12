@@ -9,6 +9,15 @@ import { ACCOUNT_DEFAULT_BALANCE } from "../../constants";
 import type { TUser, TUserAccount } from "../../types/users";
 import { EAccountType } from "../../types/accounts";
 
+const handleSignOut = async () => {
+  const { headers } = await request(app()).get(getEndpoint("/auth/signout")).expect(200);
+
+  // Assert the 'Set-Cookie' header to ensure the token cookie is cleared
+  const cookieHeader = headers["set-cookie"];
+  expect(cookieHeader).toBeDefined();
+  expect(cookieHeader[0]).toContain("token=;"); // Check if token cookie is empty
+};
+
 describe("Auth", () => {
   const handleExpectPasscodeHashing = async (loginPasscode: string, hashedLoginPasscode: string) => {
     expect(hashedLoginPasscode).not.toBeUndefined();
@@ -226,14 +235,7 @@ describe("Auth", () => {
     expect(decodedUser.exp - decodedUser.iat).toBe(10 * 60);
   });
 
-  test("Have signout flow completed without errors", async () => {
-    const { headers } = await request(app()).get(getEndpoint("/auth/signout")).expect(200);
-
-    // Assert the 'Set-Cookie' header to ensure the token cookie is cleared
-    const cookieHeader = headers["set-cookie"];
-    expect(cookieHeader).toBeDefined();
-    expect(cookieHeader[0]).toContain("token=;"); // Check if token cookie is empty
-  });
+  test("Have signout flow completed without errors", handleSignOut);
 
   test("Have signup flow completed without errors", async () => {
     const userId = 1;

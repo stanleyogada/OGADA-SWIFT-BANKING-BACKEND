@@ -10,6 +10,7 @@ const ADMIN_USER_SIGNIN_CREDENTIALS = {
 };
 
 const DEFAULT_USER_SIGNIN_CREDENTIALS = {
+  id: 1000,
   first_name: "Default",
   last_name: "User",
   middle_name: "Normal",

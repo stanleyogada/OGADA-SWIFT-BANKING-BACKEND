@@ -32,6 +32,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 
     
     INSERT INTO users (
+        id,
         first_name,
         last_name,
         middle_name,
@@ -42,6 +43,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
         transfer_pin,
         avatar
     ) VALUES (
+        '${DEFAULT_USER_SIGNIN_CREDENTIALS.id}',
         '${DEFAULT_USER_SIGNIN_CREDENTIALS.first_name}', 
         '${DEFAULT_USER_SIGNIN_CREDENTIALS.last_name}', 
         '${DEFAULT_USER_SIGNIN_CREDENTIALS.middle_name}', 
