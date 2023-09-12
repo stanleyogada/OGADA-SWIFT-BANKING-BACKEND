@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import app from "../../app";
 import HashPassword from "../../utils/HashPassword";
 import { getEndpoint, handleSigninAdminUser, handleSigninUser, handleSignupUser } from "../../utils/tests";
-import { ACCOUNT_DEFAULT_BALANCE } from "../../constants";
+import { ACCOUNT_DEFAULT_BALANCE, DEFAULT_USER_SIGNIN_CREDENTIALS } from "../../constants";
 
 import type { TUser, TUserAccount } from "../../types/users";
 import { EAccountType } from "../../types/accounts";
@@ -210,6 +210,11 @@ describe("Auth", () => {
     await handleSigninUser(400, { phone: user.phone, login_passcode: "123456" });
     await handleSigninUser(400, { not_allowed: "not_allowed" });
 
+    await handleSigninUser(200, {
+      phone: DEFAULT_USER_SIGNIN_CREDENTIALS.phone,
+      login_passcode: DEFAULT_USER_SIGNIN_CREDENTIALS.login_passcode,
+    });
+    await handleSignOut();
     const { token, headers } = await handleSigninUser(200, user);
 
     // Assert that the token is valid
