@@ -155,6 +155,8 @@ const handleAssertSendMoneyInHouse = async (
   const senderAccount = handleFindAccount(senderUser);
   const receiverAccount = handleFindAccount(receiverUser);
 
+  // console.log(endpoint);
+
   await request(app())
     .post(getEndpoint(endpoint))
     .set("Authorization", `Bearer ${senderUser.token}`)
