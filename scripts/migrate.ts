@@ -37,7 +37,7 @@ const DEFAULT_USER_OPTS: TConnectOpts = getDBConnection();
       await pool.connect(DEFAULT_USER_OPTS);
       const { rows } = await pool.query("SELECT * FROM pgmigrations;");
 
-      for (const row of rows) {
+      for (const _ of rows) {
         await runMigration();
       }
 
