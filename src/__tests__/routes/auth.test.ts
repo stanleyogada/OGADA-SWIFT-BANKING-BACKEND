@@ -4,10 +4,19 @@ import jwt from "jsonwebtoken";
 import app from "../../app";
 import HashPassword from "../../utils/HashPassword";
 import { getEndpoint, handleSigninAdminUser, handleSigninUser, handleSignupUser } from "../../utils/tests";
-import { ACCOUNT_DEFAULT_BALANCE } from "../../constants";
+import { ACCOUNT_DEFAULT_BALANCE, DEFAULT_USER_SIGNIN_CREDENTIALS } from "../../constants";
 
 import type { TUser, TUserAccount } from "../../types/users";
 import { EAccountType } from "../../types/accounts";
+
+const handleSignOut = async () => {
+  const { headers } = await request(app()).get(getEndpoint("/auth/signout")).expect(200);
+
+  // Assert the 'Set-Cookie' header to ensure the token cookie is cleared
+  const cookieHeader = headers["set-cookie"];
+  expect(cookieHeader).toBeDefined();
+  expect(cookieHeader[0]).toContain("token=;"); // Check if token cookie is empty
+};
 
 describe("Auth", () => {
   const handleExpectPasscodeHashing = async (loginPasscode: string, hashedLoginPasscode: string) => {
@@ -180,12 +189,29 @@ describe("Auth", () => {
       .post(getEndpoint(`/auth/confirm-email-verification/${oneTimePassword}`))
       .expect(200);
 
-    getOneRes = await request(app())
-      .get(getEndpoint(`/users/${id}`))
-      .set("Authorization", `Bearer ${adminToken}`)
+    let {
+      body: { data },
+    } = await request(app()).get(getEndpoint("/users/me")).set("Authorization", `Bearer ${token}`).expect(200);
+
+    expect(data.one_time_password).toBeNull();
+    expect(data.email_is_verified).toBe(true);
+
+    await request(app())
+      .patch(getEndpoint("/users"))
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        nickname: "Test Nickname",
+        email: "test10@gmail.com",
+      })
       .expect(200);
-    expect(getOneRes.body.data.one_time_password).toBeNull();
-    expect(getOneRes.body.data.email_is_verified).toBe(true);
+
+    let {
+      body: { data: datax },
+    } = await request(app()).get(getEndpoint("/users/me")).set("Authorization", `Bearer ${token}`).expect(200);
+
+    expect(datax.nickname).toBe("Test Nickname");
+    expect(datax.email).toBe("test10@gmail.com");
+    expect(datax.email_is_verified).toBe(false);
   });
 
   test("Have signin flow completed without errors", async () => {
@@ -201,6 +227,11 @@ describe("Auth", () => {
     await handleSigninUser(400, { phone: user.phone, login_passcode: "123456" });
     await handleSigninUser(400, { not_allowed: "not_allowed" });
 
+    await handleSigninUser(200, {
+      phone: DEFAULT_USER_SIGNIN_CREDENTIALS.phone,
+      login_passcode: DEFAULT_USER_SIGNIN_CREDENTIALS.login_passcode,
+    });
+    await handleSignOut();
     const { token, headers } = await handleSigninUser(200, user);
 
     // Assert that the token is valid
@@ -226,14 +257,7 @@ describe("Auth", () => {
     expect(decodedUser.exp - decodedUser.iat).toBe(10 * 60);
   });
 
-  test("Have signout flow completed without errors", async () => {
-    const { headers } = await request(app()).get(getEndpoint("/auth/signout")).expect(200);
-
-    // Assert the 'Set-Cookie' header to ensure the token cookie is cleared
-    const cookieHeader = headers["set-cookie"];
-    expect(cookieHeader).toBeDefined();
-    expect(cookieHeader[0]).toContain("token=;"); // Check if token cookie is empty
-  });
+  test("Have signout flow completed without errors", handleSignOut);
 
   test("Have signup flow completed without errors", async () => {
     const userId = 1;

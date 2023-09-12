@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { MigrationBuilder, ColumnDefinitions } from "node-pg-migrate";
+import { ACCOUNT_DEFAULT_BALANCE, DEFAULT_USER_SIGNIN_CREDENTIALS } from "../src/constants";
+import { EAccountType } from "../src/types/accounts";
 
 export const shorthands: ColumnDefinitions | undefined = undefined;
 
@@ -18,6 +20,11 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 
       UNIQUE (type, user_id)
     );
+
+    INSERT INTO accounts (user_id, balance, type)
+    VALUES
+      (${DEFAULT_USER_SIGNIN_CREDENTIALS.id}, ${ACCOUNT_DEFAULT_BALANCE.NORMAL}, '${EAccountType.NORMAL}'),
+      (${DEFAULT_USER_SIGNIN_CREDENTIALS.id}, ${ACCOUNT_DEFAULT_BALANCE.CASHBACK}, '${EAccountType.CASHBACK}');
   `);
 }
 

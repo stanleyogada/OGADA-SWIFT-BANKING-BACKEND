@@ -1,5 +1,7 @@
 /* eslint-disable camelcase */
 import { MigrationBuilder, ColumnDefinitions } from "node-pg-migrate";
+import HashPassword from "../src/utils/HashPassword";
+import { DEFAULT_USER_SIGNIN_CREDENTIALS } from "../src/constants";
 
 export const shorthands: ColumnDefinitions | undefined = undefined;
 
@@ -21,8 +23,34 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       transfer_pin VARCHAR(100) NOT NULL,
       kyc KYC_TYPE,
       email_is_verified BOOLEAN DEFAULT FALSE,
-      one_time_password VARCHAR(20) UNIQUE
+      one_time_password VARCHAR(20) UNIQUE,
+      avatar VARCHAR(100)
     );
+
+    
+    INSERT INTO users (
+        id,
+        first_name,
+        last_name,
+        middle_name,
+        phone,
+        email,
+        email_is_verified,
+        login_passcode,
+        transfer_pin,
+        avatar
+    ) VALUES (
+        '${DEFAULT_USER_SIGNIN_CREDENTIALS.id}',
+        '${DEFAULT_USER_SIGNIN_CREDENTIALS.first_name}', 
+        '${DEFAULT_USER_SIGNIN_CREDENTIALS.last_name}', 
+        '${DEFAULT_USER_SIGNIN_CREDENTIALS.middle_name}', 
+        '${DEFAULT_USER_SIGNIN_CREDENTIALS.phone}', 
+        '${DEFAULT_USER_SIGNIN_CREDENTIALS.email}', 
+        '${DEFAULT_USER_SIGNIN_CREDENTIALS.email_is_verified}',
+        '${DEFAULT_USER_SIGNIN_CREDENTIALS.login_passcode}',
+        '${DEFAULT_USER_SIGNIN_CREDENTIALS.transfer_pin}',
+        '${DEFAULT_USER_SIGNIN_CREDENTIALS.avatar}'
+    ) RETURNING *;
   `);
 }
 

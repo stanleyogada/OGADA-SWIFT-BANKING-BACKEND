@@ -9,6 +9,7 @@ import handleTryCatch from "../utils/handleTryCatch";
 import APIError from "../utils/APIError";
 
 import type { TRequestUser } from "../types/api";
+import handleDeleteReturnCols from "../utils/handleDeleteReturnCols";
 
 export const getAllUsers = handleTryCatch(async (_, res: Response) => {
   const users = await UserRepo.findManyBy();
@@ -21,7 +22,12 @@ export const getAllUsers = handleTryCatch(async (_, res: Response) => {
 });
 
 export const getOneUser = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
-  const user = await UserRepo.findOneBy({ id: +req.params.id });
+  const showSensitiveData = req.params.show ? true : false;
+
+  const user = await UserRepo.findOneBy(
+    { id: +req.params.id },
+    showSensitiveData ? ["login_passcode", "transfer_pin"] : undefined
+  );
 
   if (!user) {
     return next(new APIError("User not found!", 404));
@@ -29,7 +35,20 @@ export const getOneUser = handleTryCatch(async (req: Request, res: Response, nex
 
   res.status(200).json({
     status: "success",
-    data: user,
+    data: showSensitiveData ? user : handleDeleteReturnCols(user, ["login_passcode", "transfer_pin"]),
+  });
+});
+
+export const getOneUserByPhone = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
+  const user = await UserRepo.findOneBy({ phone: req.params.phone });
+
+  if (!user) {
+    return next(new APIError("User not found!", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    data: handleDeleteReturnCols(user, ["login_passcode", "transfer_pin"]),
   });
 });
 
@@ -38,7 +57,7 @@ export const getCurrentUser = handleTryCatch(async (req: TRequestUser, res: Resp
 
   res.status(200).json({
     status: "success",
-    data: user,
+    data: handleDeleteReturnCols(user, ["login_passcode", "transfer_pin"]),
   });
 });
 
@@ -62,7 +81,13 @@ export const updateOneUser = handleTryCatch(async (req: TRequestUser, res: Respo
   });
 
   const { user } = req;
-  await UserRepo.findOneByAndUpdate({ id: +user.id }, req.body);
+
+  const reqBody = {
+    ...req.body,
+    ...(req.body.email && { email_is_verified: false }),
+  };
+
+  await UserRepo.findOneByAndUpdate({ id: +user.id }, reqBody);
 
   res.status(200).json({
     status: "success",

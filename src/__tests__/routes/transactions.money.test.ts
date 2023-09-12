@@ -8,7 +8,7 @@ import { EAccountType } from "../../types/accounts";
 import request from "supertest";
 import app from "../../app";
 import { TTransactionTransactionInHouse } from "../../types/transactions";
-import { SEND_MONEY_MAGIC_FAIL_AMOUNT } from "../../constants";
+import { ACCOUNT_DEFAULT_BALANCE, SEND_MONEY_MAGIC_FAIL_AMOUNT } from "../../constants";
 import { TRANSACTIONS_ROUTES } from "../../constants/routes";
 
 type TResponse<T> = {
@@ -70,7 +70,7 @@ test("Ensures money can be sent in-house and transactions are recorded", async (
   );
 
   errorStatusCode = 400;
-  const largeAmount = 1000;
+  const largeAmount = +ACCOUNT_DEFAULT_BALANCE.NORMAL * 2;
   // This doesn't create a transaction because it's a insufficient funds ClientError
   await handleAssertSendMoneyInHouse(
     `/transactions${TRANSACTIONS_ROUTES.inHousesSendMoney}`,

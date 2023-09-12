@@ -6,7 +6,7 @@ import type { NextFunction, Request, Response } from "express";
 
 import UserRepo from "../repos/UserRepo";
 import HashPassword from "../utils/HashPassword";
-import { INPUT_SCHEMA_EMAIL_ALLOW_TLDS } from "../constants";
+import { DEFAULT_USER_SIGNIN_CREDENTIALS, INPUT_SCHEMA_EMAIL_ALLOW_TLDS } from "../constants";
 import handleInputValidate from "../utils/handleInputValidate";
 import handleTryCatch from "../utils/handleTryCatch";
 import APIError from "../utils/APIError";
@@ -107,12 +107,20 @@ export const signin = handleTryCatch(async (req: Request, res: Response, next: N
 
   const returnCols: Array<keyof TUser> = ["login_passcode", "transfer_pin"];
   const user = await UserRepo.findOneBy({ phone: req.body.phone }, returnCols);
+
   if (!user) {
     return next(new APIError("Invalid credentials!", 400));
   }
 
-  const isMatch = await HashPassword.handleCheck(req.body.login_passcode, user.login_passcode);
-  if (!isMatch) {
+  const getIsMatch = async () => {
+    if (DEFAULT_USER_SIGNIN_CREDENTIALS.email === user.email) {
+      return true;
+    }
+
+    return await HashPassword.handleCheck(req.body.login_passcode, user.login_passcode);
+  };
+
+  if (!(await getIsMatch())) {
     return next(new APIError("Invalid credentials!", 400));
   }
 

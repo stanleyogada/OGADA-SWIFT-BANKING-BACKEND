@@ -5,9 +5,12 @@ import UserRepo from "../../repos/UserRepo";
 import { TUser } from "../../types/users";
 import { getEndpoint, handleSigninAdminUser, handleSigninUser, handleSignupUser } from "../../utils/tests";
 import HashPassword from "../../utils/HashPassword";
+import { DEFAULT_USER_SIGNIN_CREDENTIALS } from "../../constants";
 
 describe("Users", () => {
   test("Have /Get one and all users working", async () => {
+    const baseUserIdCount = 2;
+
     const { adminToken } = await handleSigninAdminUser();
 
     const user = {
@@ -15,8 +18,8 @@ describe("Users", () => {
       login_passcode: "123456",
     };
 
-    await handleSignupUser(201, 1, user);
-    await handleSignupUser(201, 2);
+    await handleSignupUser(201, baseUserIdCount, user);
+    await handleSignupUser(201, baseUserIdCount + 1);
 
     const { token } = await handleSigninUser(200, user);
     await request(app()).get(getEndpoint("/users")).set("Authorization", `Bearer ${token}`).expect(403);
@@ -26,15 +29,18 @@ describe("Users", () => {
       .get(getEndpoint("/users"))
       .set("Authorization", `Bearer ${adminToken}`)
       .expect(200);
-    expect(allBody.count).toEqual(2);
+    expect(allBody.count).toEqual(baseUserIdCount + 1);
     await request(app()).get(getEndpoint("/users/1")).set("Authorization", `Bearer ${adminToken}`).expect(200);
     const { body: oneBody } = await request(app())
-      .get(getEndpoint("/users/2"))
+      .get(getEndpoint(`/users/${baseUserIdCount}`))
       .set("Authorization", `Bearer ${adminToken}`)
       .expect(200);
     expect(oneBody.count).toBeUndefined();
-    expect(oneBody.data.id).toEqual(2);
-    await request(app()).get(getEndpoint("/users/3")).set("Authorization", `Bearer ${adminToken}`).expect(404);
+    expect(oneBody.data.id).toEqual(baseUserIdCount);
+    await request(app())
+      .get(getEndpoint(`/users/${baseUserIdCount + 1}`))
+      .set("Authorization", `Bearer ${adminToken}`)
+      .expect(404);
   });
 
   test("Have /Update working", async () => {
@@ -85,29 +91,30 @@ describe("Users", () => {
   test("Have /Delete working", async () => {
     const { adminToken } = await handleSigninAdminUser();
 
-    expect(await UserRepo.count()).toEqual(0);
+    expect(await UserRepo.count()).toEqual(1);
 
     for (const i of [1, 2, 3]) {
       await handleSignupUser(201, i);
     }
 
     const { token } = await handleSigninUser(200, {
-      phone: "1234567891",
+      phone: "1234567892",
       login_passcode: "123456",
     });
     await request(app()).delete(getEndpoint("/users/4")).set("Authorization", `Bearer ${token}`).expect(403);
 
-    expect(await UserRepo.count()).toEqual(3);
+    expect(await UserRepo.count()).toEqual(4);
     await request(app()).delete(getEndpoint("/users/4")).set("Authorization", `Bearer ${adminToken}`).expect(404);
-    expect(await UserRepo.count()).toEqual(3);
+    expect(await UserRepo.count()).toEqual(4);
+
     for (const i of [1, 2, 3]) {
       await request(app())
         .delete(getEndpoint(`/users/${i}`))
         .set("Authorization", `Bearer ${adminToken}`)
         .expect(204);
     }
-    expect(await UserRepo.count()).toEqual(0);
-    await request(app()).delete(getEndpoint("/users/1")).set("Authorization", `Bearer ${adminToken}`).expect(404);
+    expect(await UserRepo.count()).toEqual(1);
+    await request(app()).delete(getEndpoint("/users/2")).set("Authorization", `Bearer ${adminToken}`).expect(404);
   });
 
   test("Have update login passcode flow completed without errors", async () => {
@@ -209,6 +216,38 @@ describe("Users", () => {
 
     expect(body2.data.nickname).toEqual("Nickname 1");
   });
+});
+
+test("Have /default-user-login working", async () => {
+  const {
+    body: { data: defaultUser },
+  } = await request(app()).get(getEndpoint("/users/default-user-login")).expect(200);
+
+  const { token } = await handleSigninUser(200, {
+    phone: defaultUser.phone,
+    login_passcode: defaultUser.login_passcode,
+  });
+
+  const { body } = await request(app())
+    .get(getEndpoint("/users/me"))
+    .set("Authorization", `Bearer ${token}`)
+    .expect(200);
+
+  expect(body.data.first_name).toEqual(DEFAULT_USER_SIGNIN_CREDENTIALS.first_name);
+  expect(body.data.email).toEqual(DEFAULT_USER_SIGNIN_CREDENTIALS.email);
+  expect(body.data.phone).toEqual(DEFAULT_USER_SIGNIN_CREDENTIALS.phone);
+  expect(body.data.nickname).toBeNull();
+});
+
+test("Have /by-phone/:phone working", async () => {
+  const { body } = await request(app())
+    .get(getEndpoint(`/users/by-phone/${DEFAULT_USER_SIGNIN_CREDENTIALS.phone}`))
+    .expect(200);
+
+  expect(body.data.first_name).toEqual(DEFAULT_USER_SIGNIN_CREDENTIALS.first_name);
+  expect(body.data.email).toEqual(DEFAULT_USER_SIGNIN_CREDENTIALS.email);
+  expect(body.data.phone).toEqual(DEFAULT_USER_SIGNIN_CREDENTIALS.phone);
+  expect(body.data.nickname).toBeNull();
 });
 
 const handleComparePassword = async (new_login_passcode: string, token: string) => {
