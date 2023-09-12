@@ -22,7 +22,14 @@ export const getAllUsers = handleTryCatch(async (_, res: Response) => {
 });
 
 export const getOneUser = handleTryCatch(async (req: Request, res: Response, next: NextFunction) => {
-  const user = await UserRepo.findOneBy({ id: +req.params.id });
+  const showSensitiveData = req.params.show ? true : false;
+
+  console.log("showSensitiveData", showSensitiveData);
+
+  const user = await UserRepo.findOneBy(
+    { id: +req.params.id },
+    showSensitiveData ? ["login_passcode", "transfer_pin"] : undefined
+  );
 
   if (!user) {
     return next(new APIError("User not found!", 404));

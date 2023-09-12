@@ -22,6 +22,7 @@ router.get(
   (req, _, next) => {
     req.params = {
       id: `${DEFAULT_USER_SIGNIN_CREDENTIALS.id}`,
+      show: "1",
     };
 
     next();
