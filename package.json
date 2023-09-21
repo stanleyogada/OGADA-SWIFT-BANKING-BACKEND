@@ -4,8 +4,9 @@
   "description": "An application solely for education purposes!",
   "main": "dist/src/index.js",
   "scripts": {
-    "start": "tsc && pm2 start dist/src/index.js && pm2 logs index",
-    "restart": "pm2 start index && pm2 logs index",
+    "start": "tsc && node dist/src/index.js",
+    "ec2:start": "tsc && pm2 start dist/src/index.js && pm2 logs index",
+    "ec2:restart": "pm2 start index && pm2 logs index",
     "dev": "ts-node-dev src/index.ts",
     "test": "npx jest --clearCache && jest --no-cache",
     "test:watch": "npx jest --clearCache && jest --watch --no-cache",

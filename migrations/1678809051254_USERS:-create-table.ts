@@ -1,6 +1,5 @@
 /* eslint-disable camelcase */
 import { MigrationBuilder, ColumnDefinitions } from "node-pg-migrate";
-import HashPassword from "../src/utils/HashPassword";
 import { DEFAULT_USER_SIGNIN_CREDENTIALS } from "../src/constants";
 
 export const shorthands: ColumnDefinitions | undefined = undefined;
