@@ -4,7 +4,7 @@
   "description": "An application solely for education purposes!",
   "main": "dist/src/index.js",
   "scripts": {
-    "start": "tsc && node dist/src/index.js",
+    "start": "export NODE_ENV=production && export DATABASE_USER=stanleyogada && export DATABASE_PASSWORD=richCoding2a && export DATABASE_NAME=opaydemo && export DATABASE_PORT=5432 && export DATABASE_HOST=opay-demo-db.crsv9ijampd2.eu-west-1.rds.amazonaws.com && export JWT_PRIVATE_SECRET_KEY=JWT_PRIVATE_SECRET_KEY-opay-demo-backend-JWT_PRIVATE_SECRET_KEY && export MAIL_HOST=sandbox.smtp.mailtrap.io && export MAIL_PORT=2525 && export MAIL_USERNAME=6a14e9c2f533dd && export MAIL_PASSWORD=c0ad4ba0d10d92 && export MAIL_OPTIONS_FROM=opay-demo@app.com && tsc && node dist/src/index.js",
     "ec2:start": "tsc && pm2 start dist/src/index.js && pm2 logs index",
     "ec2:restart": "pm2 start index && pm2 logs index",
     "dev": "ts-node-dev src/index.ts",
