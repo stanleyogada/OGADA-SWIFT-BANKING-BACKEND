@@ -18,17 +18,46 @@ test("Have /banks working", async () => {
 });
 
 test("Have /banks/verify working", async () => {
-  const accountName = "CHINEDU STANLEY OGADA";
-  const accountNumber = "1597576718";
-  const bankCode = "044";
+  const details = {
+    correct: {
+      accountName: "CHINEDU STANLEY OGADA",
+      accountNumber: "1597576718",
+      bankCode: "044",
+    },
+    wrong: {
+      accountNumber: "1234567890",
+      bankCode: "000",
+    },
+  };
+
+  await request(app()).get(getEndpoint(`/banks/verify`)).expect(400);
+
+  await request(app())
+    .get(getEndpoint(`/banks/verify?bank_code=${details.correct.bankCode}`))
+    .expect(400);
+
+  await request(app())
+    .get(getEndpoint(`/banks/verify?bank_account_number=${details.correct.accountNumber}`))
+    .expect(400);
+
+  await request(app())
+    .get(
+      getEndpoint(
+        `/banks/verify?bank_code=${details.correct.bankCode}&bank_account_number=${details.wrong.accountNumber}`
+      )
+    )
+    .expect(400);
 
   const {
     body: { data },
   }: {
     body: { data: TBankVerification };
   } = await request(app())
-    .get(getEndpoint(`/banks/verify?bank_code=${bankCode}&bank_account_number=${accountNumber}`))
+    .get(
+      getEndpoint(
+        `/banks/verify?bank_code=${details.correct.bankCode}&bank_account_number=${details.correct.accountNumber}`
+      )
+    )
     .expect(200);
-
-  expect(data.account_name).toEqual(accountName);
+  expect(data.account_name).toEqual(details.correct.accountName);
 });

@@ -23,7 +23,7 @@ export const getVerifyBankAccount = handleTryCatch(async (req: Request, res: Res
 
   const data = await handleBankAccountVerification(bankAccountNumber as string, bankCode as string);
 
-  if (!data) {
+  if (!data.status) {
     return next(new APIError("Invalid bank account number or bank code!", 400));
   }
 
