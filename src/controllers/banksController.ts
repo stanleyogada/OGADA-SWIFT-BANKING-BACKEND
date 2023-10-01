@@ -60,8 +60,6 @@ const handleBankAccountVerification = async (bankAccountNumber: string, bankCode
     },
   });
 
-  console.log(data);
-
   return data;
 };
 
