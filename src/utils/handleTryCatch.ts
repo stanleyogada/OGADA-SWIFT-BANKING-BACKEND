@@ -9,6 +9,8 @@ const handleTryCatch =
     try {
       await cb(req, res, next);
     } catch (err) {
+      console.error(err);
+
       if (onError) {
         return onError(err).then(() => next(err));
       }
