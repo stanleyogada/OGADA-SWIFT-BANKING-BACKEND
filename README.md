@@ -6,7 +6,7 @@ An application solely for education purposes!!
 - [DOCUMENTATION](https://documenter.getpostman.com/view/11253311/2s93z5842M#intro)
 - [BASE URL => https://opay-demo-backend-production.up.railway.app/api/v1](https://opay-demo-backend-production.up.railway.app/api/v1)
   
-### Unprotected endpoints
+### Unprotected endpoints (For quick testing)
 - [GET DEFAULT USER LOGIN](https://opay-demo-backend-production.up.railway.app/api/v1/users/default-user-login)
 - [GET ALL BANKS](https://opay-demo-backend-production.up.railway.app/api/v1/banks)
 
