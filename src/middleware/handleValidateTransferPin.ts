@@ -5,6 +5,7 @@ import HashPassword from "../utils/HashPassword";
 
 import type { TRequestUser } from "../types/api";
 import UserRepo from "../repos/UserRepo";
+import { DEFAULT_USER_SIGNIN_CREDENTIALS } from "../constants";
 
 const handleValidateTransferPin = async (req: TRequestUser, _, next: NextFunction) => {
   const {
@@ -19,9 +20,15 @@ const handleValidateTransferPin = async (req: TRequestUser, _, next: NextFunctio
     ["transfer_pin"]
   );
 
-  const isTransferPinValid = await HashPassword.handleCheck(transfer_pin, user.transfer_pin);
+  const getIsMatch = async () => {
+    if (DEFAULT_USER_SIGNIN_CREDENTIALS.email === user.email) {
+      return transfer_pin === DEFAULT_USER_SIGNIN_CREDENTIALS.transfer_pin;
+    }
 
-  if (!isTransferPinValid) {
+    return await HashPassword.handleCheck(transfer_pin, user.transfer_pin);
+  };
+
+  if (!(await getIsMatch())) {
     return next(new APIError("Transfer pin is not correct", 400));
   }
 
