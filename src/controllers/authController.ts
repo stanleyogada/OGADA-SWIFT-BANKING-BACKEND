@@ -114,7 +114,7 @@ export const signin = handleTryCatch(async (req: Request, res: Response, next: N
 
   const getIsMatch = async () => {
     if (DEFAULT_USER_SIGNIN_CREDENTIALS.email === user.email) {
-      return true;
+      return req.body.login_passcode === user.login_passcode;
     }
 
     return await HashPassword.handleCheck(req.body.login_passcode, user.login_passcode);

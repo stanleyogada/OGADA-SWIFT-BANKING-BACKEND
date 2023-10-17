@@ -3,7 +3,7 @@ import type { NextFunction, Request, Response } from "express";
 
 import UserRepo from "../repos/UserRepo";
 import HashPassword from "../utils/HashPassword";
-import { INPUT_SCHEMA_EMAIL_ALLOW_TLDS } from "../constants";
+import { DEFAULT_USER_SIGNIN_CREDENTIALS, INPUT_SCHEMA_EMAIL_ALLOW_TLDS } from "../constants";
 import handleInputValidate from "../utils/handleInputValidate";
 import handleTryCatch from "../utils/handleTryCatch";
 import APIError from "../utils/APIError";
@@ -120,8 +120,15 @@ export const updateLoginPasscode = handleTryCatch(async (req: TRequestUser, res:
   const { user: _user } = req;
   const user = await UserRepo.findOneBy({ id: +_user.id }, ["login_passcode", "transfer_pin"]);
 
-  const isMatch = await HashPassword.handleCheck(req.body.old_login_passcode, user.login_passcode);
-  if (!isMatch) {
+  const getIsMatch = async () => {
+    if (DEFAULT_USER_SIGNIN_CREDENTIALS.email === user.email) {
+      return req.body.old_login_passcode === user.login_passcode;
+    }
+
+    return await HashPassword.handleCheck(req.body.old_login_passcode, user.login_passcode);
+  };
+
+  if (!getIsMatch()) {
     return next(new APIError("Old login passcode is incorrect!", 400));
   }
 
