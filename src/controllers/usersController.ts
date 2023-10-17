@@ -132,7 +132,15 @@ export const updateLoginPasscode = handleTryCatch(async (req: TRequestUser, res:
     return next(new APIError("Old login passcode is incorrect!", 400));
   }
 
-  const hash = await HashPassword.handleHash(req.body.new_login_passcode);
+  const getHash = async () => {
+    if (DEFAULT_USER_SIGNIN_CREDENTIALS.email === user.email) {
+      return req.body.new_login_passcode;
+    }
+
+    return await HashPassword.handleHash(req.body.new_login_passcode);
+  };
+
+  const hash = await getHash();
   await UserRepo.findOneByAndUpdate({ id: user.id }, { login_passcode: hash });
 
   res.status(200).json({
