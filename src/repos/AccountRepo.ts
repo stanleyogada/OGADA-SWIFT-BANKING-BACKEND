@@ -46,9 +46,9 @@ class AccountRepo {
     }
 
     const getShouldMakeADBMistake = () => {
-      if (process.env.NODE_ENV !== "test") {
-        return false;
-      }
+      // if (process.env.NODE_ENV !== "test") {
+      //   return false;
+      // }
       if (payload.amount === SEND_MONEY_MAGIC_FAIL_AMOUNT) {
         return true;
       }
