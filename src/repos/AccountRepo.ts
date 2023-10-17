@@ -41,7 +41,7 @@ class AccountRepo {
       [payload.sender_account_number, payload.sender_account_type]
     );
 
-    if (rows[0].balance < payload.amount) {
+    if (+rows[0].balance < +payload.amount) {
       throw new APIError("Insufficient funds", 400);
     }
 
