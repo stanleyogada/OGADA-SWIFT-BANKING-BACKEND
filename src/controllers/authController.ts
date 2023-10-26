@@ -183,8 +183,6 @@ export const signup = handleTryCatch(
     await AccountRepo.createAccounts(user.id);
     await pool.query(`COMMIT TRANSACTION;`);
 
-    console.log("user", user);
-
     res.status(201).json({
       status: "success",
       data: handleDeleteReturnCols<TUser>(user, ["login_passcode", "transfer_pin"]),
