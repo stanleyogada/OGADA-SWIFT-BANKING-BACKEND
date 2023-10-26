@@ -121,7 +121,7 @@ describe("Users", () => {
     const { adminToken } = await handleSigninAdminUser();
 
     const original_old_login_passcode = "123456";
-    const incorrect_old_login_passcode = "982353";
+    // const incorrect_old_login_passcode = "982353";
     const new_login_passcode = "654321";
     const user_phone = "1234567890";
 
