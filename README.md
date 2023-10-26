@@ -1,4 +1,4 @@
-# Opay-Demo-Backend
+# OGADA-SWIFT-BANKING-BACKEND
 
 An application solely for education purposes!!
 
