@@ -1,4 +1,4 @@
-# OGADA-SWIFT-BANKING-BACKEND
+ # OGADA-SWIFT-BANKING-BACKEND
 
 An application solely for education purposes! This is a DEMO simple banking application that allows users to create accounts, deposit, withdraw, and transfer funds between accounts.
 
@@ -8,8 +8,8 @@ An application solely for education purposes! This is a DEMO simple banking appl
 
 
 ### Unprotected endpoints ⛓ (For quick testing 🧪)
-- [GET DEFAULT USER LOGIN](https://opay-demo-backend-production.up.railway.app/api/v1/users/default-user-login)
-- [GET ALL BANKS](https://opay-demo-backend-production.up.railway.app/api/v1/banks)
+- [GET DEFAULT USER LOGIN](https://ogada-swift-banking-production.up.railway.app/api/v1/users/default-user-login)
+- [GET ALL BANKS](https://ogada-swift-banking-production.up.railway.app/api/v1/banks)
 
 
 #
