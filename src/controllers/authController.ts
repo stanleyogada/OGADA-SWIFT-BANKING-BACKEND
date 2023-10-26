@@ -49,16 +49,16 @@ export const forgetLoginPasscode = handleTryCatch(async (req: Request, res: Resp
   });
 
   const json = (() => {
-    if (process.env.NODE_ENV !== "production")
-      return {
-        status: "success",
-        data: one_time_password,
-      };
-
+    // if (process.env.NODE_ENV !== "production")
     return {
       status: "success",
-      message: "One time password sent to your email address!",
+      data: one_time_password,
     };
+
+    // return {
+    //   status: "success",
+    //   message: "One time password sent to your email address!",
+    // };
   })();
 
   res.status(200).json(json);
@@ -176,11 +176,14 @@ export const signup = handleTryCatch(
 
     req.body.login_passcode = await HashPassword.handleHash(req.body.login_passcode);
     req.body.transfer_pin = await HashPassword.handleHash(req.body.transfer_pin);
+    req.body.email_is_verified = process.env.NODE_ENV === "production" ? true : false;
 
     await pool.query(`BEGIN TRANSACTION;`);
     const user = await UserRepo.createOne(req.body);
     await AccountRepo.createAccounts(user.id);
     await pool.query(`COMMIT TRANSACTION;`);
+
+    console.log("user", user);
 
     res.status(201).json({
       status: "success",
@@ -219,16 +222,16 @@ export const sendEmailVerification = handleTryCatch(async (req: Request, res: Re
   });
 
   const json = (() => {
-    if (process.env.NODE_ENV !== "production")
-      return {
-        status: "success",
-        data: one_time_password,
-      };
-
+    // if (process.env.NODE_ENV !== "production")
     return {
       status: "success",
-      message: "One time password sent to your email address!",
+      data: one_time_password,
     };
+
+    // return {
+    //   status: "success",
+    //   message: "One time password sent to your email address!",
+    // };
   })();
 
   res.status(200).json(json);
