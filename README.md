@@ -16,7 +16,7 @@ An application solely for education purposes! This is a DEMO simple banking appl
 ## Usage
 
 1. Run `git clone https://github.com/stanleyogada/OGADA-SWIFT-BANKING-BACKEND.git`
-2. Run `cd Opay-Demo-Backend`
+2. Run `cd OGADA-SWIFT-BANKING-BACKEND`
 3. Run `npm i`
 4. Run `npm run dev`
 
