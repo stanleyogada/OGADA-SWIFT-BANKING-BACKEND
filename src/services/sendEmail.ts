@@ -23,8 +23,8 @@ const sendEmail = async (options: TOptions) => {
 
   const mailOptions = {
     from: process.env.MAIL_OPTIONS_FROM,
-    subject: `OGADA SWIFT BANKING - ${options.subject}!`,
     ...options,
+    subject: `OGADA SWIFT BANKING - ${options.subject}!`,
   };
 
   await transport.sendMail(mailOptions);
