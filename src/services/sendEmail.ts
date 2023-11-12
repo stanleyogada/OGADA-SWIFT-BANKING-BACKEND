@@ -10,11 +10,6 @@ type TOptions = {
 const sendEmail = async (options: TOptions) => {
   if (process.env.NODE_ENV === "test") return;
 
-  console.log({
-    u: process.env.MAIL_USERNAME,
-    p: process.env.MAIL_PASSWORD,
-  });
-
   const transport = nodemailer.createTransport({
     service: "gmail",
     host: "smtp.gmail.com",
