@@ -14,10 +14,10 @@ const getSendEmailVerificationEmailTemplate = ({ one_time_password }: { one_time
 
     <p style="text-align: center; color: #333; font-size: 1.2rem; margin-bottom: 20px; font-weight: 400; line-height: 1.2;">
       Thanks,<br />
-      The OPay DEMO Team</p>
+      The OGADA SWIFT BANKING Team</p>
     
     <p style="text-align: center; color: #333; font-size: 1.2rem; margin-bottom: 20px; font-weight: 400; line-height: 1.2;">
-      © 2023 OPay DEMO. All rights reserved.</p>
+      © ${new Date().getFullYear()} OGADA SWIFT BANKING. All rights reserved.</p>
   </div>
 `;
 
