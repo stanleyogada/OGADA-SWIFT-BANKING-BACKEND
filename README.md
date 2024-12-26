@@ -1,5 +1,9 @@
  # OGADA-SWIFT-BANKING-BACKEND
  
+## ENV
+<img width="406" alt="image" src="https://github.com/user-attachments/assets/b47a9ee8-ea5f-4262-a6c7-eb95cab5dcb7" />
+
+
 
 An application solely for education purposes! This is a DEMO simple banking application that allows users to create accounts, deposit, withdraw, and transfer funds between accounts.
 
